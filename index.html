@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="FitPunkte">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
+<script>(function(){var t;try{t=localStorage.getItem("fp_theme")}catch(e){}t=t||"system";var l=t==="light"||(t==="system"&&matchMedia("(prefers-color-scheme: light)").matches);document.documentElement.dataset.theme=l?"light":"dark"})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -21,6 +22,27 @@
   --acc:#ff5c9d;--acc-soft:rgba(255,92,157,.14);--ok:#3ccf8e;--ok-soft:rgba(60,207,142,.14);--warn:#f5b84a;
   --r:16px;
 }
+[data-theme=light]{
+  --bg:#f4f5f7;--s1:#ffffff;--s2:#f0f1f4;--s3:#e3e5ea;--line:#e4e6eb;
+  --txt:#15171c;--mut:#6a6f7d;--mut2:#9ca1ad;
+  --acc:#e8437f;--acc-soft:rgba(232,67,127,.10);--ok:#1aa866;--ok-soft:rgba(26,168,102,.12);--warn:#c98a12;
+}
+[data-theme=light] .tabs{background:rgba(255,255,255,.92)}
+[data-theme=light] .gbtn{border:1px solid var(--line)}
+[data-theme=light] .wd.done i,[data-theme=light] .cal .d.l2,[data-theme=light] .cal .d.l3{color:#fff}
+[data-theme=light] .cal .d.l1{background:rgba(26,168,102,.22)}
+[data-theme=light] .cal .d.l2{background:rgba(26,168,102,.6)}
+[data-theme=light] .sheet{background:rgba(20,22,28,.35)}
+.abtn{background:#000;color:#fff;margin-top:8px}
+[data-theme=light] .abtn{background:#000;color:#fff}
+[data-theme=dark] .abtn{background:#fff;color:#000}
+.linkbtn{color:var(--mut);font-size:14px;margin-top:18px;text-decoration:underline;text-underline-offset:3px}
+.opt{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt button{background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px;color:var(--txt);text-align:left}
+.opt button.on{border-color:var(--acc);background:var(--acc-soft)}
+.setup .in.wide{max-width:420px;text-align:left}
+.setup{overflow:auto;align-items:flex-start}
+.setup .in{margin:auto 0}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
 body{padding:env(safe-area-inset-top) 0 calc(84px + env(safe-area-inset-bottom))}
@@ -172,6 +194,18 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <button class="btn gbtn" onclick="REMOTE&&REMOTE.login()">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
       Mit Google anmelden</button>
+    <button class="btn abtn" id="appleBtn" style="display:none" onclick="REMOTE&&REMOTE.login('apple')"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8 1.6 0 2 .8 3.4.8 1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9-.1 0-2.7-1-2.7-4.1zM13.9 5c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></svg>Mit Apple anmelden</button>
+    <button class="btn ghost" onclick="showEmail()" style="margin-top:8px"><svg class="i"><use href="#i-mail"/></svg>Mit E-Mail anmelden</button>
+    <button class="linkbtn" onclick="startGuest()">Ohne Anmeldung fortfahren</button>
+  </div>
+  <div id="stEmail" style="display:none">
+    <p id="emTitle">Mit E-Mail anmelden</p>
+    <input class="field" id="emMail" type="email" inputmode="email" autocomplete="email" placeholder="E-Mail" style="margin-bottom:8px">
+    <input class="field" id="emPw" type="password" autocomplete="current-password" placeholder="Passwort" style="margin-bottom:12px">
+    <button class="btn" id="emGo" onclick="emailSubmit()">Anmelden</button>
+    <button class="linkbtn" id="emSwitch" onclick="emailMode(!emReg)">Noch kein Konto? Registrieren</button><br>
+    <button class="linkbtn" id="emForgot" onclick="emailForgot()" style="margin-top:10px">Passwort vergessen?</button><br>
+    <button class="linkbtn" onclick="showSetup('login')" style="margin-top:10px">← Zurück</button>
   </div>
   <div id="stTeam" style="display:none">
     <p>Code vom Partner-Handy eingeben – oder neu starten.</p>
@@ -180,6 +214,17 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <button class="btn ghost" onclick="newCode()" style="margin-top:8px">Neu starten</button>
   </div>
   <div class="msg" id="setupMsg"></div>
+</div>
+<div class="in wide" id="stOnb" style="display:none">
+  <h2 style="margin-top:0">Über dich</h2>
+  <p style="margin-bottom:8px">Damit die App zu dir passt. Alles außer dem Namen ist freiwillig.</p>
+  <div class="lbl">Name</div><input class="field" id="obName" maxlength="20" placeholder="Vorname">
+  <div class="lbl">Geschlecht</div><div class="opt" id="obGender"></div>
+  <div class="lbl">Alter</div><input class="field" id="obAge" type="number" inputmode="numeric" min="10" max="99" placeholder="z. B. 24">
+  <div class="lbl">Was ist dein Ziel?</div><div class="opt" id="obAim"></div>
+  <div class="lbl">Wie oft pro Woche willst du trainieren?</div><div class="seg" id="obGoal"></div>
+  <button class="btn" onclick="saveOnb()" style="margin-top:22px">Los geht's</button>
+  <div class="msg" id="obMsg"></div>
 </div></div>
 
 <div class="wrap">
@@ -190,8 +235,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
   <div class="card points">
     <div class="n" id="pts">0</div>
     <div class="l">Punkte verfügbar</div>
-    <div class="prog"><i id="lvlBar"></i></div>
-    <div class="meta"><span id="lvlName">Level 1</span><span id="lvlTxt"></span></div>
+    <div id="nextBox"><div class="prog"><i id="nextBar"></i></div>
+    <div class="meta"><span id="nextName"></span><span id="nextTxt"></span></div></div>
   </div>
   <div class="card">
     <h3><span>Diese Woche</span><span id="weekTxt" style="text-transform:none;letter-spacing:0"></span></h3>
@@ -268,12 +313,27 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div id="teamGoalBox"><div class="lbl">Team-Ziel pro Woche (Einheiten zusammen)</div><div class="seg" id="teamGoalSeg"></div></div>
     <button class="btn" onclick="saveSettings()" style="margin-top:16px">Speichern</button>
   </div>
+  <div class="card">
+    <h3>Über dich</h3>
+    <div class="lbl" style="margin-top:0">Geschlecht</div><div class="opt" id="pfGender"></div>
+    <div class="two" style="margin-top:4px"><div><div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99"></div><div></div></div>
+    <div class="lbl">Ziel</div><div class="opt" id="pfAim"></div>
+    <button class="btn ghost" onclick="saveAbout()" style="margin-top:14px">Speichern</button>
+  </div>
+  <div class="card">
+    <h3>Darstellung</h3>
+    <div class="seg" id="themeSeg"></div>
+  </div>
   <div class="card"><h3><span>Eigene Sportarten</span><a onclick="openTypeSheet()">Hinzufügen</a></h3><div id="ownTypes"></div></div>
   <div class="card">
     <h3>Konto</h3>
     <div style="font-size:14px" id="acct">–</div>
-    <div class="lbl">Sync-Code für das Partner-Handy</div>
-    <div class="row"><input class="field" id="codeShow" readonly onclick="this.select()" style="flex:3;font-size:14px"><button class="btn ghost small" onclick="copyCode()" style="flex:1"><svg class="i"><use href="#i-copy"/></svg></button></div>
+    <div id="guestBox" style="display:none;margin-top:12px">
+      <div style="font-size:14px;color:var(--mut);margin-bottom:10px">Melde dich an, um deine Daten zu sichern und mit deinem Partner zu teilen. Deine bisherigen Einträge werden übernommen.</div>
+      <button class="btn" onclick="guestLogin()">Anmelden</button>
+    </div>
+    <div id="codeBox"><div class="lbl">Sync-Code für das Partner-Handy</div>
+    <div class="row"><input class="field" id="codeShow" readonly onclick="this.select()" style="flex:3;font-size:14px"><button class="btn ghost small" onclick="copyCode()" style="flex:1"><svg class="i"><use href="#i-copy"/></svg></button></div></div>
   </div>
   <div class="card">
     <h3>Backup</h3>
@@ -281,7 +341,9 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div class="row"><button class="btn ghost small" onclick="exportBackup()"><svg class="i"><use href="#i-down"/></svg>Sichern</button><button class="btn ghost small" onclick="$('impFile').click()"><svg class="i"><use href="#i-up"/></svg>Wiederherstellen</button></div>
     <input type="file" id="impFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
   </div>
-  <button class="btn danger" onclick="logout()">Abmelden</button>
+  <button class="btn ghost" id="logoutBtn" onclick="logout()">Abmelden</button>
+  <button class="btn danger" onclick="askDeleteAccount()" style="margin-top:8px" id="delAccBtn">Konto löschen</button>
+  <div class="status">FitPunkte 3.0</div>
 </section>
 </div>
 
@@ -333,7 +395,8 @@ const ICONS={
  racket:"M14.5 9.5a5 5 0 1 0-7.07-7.07 5 5 0 0 0 7.07 7.07zM14.5 9.5 21 16l-2 2-6.5-6.5",
  heart:"M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z",
  zap:"M13 2 4 14h7l-1 8 9-12h-7z",
- snow:"M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"
+ snow:"M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9",
+ mail:"M3 5h18v14H3zM3 6l9 7 9-7"
 };
 document.getElementById("sprite").innerHTML=Object.entries(ICONS).map(([k,d])=>`<symbol id="i-${k}" viewBox="0 0 24 24"><path d="${d}"/></symbol>`).join("");
 const ico=(k,cls="")=>`<svg class="i ${cls}"><use href="#i-${ICONS[k]?k:"star"}"/></svg>`;
@@ -404,7 +467,6 @@ function teamBonusOf(u){return Object.values(teamWeeks()).filter(a=>a.includes(u
 const earned=u=>wOf(u).reduce((a,w)=>a+(w.p||0),0)+teamBonusOf(u);
 const spent=u=>rOf(u).reduce((a,r)=>a+r.c,0);
 const balance=u=>earned(u)-spent(u);
-const LV=["Einsteiger","Aufgewärmt","In Bewegung","Regelmäßig","Stark","Ausdauernd","Profi","Legende"];
 
 /* ================= Abzeichen ================= */
 const BADGES=[
@@ -443,8 +505,11 @@ function render(){
  $("dateTxt").textContent=new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
  const pe=$("pts");pe.textContent=b;$("pts2").textContent=b;
  if(lastBal!==null&&b>lastBal){pe.classList.add("pop");setTimeout(()=>pe.classList.remove("pop"),350)}lastBal=b;
- const lv=Math.floor(e/250)+1,inL=e%250;
- $("lvlName").textContent="Level "+lv+" · "+LV[Math.min(lv-1,LV.length-1)];$("lvlTxt").textContent=(250-inL)+" bis Level "+(lv+1);$("lvlBar").style.width=(inL/250*100)+"%";
+ const nx=[...S.rewards].sort((a,c)=>a.c-c.c).find(r=>r.c>b),canN=S.rewards.filter(r=>r.c<=b).length;
+ if(nx){$("nextBox").style.display="block";$("nextName").textContent="Nächste: "+nx.n;$("nextTxt").textContent="noch "+(nx.c-b);$("nextBar").style.width=Math.max(0,b)/nx.c*100+"%"}
+ else $("nextBox").style.display=S.rewards.length?"block":"none";
+ if(!nx&&S.rewards.length){$("nextName").textContent="Alle Belohnungen freigeschaltet";$("nextTxt").textContent="";$("nextBar").style.width="100%"}
+ if(canN&&nx)$("nextTxt").textContent="noch "+(nx.c-b)+" · "+canN+" einlösbar";
  // Woche
  const ws=weekStart(),ds=daysSet(u),g=goalOf(u);let wd=0,h="";
  ["M","D","M","D","F","S","S"].forEach((n,i)=>{const d=addDays(ws,i),k=dkey(d),done=ds.has(k);if(done)wd++;h+=`<div class="wd ${done?"done":""} ${k===dkey(new Date())?"today":""}"><i>${done?ico("check"):d.getDate()}</i>${n}</div>`});
@@ -494,7 +559,7 @@ function renderLog(){
  const t0=dkey(new Date()),t1=dkey(addDays(new Date(),-1)),t2=dkey(addDays(new Date(),-2));
  $("dayBtns").innerHTML=[[t0,"Heute"],[t1,"Gestern"],[t2,"Vorgestern"]].map(([k,l])=>`<button class="${sel.day===k?"on":""}" onclick="sel.day='${k}';$('dateIn').value='${k}';renderLog()">${l}</button>`).join("");
  const ok=sel.t!==null&&sel.m>0;$("saveBtn").style.opacity=ok?1:.45;
- if(ok){const old=editId&&S.workouts.find(x=>x.id===editId);const p=calcPts(ME.uid,sel.m,sel.i,sel.day,editId);const bonus=old?(old.bonus!=null?old.bonus:p.bonus):p.bonus;const tot=p.base+bonus;
+ if(false&&ok){const old=editId&&S.workouts.find(x=>x.id===editId);const p=calcPts(ME.uid,sel.m,sel.i,sel.day,editId);const bonus=old?(old.bonus!=null?old.bonus:p.bonus):p.bonus;const tot=p.base+bonus;
   $("preview").style.display="flex";$("preview").innerHTML=`<div><div style="font-weight:600">${editId?"Neue Punkte":"Du bekommst"}</div><small>${p.base} Training + ${bonus} Bonus${!old&&p.streak>1&&p.bonus>10?" · "+p.streak+"-Tage-Serie":""}</small></div><div class="big">+${tot}</div>`}
  else $("preview").style.display="none";
 }
@@ -588,6 +653,11 @@ function renderProfile(){
  $("teamGoalSeg").innerHTML=[3,4,5,6,8,10].map(n=>`<button class="${teamGoalSel===n?"on":""}" onclick="teamGoalSel=${n};renderProfile()">${n}</button>`).join("");
  $("ownTypes").innerHTML=(S.customTypes||[]).map(c=>`<div class="rw"><div class="ic">${ico(c.i||"star")}</div><div class="tx"><b>${esc(c.n)}</b></div><button class="iconbtn" onclick="delType('${c.id}')">${ico("trash")}</button></div>`).join("")||`<div class="empty" style="text-align:left;padding:0">Keine – füge z. B. Bouldern oder Tennis hinzu.</div>`;
  $("codeShow").value=lsGet(LC)||"–";
+ const guest=ME.uid==="local";$("guestBox").style.display=guest&&window.REMOTE?"block":"none";$("codeBox").style.display=guest?"none":"block";$("logoutBtn").style.display=guest?"none":"flex";$("delAccBtn").textContent=guest?"Alle Daten löschen":"Konto löschen";
+ const p=myProfile();if(ab._k!==meKey()+(p.onb?1:0)){ab={gender:p.gender||null,aim:p.aim||null,_k:meKey()+(p.onb?1:0)};if(document.activeElement!==$("pfAge"))$("pfAge").value=p.age||""}
+ $("pfGender").innerHTML=GENDERS.map(g=>`<button class="${ab.gender===g?"on":""}" onclick="ab.gender='${g}';renderProfile()">${g}</button>`).join("");
+ $("pfAim").innerHTML=AIMS.map(a=>`<button class="${ab.aim===a?"on":""}" onclick="ab.aim='${a}';renderProfile()">${a}</button>`).join("");
+ const t=getTheme();$("themeSeg").innerHTML=[["system","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([k,l])=>`<button class="${t===k?"on":""}" onclick="setTheme('${k}')">${l}</button>`).join("");
 }
 function saveSettings(){const n=$("setName").value.trim().slice(0,20),g=goalSel,tg=teamGoalSel;
  mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{name:n,goal:g});if(!isTeam()){s.name=n;s.goal=g}s.teamGoal=tg});toast("Gespeichert")}
@@ -602,7 +672,7 @@ function toast(t,undo){$("toastTx").textContent=t;const b=$("toastBtn");b.style.
 
 /* ---------- Anmeldung / Team ---------- */
 function randCode(){const a="abcdefghjkmnpqrstuvwxyz23456789",r=new Uint32Array(20);crypto.getRandomValues(r);let s="";r.forEach((v,i)=>{s+=a[v%a.length];if(i%5===4&&i<19)s+="-"});return s}
-window.showSetup=function(stage,msg){$("setup").classList.add("on");$("stLogin").style.display=stage==="login"?"block":"none";$("stTeam").style.display=stage==="team"?"block":"none";$("setupMsg").textContent=msg||""};
+window.showSetup=function(stage,msg){$("setup").classList.add("on");$("stLogin").style.display=stage==="login"?"block":"none";$("stTeam").style.display=stage==="team"?"block":"none";$("stEmail").style.display=stage==="email"?"block":"none";$("setupMsg").textContent=msg||""};
 window.hideSetup=function(){$("setup").classList.remove("on")};
 window.setAccount=function(t){$("acct").textContent=t};
 window.setCode=function(c){lsSet(LC,c);render()};
@@ -617,9 +687,64 @@ function afterSync(){
  if(!S.people[ME.uid]){mutate(s=>{if(!s.people[ME.uid])s.people[ME.uid]={name:ME.name||s.name||"",goal:s.goal||3,badges:null}});return}
  const untagged=S.workouts.filter(w=>!w.uid).length+S.redeemed.filter(r=>!r.uid).length;
  if(untagged&&!migAsked&&!lsGet("fp_mig_"+ME.uid)){migAsked=true;
-  sheet("Bisherige Einträge",`Es gibt ${S.workouts.filter(w=>!w.uid).length} Trainings von vor dem Update. Gehören die dir?`,[["Nein",()=>lsSet("fp_mig_"+ME.uid,"1"),1],["Ja, meine",()=>{lsSet("fp_mig_"+ME.uid,"1");mutate(s=>{s.workouts.forEach(w=>{if(!w.uid)w.uid=ME.uid});s.redeemed.forEach(r=>{if(!r.uid){r.uid=ME.uid;if(r.done===undefined)r.done=true}})})}]])}
+  sheet("Bisherige Einträge",`Es gibt ${S.workouts.filter(w=>!w.uid).length} Trainings von vor dem Update. Gehören die dir?`,[["Nein",()=>{lsSet("fp_mig_"+ME.uid,"1");setTimeout(maybeOnboard,300)},1],["Ja, meine",()=>{lsSet("fp_mig_"+ME.uid,"1");setTimeout(maybeOnboard,300);mutate(s=>{s.workouts.forEach(w=>{if(!w.uid)w.uid=ME.uid});s.redeemed.forEach(r=>{if(!r.uid){r.uid=ME.uid;if(r.done===undefined)r.done=true}})})}]])}
  if(!badgeInit){badgeInit=true;checkBadges(false)}
+ if(!migAsked||lsGet("fp_mig_"+ME.uid))maybeOnboard();
 }
+
+/* ---------- E-Mail-Login ---------- */
+let emReg=false;
+function showEmail(){showSetup("email");emailMode(false);setTimeout(()=>$("emMail").focus(),50)}
+function emailMode(reg){emReg=reg;$("emTitle").textContent=reg?"Konto erstellen":"Mit E-Mail anmelden";$("emGo").textContent=reg?"Registrieren":"Anmelden";
+ $("emSwitch").textContent=reg?"Schon ein Konto? Anmelden":"Noch kein Konto? Registrieren";$("emForgot").style.display=reg?"none":"inline";$("emPw").placeholder=reg?"Passwort (mind. 6 Zeichen)":"Passwort";$("emPw").autocomplete=reg?"new-password":"current-password";$("setupMsg").textContent=""}
+function emailSubmit(){const m=$("emMail").value.trim(),p=$("emPw").value;if(!m||!p)return $("setupMsg").textContent="Bitte E-Mail und Passwort eingeben.";
+ if(!window.REMOTE)return $("setupMsg").textContent="Keine Verbindung – bitte später nochmal.";$("setupMsg").textContent=emReg?"Erstelle Konto …":"Anmelden …";window.REMOTE.email(emReg,m,p)}
+function emailForgot(){const m=$("emMail").value.trim();if(!m)return $("setupMsg").textContent="Gib zuerst deine E-Mail ein.";window.REMOTE&&window.REMOTE.reset(m)}
+$("emPw").addEventListener("keydown",e=>{if(e.key==="Enter")emailSubmit()});
+
+/* ---------- Gast-Modus ---------- */
+const isGuest=()=>lsGet("fp_guest")==="1";
+function startGuest(){lsSet("fp_guest","1");hideSetup();ME={uid:"local",name:""};setAccount("Gast – Daten nur auf diesem Gerät");setStatus("Gast-Modus · nur auf diesem Gerät","");render();maybeOnboard()}
+function guestLogin(){showSetup("login");$("setupMsg").textContent="Deine bisherigen Einträge werden übernommen."}
+window.isGuestMode=isGuest;
+
+/* ---------- Onboarding ---------- */
+const GENDERS=["Weiblich","Männlich","Divers","Keine Angabe"];
+const AIMS=["Fitter werden","Abnehmen","Muskeln aufbauen","Ausdauer","Stress abbauen","Gesund bleiben"];
+let ob={gender:null,aim:null,goal:3};
+const meKey=()=>ME.uid;
+function myProfile(){return S.people[meKey()]||{}}
+function maybeOnboard(){const p=myProfile();if(p.onb)return;if(ME.uid!=="local"&&!S.people[ME.uid])return;
+ ob={gender:p.gender||null,aim:p.aim||null,goal:p.goal||S.goal||3};$("obName").value=p.name||ME.name||S.name||"";$("obAge").value=p.age||"";drawOnb();
+ $("setup").classList.add("on");["stLogin","stTeam","stEmail"].forEach(i=>$(i).style.display="none");$("setupMsg").textContent="";document.querySelector("#setup .in").style.display="none";$("stOnb").style.display="block"}
+function drawOnb(){$("obGender").innerHTML=GENDERS.map(g=>`<button class="${ob.gender===g?"on":""}" onclick="ob.gender='${g}';drawOnb()">${g}</button>`).join("");
+ $("obAim").innerHTML=AIMS.map(a=>`<button class="${ob.aim===a?"on":""}" onclick="ob.aim='${a}';drawOnb()">${a}</button>`).join("");
+ $("obGoal").innerHTML=[1,2,3,4,5,6,7].map(n=>`<button class="${ob.goal===n?"on":""}" onclick="ob.goal=${n};drawOnb()">${n}</button>`).join("")}
+function saveOnb(){const n=$("obName").value.trim().slice(0,20);if(!n)return $("obMsg").textContent="Bitte gib deinen Namen ein.";
+ const a=parseInt($("obAge").value);const age=a>=10&&a<=99?a:null;const k=meKey();
+ mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:ob.gender,age,aim:ob.aim,goal:ob.goal,onb:true});if(Object.keys(s.people).filter(u=>u!=="local").length<2){s.name=n;s.goal=ob.goal}});
+ goalSel=ob.goal;$("stOnb").style.display="none";document.querySelector("#setup .in").style.display="block";$("setup").classList.remove("on");toast("Willkommen, "+n)}
+let ab={gender:null,aim:null};
+function saveAbout(){const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender,aim=ab.aim;mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{gender:g,age,aim})});toast("Gespeichert")}
+
+/* ---------- Darstellung ---------- */
+function getTheme(){return lsGet("fp_theme")||"system"}
+function applyTheme(){const t=getTheme(),l=t==="light"||(t==="system"&&matchMedia("(prefers-color-scheme: light)").matches);document.documentElement.dataset.theme=l?"light":"dark";document.querySelector('meta[name=theme-color]').content=l?"#f4f5f7":"#0e0f13"}
+function setTheme(t){lsSet("fp_theme",t);applyTheme();renderProfile()}
+try{matchMedia("(prefers-color-scheme: light)").addEventListener("change",()=>{if(getTheme()==="system")applyTheme()})}catch(e){}
+applyTheme();
+
+/* ---------- Konto löschen ---------- */
+function askDeleteAccount(){
+ const guest=ME.uid==="local";
+ sheet("Konto löschen?",guest?"Alle Daten auf diesem Gerät werden gelöscht: Trainings, Punkte, Belohnungen. Das kann nicht rückgängig gemacht werden.":"Deine Trainings, Punkte und eingelösten Belohnungen werden gelöscht, du wirst aus dem Team entfernt und dein Login wird gelöscht."+(isTeam()?" Die Daten von "+esc(pName(partnerId()))+" bleiben erhalten.":"")+"<br><br><b style='color:var(--txt)'>Das kann nicht rückgängig gemacht werden.</b> Tipp: vorher unter Backup sichern.",
+ [["Abbrechen",null,1],["Endgültig löschen",()=>{
+  if(guest){["fp_guest",LS,LC].forEach(k=>lsSet(k,null));location.reload();return}
+  const go=pw=>{setStatus("Lösche …","");window.REMOTE.deleteAccount(pw).then(ok=>{if(ok){Object.keys(localStorage).filter(k=>k.startsWith("fitpunkte")||k.startsWith("fp_")).forEach(k=>lsSet(k,null));sheet("Konto gelöscht","Deine Daten wurden entfernt.",[["OK",()=>location.reload()]])}})};
+  if(window.REMOTE.isPassword&&window.REMOTE.isPassword()){setTimeout(()=>sheet("Passwort bestätigen",`Zum Löschen bitte dein Passwort eingeben.<input class="field" id="delPw" type="password" style="margin-top:12px">`,[["Abbrechen",null,1],["Löschen",()=>{const pw=$("delPw").value;if(!pw)return false;go(pw)},"danger"]]),250);return}
+  go();return;
+  window.REMOTE.deleteAccount().then(ok=>{if(ok){Object.keys(localStorage).filter(k=>k.startsWith("fitpunkte")||k.startsWith("fp_")).forEach(k=>lsSet(k,null));sheet("Konto gelöscht","Deine Daten wurden entfernt.",[["OK",()=>location.reload()]])}})
+ },"danger"]])}
 
 /* ---------- Backup ---------- */
 function exportBackup(){const data=JSON.parse(JSON.stringify(S));delete data.members;
@@ -634,7 +759,8 @@ function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidt
 /* ---------- Start ---------- */
 sel=blankSel();render();
 const CFG=window.FIREBASE_CONFIG;
-if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Gerät gespeichert","");if(!badgeInit){badgeInit=true;checkBadges(false)}}
+if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Gerät gespeichert","");setAccount("Nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
+else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
@@ -645,13 +771,16 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
  const B="https://www.gstatic.com/firebasejs/10.12.2/";
  try{
   const {initializeApp}=await import(B+"firebase-app.js");
-  const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut,setPersistence,browserLocalPersistence}=await import(B+"firebase-auth.js");
-  const {initializeFirestore,persistentLocalCache,doc,getDoc,setDoc,updateDoc,onSnapshot,runTransaction,arrayUnion}=await import(B+"firebase-firestore.js");
+  const {getAuth,GoogleAuthProvider,OAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut,setPersistence,browserLocalPersistence,deleteUser,reauthenticateWithPopup,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,EmailAuthProvider,reauthenticateWithCredential}=await import(B+"firebase-auth.js");
+  const {initializeFirestore,persistentLocalCache,doc,getDoc,setDoc,updateDoc,deleteDoc,onSnapshot,runTransaction,arrayUnion}=await import(B+"firebase-firestore.js");
   const app=initializeApp(CFG),auth=getAuth(app);
   let fs;try{fs=initializeFirestore(app,{localCache:persistentLocalCache()})}catch(e){fs=initializeFirestore(app,{})}
   await setPersistence(auth,browserLocalPersistence).catch(()=>{});
   getRedirectResult(auth).catch(e=>showSetup("login",e.code));
-  const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});
+  const gProv=new GoogleAuthProvider();gProv.setCustomParameters({prompt:"select_account"});
+  const aProv=new OAuthProvider("apple.com");aProv.addScope("email");aProv.addScope("name");aProv.setCustomParameters({locale:"de_DE"});
+  if(window.APPLE_LOGIN)document.getElementById("appleBtn").style.display="flex";
+  const provFor=u=>(u&&u.providerData&&u.providerData.some(p=>p.providerId==="apple.com"))?aProv:gProv;
   let ref=null,unsub=null,user=null;
   const clean=o=>{const c=JSON.parse(JSON.stringify(o));delete c.members;return c};
   const err=e=>(e&&(e.code||e.message))||"unbekannt";
@@ -665,21 +794,29 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
   async function remember(code){await setDoc(doc(fs,"users",user.uid),{team:code,email:user.email||"",at:Date.now()},{merge:true})}
 
   window.REMOTE={
-   async login(){
+   async login(kind){
+    const provider=kind==="apple"?aProv:gProv;
     $("setupMsg").textContent="Anmelden …";
     try{await signInWithPopup(auth,provider)}
     catch(e){
-     if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)){try{await signInWithRedirect(auth,provider)}catch(e2){$("setupMsg").textContent=err(e2)}}
+     if(e.code==="auth/operation-not-allowed")$("setupMsg").textContent="Diese Anmeldung ist in Firebase noch nicht aktiviert.";
+     else if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)){try{await signInWithRedirect(auth,provider)}catch(e2){$("setupMsg").textContent=err(e2)}}
      else $("setupMsg").textContent=e.code==="auth/popup-closed-by-user"?"":err(e);
     }
    },
    async create(code){
-    try{const d=clean(S);d.people=d.people||{};d.people[user.uid]=Object.assign({name:(user.displayName||"").split(" ")[0],goal:S.goal||3,badges:null},d.people[user.uid]||{});d.workouts.forEach(w=>{if(!w.uid)w.uid=user.uid});
+    try{const d=clean(S);d.people=d.people||{};const loc=d.people.local||{};delete d.people.local;d.people[user.uid]=Object.assign({name:(user.displayName||"").split(" ")[0],goal:S.goal||3,badges:null},loc,d.people[user.uid]||{});d.workouts.forEach(w=>{if(!w.uid)w.uid=user.uid});
      await setDoc(doc(fs,"fitpunkte",code),Object.assign(d,{members:[user.uid]}));await remember(code);subscribe(code);return true}
     catch(e){$("setupMsg").textContent=err(e);return false}
    },
    async join(code){
-    try{await updateDoc(doc(fs,"fitpunkte",code),{members:arrayUnion(user.uid)});await remember(code);subscribe(code)}
+    // Gast-Einträge von diesem Handy mitnehmen
+    const loc=clean(S),carry=(loc.workouts||[]).filter(w=>!w.uid).map(w=>Object.assign(w,{uid:user.uid})),carryR=(loc.redeemed||[]).filter(r=>!r.uid).map(r=>Object.assign(r,{uid:user.uid})),locP=(loc.people||{}).local;
+    try{await updateDoc(doc(fs,"fitpunkte",code),{members:arrayUnion(user.uid)});await remember(code);
+     if(carry.length||carryR.length||locP){const r=doc(fs,"fitpunkte",code);await runTransaction(fs,async tx=>{const s=await tx.get(r);const d=window.norm(s.data());
+      carry.forEach(w=>{if(!d.workouts.some(x=>x.id===w.id))d.workouts.push(w)});carryR.forEach(x=>{if(!d.redeemed.some(y=>y.id===x.id))d.redeemed.push(x)});
+      if(locP&&!d.people[user.uid])d.people[user.uid]=locP;d.rev=(d.rev||0)+1;tx.set(r,d)}).catch(()=>{})}
+     subscribe(code)}
     catch(e){$("setupMsg").textContent=e.code==="not-found"?"Diesen Code gibt es nicht.":e.code==="permission-denied"?"Code falsch oder kein Zugriff.":err(e)}
    },
    mutate(fn){
@@ -687,12 +824,43 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
     runTransaction(fs,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error("weg");const d=window.norm(s.data());fn(d);d.rev=(d.rev||0)+1;tx.set(ref,d)})
      .catch(()=>setDoc(ref,clean(S),{merge:true}).catch(e=>setStatus("Fehler: "+e.code,"err")));
    },
-   logout(){return signOut(auth)}
+   logout(){return signOut(auth)},
+   isPassword(){const u=auth.currentUser;return !!(u&&u.providerData.some(p=>p.providerId==="password"))},
+   async email(reg,mail,pw){
+    const de={"auth/invalid-email":"Ungültige E-Mail-Adresse.","auth/invalid-credential":"E-Mail oder Passwort falsch.","auth/wrong-password":"E-Mail oder Passwort falsch.","auth/user-not-found":"E-Mail oder Passwort falsch.","auth/email-already-in-use":"Für diese E-Mail gibt es schon ein Konto – bitte anmelden.","auth/weak-password":"Passwort zu kurz (mind. 6 Zeichen).","auth/too-many-requests":"Zu viele Versuche – bitte kurz warten.","auth/operation-not-allowed":"E-Mail-Login ist in Firebase noch nicht aktiviert.","auth/network-request-failed":"Keine Internetverbindung."};
+    try{if(reg)await createUserWithEmailAndPassword(auth,mail,pw);else await signInWithEmailAndPassword(auth,mail,pw)}
+    catch(e){$("setupMsg").textContent=de[e.code]||err(e)}
+   },
+   async reset(mail){
+    try{await sendPasswordResetEmail(auth,mail);$("setupMsg").textContent="Mail zum Zurücksetzen ist unterwegs (auch im Spam-Ordner schauen)."}
+    catch(e){$("setupMsg").textContent=e.code==="auth/invalid-email"?"Ungültige E-Mail-Adresse.":"Konnte keine Mail senden: "+err(e)}
+   },
+   async deleteAccount(pw){
+    const u=auth.currentUser;if(!u)return false;
+    try{
+     // 1) Login prüfen (Firebase verlangt eine frische Anmeldung zum Löschen)
+     if(pw){try{await reauthenticateWithCredential(u,EmailAuthProvider.credential(u.email,pw))}catch(e){sheet("Falsches Passwort","Das Passwort stimmt nicht.",[["OK",null]]);setStatus("Abgebrochen","");return false}}
+     else try{await reauthenticateWithPopup(u,provFor(u))}catch(e){if(e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/user-mismatch")console.warn(e);if(e.code==="auth/popup-closed-by-user"){setStatus("Abgebrochen","");return false}}
+     if(unsub){unsub();unsub=null}
+     // 2) eigene Daten aus dem Team entfernen
+     if(ref){const r=ref;await runTransaction(fs,async tx=>{const s=await tx.get(r);if(!s.exists())return;const d=s.data();
+      const members=(d.members||[]).filter(m=>m!==u.uid);
+      if(!members.length){tx.delete(r);return}
+      const people=Object.assign({},d.people||{});delete people[u.uid];
+      Object.values(d.workouts||[]).forEach(w=>{if(w.react)delete w.react[u.uid]});
+      tx.update(r,{members,people,workouts:(d.workouts||[]).filter(w=>w.uid!==u.uid),redeemed:(d.redeemed||[]).filter(x=>x.uid!==u.uid),rev:(d.rev||0)+1})})}
+     // 3) Konto-Zuordnung + Login löschen
+     await deleteDoc(doc(fs,"users",u.uid)).catch(()=>{});
+     await deleteUser(u);
+     return true;
+    }catch(e){sheet("Löschen fehlgeschlagen",esc(err(e))+(e.code==="auth/requires-recent-login"?"<br>Bitte ab- und wieder anmelden und erneut versuchen.":""),[["OK",null]]);setStatus("Fehler beim Löschen","err");return false}
+   }
   };
 
   onAuthStateChanged(auth,async u=>{
    user=u;
-   if(!u){setAccount("Nicht angemeldet");showSetup("login");return}
+   if(!u){if(window.isGuestMode()){setAccount("Gast – Daten nur auf diesem Gerät");render();return}setAccount("Nicht angemeldet");showSetup("login");return}
+   if(window.isGuestMode()){localStorage.removeItem("fp_guest")}
    setMe(u);setAccount((u.displayName?u.displayName+" · ":"")+(u.email||"Google-Konto"));
    try{
     const me=await getDoc(doc(fs,"users",u.uid));
