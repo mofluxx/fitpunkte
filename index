@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FitPunkte 💪</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitPunkte">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#0f1117;--card:#1a1d27;--card2:#232735;--txt:#eef0f6;--mut:#8a90a6;--acc:#ff5fa2;--acc2:#7c5cff;--ok:#2ed47a;--warn:#ffb84d;--line:#2c3142}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 calc(78px + env(safe-area-inset-bottom))}
+.wrap{max-width:520px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--mut);font-size:14px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.hero{background:linear-gradient(135deg,#ff5fa2 0%,#7c5cff 100%);border:none;text-align:center}
+.hero .big{font-size:52px;font-weight:800;line-height:1}
+.hero .lbl{opacity:.9;font-size:14px;margin-top:4px}
+.row{display:flex;gap:10px}
+.stat{flex:1;background:var(--card2);border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--mut)}
+.bar{height:12px;background:var(--card2);border-radius:99px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#7be3ff);border-radius:99px;transition:width .5s}
+.lbl2{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{background:var(--card2);border:2px solid transparent;border-radius:14px;padding:12px 4px;text-align:center;font-size:13px;cursor:pointer;color:var(--txt)}
+.chip .e{font-size:26px;display:block;margin-bottom:4px}
+.chip.on{border-color:var(--acc);background:#2b1f2c}
+label{font-size:13px;color:var(--mut);display:block;margin:14px 0 6px}
+input,select{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:16px}
+.mins{display:flex;gap:6px;flex-wrap:wrap}
+.mins button{flex:1;min-width:56px}
+button{font:inherit;cursor:pointer}
+.btn{width:100%;border:none;border-radius:14px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));margin-top:16px}
+.btn:disabled{opacity:.4}
+.sbtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:10px;font-size:14px}
+.sbtn.on{border-color:var(--acc);color:var(--acc)}
+.preview{text-align:center;margin-top:12px;font-size:15px}
+.badge{display:inline-block;background:#173a2a;color:var(--ok);border-radius:99px;padding:4px 12px;font-weight:700;font-size:14px}
+.badge.p{background:#2b1f3d;color:#b9a5ff}
+.reward{display:flex;align-items:center;gap:12px;background:var(--card2);border-radius:14px;padding:12px;margin-bottom:8px}
+.reward .e{font-size:30px}
+.reward .n{flex:1}
+.reward .n b{display:block;font-size:15px}
+.reward .n span{font-size:12px;color:var(--mut)}
+.reward button{border:none;border-radius:10px;padding:9px 12px;font-weight:700;color:#fff;background:var(--ok)}
+.reward button:disabled{background:#3a3f50;color:var(--mut)}
+.del{background:none!important;color:var(--mut)!important;padding:6px!important;font-size:18px}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.item:last-child{border:none}
+.item small{color:var(--mut);display:block}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#151822ee;backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1;background:none;border:none;color:var(--mut);padding:10px 0 12px;font-size:11px}
+.tabs button .e{font-size:22px;display:block}
+.tabs button.on{color:var(--acc)}
+.view{display:none}.view.on{display:block}
+.week{display:flex;justify-content:space-between;margin-top:10px}
+.day{width:36px;text-align:center;font-size:11px;color:var(--mut)}
+.day i{display:block;width:32px;height:32px;margin:0 auto 4px;border-radius:50%;background:var(--card2);line-height:32px;font-style:normal;font-size:15px}
+.day.done i{background:var(--ok);color:#0f1117}
+.day.today i{outline:2px solid var(--acc)}
+.quote{font-style:italic;color:#cfd3e2;text-align:center;font-size:15px}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.on{display:flex}
+.modal .card{max-width:400px;width:100%;text-align:center}
+.modal .big{font-size:60px}
+.status{font-size:11px;color:var(--mut);text-align:center;margin-top:6px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+.empty{color:var(--mut);text-align:center;font-size:14px;padding:10px}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="modal" id="setup" style="z-index:40"><div class="card" style="text-align:left">
+  <div style="text-align:center;font-size:56px">💪</div>
+  <h2 style="text-align:center;margin:6px 0">FitPunkte</h2>
+  <div class="sub" style="text-align:center">Sync-Code eingeben (vom anderen Handy) oder neuen erstellen.</div>
+  <input id="codeIn" placeholder="Sync-Code" autocapitalize="off" autocomplete="off">
+  <button class="btn" onclick="joinCode()">Verbinden</button>
+  <button class="btn sbtn" onclick="newCode()">✨ Neuen Code erstellen</button>
+  <div class="status" id="setupMsg"></div>
+</div></div>
+<div class="wrap">
+
+<!-- START -->
+<section class="view on" id="v-home">
+  <h1 id="hello">Hey! 👋</h1>
+  <div class="sub" id="quoteTop"></div>
+  <div class="card hero">
+    <div class="big" id="pts">0</div>
+    <div class="lbl">Punkte zum Einlösen</div>
+  </div>
+  <div class="row" style="margin-bottom:14px">
+    <div class="stat"><b id="streak">0🔥</b><span>Tage-Serie</span></div>
+    <div class="stat"><b id="lvl">1</b><span>Level</span></div>
+    <div class="stat"><b id="total">0</b><span>Einheiten</span></div>
+  </div>
+  <div class="card">
+    <div class="lbl2"><span>Wochenziel</span><span id="weekTxt">0 / 3</span></div>
+    <div class="bar"><i id="weekBar" style="width:0"></i></div>
+    <div class="week" id="weekDays"></div>
+  </div>
+  <div class="card">
+    <div class="lbl2"><span id="lvlName">Level 1</span><span id="lvlTxt"></span></div>
+    <div class="bar"><i id="lvlBar" style="width:0;background:linear-gradient(90deg,var(--acc),var(--acc2))"></i></div>
+  </div>
+  <div class="card" id="nextRewardCard"></div>
+  <button class="btn" onclick="go('log')">➕ Sport eintragen</button>
+  <div class="status" id="status"></div>
+</section>
+
+<!-- EINTRAGEN -->
+<section class="view" id="v-log">
+  <h1>Sport eintragen</h1>
+  <div class="sub">Was hast du gemacht?</div>
+  <div class="grid" id="types"></div>
+  <label>Wie lange? (Minuten)</label>
+  <div class="mins" id="minBtns"></div>
+  <input type="number" id="minIn" inputmode="numeric" placeholder="oder eigene Minuten" style="margin-top:8px">
+  <label>Wie anstrengend?</label>
+  <div class="mins" id="intBtns"></div>
+  <div class="preview" id="preview"></div>
+  <button class="btn" id="saveBtn" onclick="saveWorkout()">Eintragen & Punkte holen</button>
+</section>
+
+<!-- BELOHNUNGEN -->
+<section class="view" id="v-shop">
+  <h1>Belohnungen 🎁</h1>
+  <div class="sub">Du hast <b id="pts2">0</b> Punkte</div>
+  <div id="rewards"></div>
+  <div class="card">
+    <b>Neue Belohnung</b>
+    <label>Name</label><input id="rName" placeholder="z. B. Pizzaabend">
+    <div class="row">
+      <div style="flex:1"><label>Emoji</label><input id="rEmoji" placeholder="🍕" maxlength="4"></div>
+      <div style="flex:1"><label>Punkte</label><input id="rCost" type="number" inputmode="numeric" placeholder="150"></div>
+    </div>
+    <button class="btn" onclick="addReward()">Hinzufügen</button>
+  </div>
+</section>
+
+<!-- VERLAUF -->
+<section class="view" id="v-hist">
+  <h1>Verlauf 📅</h1>
+  <div class="card"><b>Sport</b><div id="histW"></div></div>
+  <div class="card"><b>Eingelöst</b><div id="histR"></div></div>
+  <div class="card">
+    <b>Einstellungen</b>
+    <label>Name</label><input id="setName" placeholder="Name">
+    <label>Wochenziel (Einheiten)</label><input id="setGoal" type="number" inputmode="numeric">
+    <button class="btn" onclick="saveSettings()">Speichern</button>
+  </div>
+  <div class="card" id="codeCard">
+    <b>🔗 Sync-Code</b>
+    <div class="sub" style="margin:6px 0">Mit diesem Code sieht ein zweites Handy dieselben Daten. Wie ein Passwort behandeln!</div>
+    <input id="codeShow" readonly onclick="this.select()">
+    <div class="row"><button class="btn sbtn" style="flex:1" onclick="copyCode()">📋 Kopieren</button><button class="btn sbtn" style="flex:1" onclick="logout()">Abmelden</button></div>
+  </div>
+</section>
+</div>
+
+<nav class="tabs">
+  <button class="on" data-v="home" onclick="go('home')"><span class="e">🏠</span>Start</button>
+  <button data-v="log" onclick="go('log')"><span class="e">➕</span>Eintragen</button>
+  <button data-v="shop" onclick="go('shop')"><span class="e">🎁</span>Belohnungen</button>
+  <button data-v="hist" onclick="go('hist')"><span class="e">📅</span>Verlauf</button>
+</nav>
+
+<div class="modal" id="modal"><div class="card">
+  <div class="big" id="mE">🎉</div>
+  <h2 id="mT" style="margin:8px 0"></h2>
+  <div id="mB" style="color:var(--mut)"></div>
+  <div class="row" id="mBtns" style="margin-top:6px"></div>
+</div></div>
+
+<script src="firebase-config.js"></script>
+<script>
+const TYPES=[["🏃","Laufen"],["🚴","Rad"],["🏋️","Kraft"],["🧘","Yoga"],["🏊","Schwimmen"],["💃","Tanzen"],["🚶","Spaziergang"],["🤸","Workout"],["⚽","Sonstiges"]];
+const INT=[["😌","Locker",1],["😤","Mittel",1.25],["🥵","Hart",1.5]];
+const QUOTES=["Jede Einheit zählt – auch die kurze! 💖","Du bist stärker als deine Ausreden.","Heute ist ein guter Tag für Bewegung ☀️","Kleine Schritte, große Wirkung.","Dein zukünftiges Ich sagt Danke! 🙌","Nicht perfekt – aber dabei. Das zählt.","Belohnung wartet schon auf dich 🎁"];
+const DEFAULT={rev:0,name:"",goal:3,workouts:[],redeemed:[],rewards:[
+ {id:"r1",e:"🍫",n:"Lieblingssnack",c:50},
+ {id:"r2",e:"💆",n:"Massage (20 Min)",c:120},
+ {id:"r3",e:"🎬",n:"Filmabend – sie wählt",c:150},
+ {id:"r4",e:"🍳",n:"Frühstück ans Bett",c:200},
+ {id:"r5",e:"🍕",n:"Essen gehen",c:400},
+ {id:"r6",e:"🛍️",n:"Shopping-Gutschein",c:800}]};
+function norm(d){return JSON.parse(JSON.stringify(Object.assign({},DEFAULT,d||{})))}
+let S=norm(),sel={t:null,m:null,i:1};
+
+/* ---------- Speicher ---------- */
+const LS="fitpunkte_state",LC="fitpunkte_code";
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+function loadLocal(){const x=lsGet(LS);if(x)try{S=norm(JSON.parse(x))}catch(e){}}
+function saveLocal(){lsSet(LS,JSON.stringify(S))}
+function setStatus(t){const el=document.getElementById("status");if(el)el.textContent=t}
+// Jede Änderung läuft über mutate(fn): lokal sofort, dann in der Cloud (Transaktion)
+function mutate(fn){fn(S);S.rev++;saveLocal();render();if(window.REMOTE)window.REMOTE.mutate(fn)}
+// wird vom Firebase-Teil aufgerufen, wenn neue Daten kommen
+window.applyRemote=function(d){if(!d||!Array.isArray(d.workouts))return;S=norm(d);saveLocal();render()};
+loadLocal();
+
+/* ---------- Logik ---------- */
+const dkey=d=>{d=new Date(d);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const earned=()=>S.workouts.reduce((a,w)=>a+w.p,0);
+const spent=()=>S.redeemed.reduce((a,r)=>a+r.c,0);
+const balance=()=>earned()-spent();
+function streak(){const days=new Set(S.workouts.map(w=>dkey(w.d)));let n=0,d=new Date();if(!days.has(dkey(d)))d.setDate(d.getDate()-1);while(days.has(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
+function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
+function calcPts(m,i){const st=streak(),todayDone=S.workouts.some(w=>dkey(w.d)===dkey(new Date()));const bonus=10+(todayDone?0:Math.min((st+1)*2,20));return {base:Math.round(m*i),bonus,total:Math.round(m*i)+bonus}}
+const LV=["Sofa-Starter","Aufgewärmt","In Bewegung","Fit-Fan","Power-Frau","Sport-Queen","Legende"];
+
+/* ---------- UI ---------- */
+function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+function render(){
+ const b=balance(),e=earned();
+ $("hello").textContent="Hey"+(S.name?" "+S.name:"")+"! 👋";
+ $("pts").textContent=b;$("pts2").textContent=b;
+ $("streak").textContent=streak()+"🔥";
+ $("total").textContent=S.workouts.length;
+ const lv=Math.floor(e/250)+1,inL=e%250;
+ $("lvl").textContent=lv;
+ $("lvlName").textContent="Level "+lv+" · "+LV[Math.min(lv-1,LV.length-1)];
+ $("lvlTxt").textContent=inL+" / 250";
+ $("lvlBar").style.width=(inL/250*100)+"%";
+ const ws=weekStart(),wd=new Set(S.workouts.filter(w=>new Date(w.d)>=ws).map(w=>dkey(w.d)));
+ $("weekTxt").textContent=wd.size+" / "+S.goal+(wd.size>=S.goal?" ✅":"");
+ $("weekBar").style.width=Math.min(wd.size/S.goal*100,100)+"%";
+ let h="";["Mo","Di","Mi","Do","Fr","Sa","So"].forEach((n,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);const k=dkey(d);h+=`<div class="day ${wd.has(k)?"done":""} ${k===dkey(new Date())?"today":""}"><i>${wd.has(k)?"✓":d.getDate()}</i>${n}</div>`});
+ $("weekDays").innerHTML=h;
+ const next=[...S.rewards].sort((a,c)=>a.c-c.c).find(r=>r.c>b);
+ const can=S.rewards.filter(r=>r.c<=b).length;
+ $("nextRewardCard").innerHTML=next?`<div class="lbl2"><span>Nächste Belohnung: ${next.e} ${esc(next.n)}</span><span>noch ${next.c-b}</span></div><div class="bar"><i style="width:${Math.max(b,0)/next.c*100}%;background:linear-gradient(90deg,var(--warn),var(--acc))"></i></div>${can?`<div style="margin-top:10px;font-size:14px">🎁 Du kannst schon <b>${can}</b> Belohnung${can>1?"en":""} einlösen!</div>`:""}`:`<div class="quote">Du kannst dir alles holen! 🤩</div>`;
+ $("quoteTop").textContent=QUOTES[new Date().getDate()%QUOTES.length];
+ $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>`<div class="reward"><span class="e">${esc(r.e)}</span><div class="n"><b>${esc(r.n)}</b><span class="badge p">${r.c} Punkte</span></div><button ${r.c>b?"disabled":""} onclick="askRedeem('${r.id}')">${r.c>b?"🔒":"Holen"}</button><button class="del" onclick="askDel('${r.id}')">✕</button></div>`).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
+ $("histW").innerHTML=[...S.workouts].reverse().slice(0,40).map(w=>`<div class="item"><div>${w.e} ${w.t} · ${w.m} Min<small>${new Date(w.d).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</small></div><span class="badge">+${w.p}</span><button class="del sbtn" onclick="askDelW('${w.id}')">✕</button></div>`).join("")||`<div class="empty">Noch nichts eingetragen</div>`;
+ $("histR").innerHTML=[...S.redeemed].reverse().map(r=>`<div class="item"><div>${esc(r.e)} ${esc(r.n)}<small>${new Date(r.d).toLocaleDateString("de-DE")}</small></div><span class="badge p">−${r.c}</span></div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
+ if(document.activeElement!==$("setName"))$("setName").value=S.name||"";
+ if(document.activeElement!==$("setGoal"))$("setGoal").value=S.goal;
+ $("codeShow").value=lsGet(LC)||"";$("codeCard").style.display=lsGet(LC)?"block":"none";
+ renderLog();
+}
+function renderLog(){
+ $("types").innerHTML=TYPES.map((t,i)=>`<div class="chip ${sel.t===i?"on":""}" onclick="sel.t=${i};renderLog()"><span class="e">${t[0]}</span>${t[1]}</div>`).join("");
+ $("minBtns").innerHTML=[10,20,30,45,60].map(m=>`<button class="sbtn ${sel.m===m?"on":""}" onclick="sel.m=${m};$('minIn').value='';renderLog()">${m}</button>`).join("");
+ $("intBtns").innerHTML=INT.map(x=>`<button class="sbtn ${sel.i===x[2]?"on":""}" onclick="sel.i=${x[2]};renderLog()">${x[0]} ${x[1]}</button>`).join("");
+ const ok=sel.t!==null&&sel.m>0;$("saveBtn").style.opacity=ok?1:.5;
+ if(ok){const p=calcPts(sel.m,sel.i);$("preview").innerHTML=`Du bekommst <span class="badge">+${p.total} Punkte</span><br><small style="color:var(--mut)">${p.base} für Training + ${p.bonus} Bonus${p.bonus>10?" (Serien-Bonus 🔥)":""}</small>`}else $("preview").innerHTML="";
+}
+$("minIn").addEventListener("input",e=>{sel.m=parseInt(e.target.value)||null;renderLog()});
+
+function saveWorkout(){
+ if(sel.t===null||!(sel.m>0))return modal("✋","Fast geschafft",sel.t===null?"Bitte zuerst eine Sportart antippen.":"Bitte noch die Minuten wählen.",[["OK",null]]);
+ const t=TYPES[sel.t],p=calcPts(sel.m,sel.i),w={id:"w"+Date.now(),d:Date.now(),e:t[0],t:t[1],m:sel.m,p:p.total};
+ mutate(s=>{if(!s.workouts.some(x=>x.id===w.id))s.workouts.push(w)});
+ sel={t:null,m:null,i:1};$("minIn").value="";
+ confetti();go("home");const st=streak();
+ modal("🎉","+"+p.total+" Punkte!",(st>1?`${st} Tage in Folge – Wahnsinn! 🔥<br>`:"")+QUOTES[Math.floor(Math.random()*QUOTES.length)],[["Super!",null]]);
+}
+function askRedeem(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;modal(r.e,r.n+" holen?",`Kostet ${r.c} Punkte. Danach hast du noch ${balance()-r.c}.`,[["Abbrechen",null,1],["Einlösen 🎁",()=>{const x={id:"x"+Date.now(),e:r.e,n:r.n,c:r.c,d:Date.now()};mutate(s=>{if(!s.redeemed.some(y=>y.id===x.id))s.redeemed.push(x)});confetti();modal(r.e,"Eingelöst!","Jetzt einfordern: <b>"+esc(r.n)+"</b> 😄",[["Yay!",null]])}]])}
+function askDel(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;modal("🗑️","Belohnung löschen?",esc(r.n),[["Nein",null,1],["Löschen",()=>mutate(s=>{s.rewards=s.rewards.filter(x=>x.id!==id)})]])}
+function askDelW(id){modal("🗑️","Eintrag löschen?","Die Punkte werden wieder abgezogen.",[["Nein",null,1],["Löschen",()=>mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==id)})]])}
+function addReward(){const n=$("rName").value.trim(),c=parseInt($("rCost").value),e=$("rEmoji").value.trim()||"🎁";if(!n||!(c>0))return modal("✋","Fehlt was","Bitte Name und Punkte eingeben.",[["OK",null]]);const r={id:"r"+Date.now(),e,n,c};mutate(s=>{if(!s.rewards.some(x=>x.id===r.id))s.rewards.push(r)});["rName","rCost","rEmoji"].forEach(i=>$(i).value="")}
+function saveSettings(){const n=$("setName").value.trim(),g=Math.max(1,parseInt($("setGoal").value)||3);mutate(s=>{s.name=n;s.goal=g});modal("✅","Gespeichert","",[["OK",null]])}
+function modal(e,t,b,btns){$("mE").textContent=e;$("mT").textContent=t;$("mB").innerHTML=b;const box=$("mBtns");box.innerHTML="";btns.forEach(([l,fn,sec])=>{const x=document.createElement("button");x.className=sec?"btn sbtn":"btn";x.style.flex="1";x.textContent=l;x.onclick=()=>{$("modal").classList.remove("on");fn&&fn()};box.appendChild(x)});$("modal").classList.add("on")}
+
+/* ---------- Sync-Code ---------- */
+function randCode(){const a="abcdefghjkmnpqrstuvwxyz23456789",r=new Uint32Array(20);crypto.getRandomValues(r);let s="";r.forEach((v,i)=>{s+=a[v%a.length];if(i%5===4&&i<19)s+="-"});return s}
+function showSetup(msg){$("setup").classList.add("on");$("setupMsg").textContent=msg||""}
+function joinCode(){const c=$("codeIn").value.trim().toLowerCase();if(c.length<20)return $("setupMsg").textContent="Code zu kurz – bitte komplett eingeben.";startSync(c,false)}
+function newCode(){startSync(randCode(),true)}
+function startSync(code,isNew){lsSet(LC,code);$("setup").classList.remove("on");if(window.REMOTE)window.REMOTE.connect(code,isNew);render();
+ if(isNew)modal("🔗","Dein Sync-Code",`<input value="${code}" readonly onclick="this.select()" style="text-align:center;margin:8px 0">Gib ihn dem zweiten Handy. Du findest ihn jederzeit unter <b>Verlauf → Sync-Code</b>.`,[["Verstanden",null]])}
+function copyCode(){const c=lsGet(LC)||"";(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>modal("📋","Kopiert!","",[["OK",null]])).catch(()=>{$("codeShow").select();modal("📋","Bitte manuell kopieren","Code ist markiert.",[["OK",null]])})}
+function logout(){modal("🚪","Abmelden?","Auf diesem Handy werden die Daten entfernt. In der Cloud bleiben sie – mit dem Code kommst du wieder rein.",[["Nein",null,1],["Abmelden",()=>{lsSet(LC,null);lsSet(LS,null);location.reload()}]])}
+
+/* ---------- Konfetti ---------- */
+function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const P=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,s:5+Math.random()*6,r:Math.random()*6,col:["#ff5fa2","#7c5cff","#2ed47a","#ffb84d","#7be3ff"][Math.floor(Math.random()*5)]}));let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.col;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});if(++f<160)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)})()}
+
+render();
+const CFG=window.FIREBASE_CONFIG;
+if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("📱 Nur lokal – Firebase noch nicht eingerichtet (firebase-config.js)")}
+else if(!lsGet(LC)){showSetup()}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+
+<!-- ---------- Firebase-Sync ---------- -->
+<script type="module">
+const CFG=window.FIREBASE_CONFIG;
+if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
+ const V="10.12.2",B=`https://www.gstatic.com/firebasejs/${V}/`;
+ try{
+  const {initializeApp}=await import(B+"firebase-app.js");
+  const {getAuth,signInAnonymously,onAuthStateChanged}=await import(B+"firebase-auth.js");
+  const {initializeFirestore,persistentLocalCache,doc,onSnapshot,runTransaction,setDoc}=await import(B+"firebase-firestore.js");
+  const app=initializeApp(CFG),auth=getAuth(app);
+  let fs;try{fs=initializeFirestore(app,{localCache:persistentLocalCache()})}catch(e){fs=initializeFirestore(app,{})}
+  const user=await new Promise((res,rej)=>{const un=onAuthStateChanged(auth,u=>{if(u){un();res(u)}});signInAnonymously(auth).catch(rej)});
+  let ref=null,unsub=null;
+  const norm=window.norm;
+  window.REMOTE={
+   connect(code,isNew){
+    ref=doc(fs,"fitpunkte",code);if(unsub)unsub();
+    setStatus("⏳ Verbinde …");
+    let first=true;
+    unsub=onSnapshot(ref,snap=>{
+     if(snap.exists()){window.applyRemote(snap.data());setStatus(snap.metadata.hasPendingWrites?"⏳ Speichere …":"☁️ Synchronisiert")}
+     else if(first){ // neuer Code: aktuellen Stand hochladen
+      setDoc(ref,JSON.parse(JSON.stringify(S))).catch(e=>setStatus("⚠️ "+e.code));
+     }
+     first=false;
+    },err=>{setStatus("⚠️ Sync-Fehler: "+err.code)});
+   },
+   mutate(fn){
+    if(!ref)return;
+    runTransaction(fs,async tx=>{const s=await tx.get(ref);const d=norm(s.exists()?s.data():S);fn(d);d.rev=(d.rev||0)+1;tx.set(ref,d)})
+     .catch(()=>setDoc(ref,JSON.parse(JSON.stringify(S))).catch(e=>setStatus("⚠️ "+e.code)));
+   }
+  };
+  const code=localStorage.getItem("fitpunkte_code");
+  if(code)window.REMOTE.connect(code,false);
+ }catch(e){setStatus("⚠️ Firebase-Fehler: "+(e.code||e.message))}
+}
+</script>
+</body>
+</html>
