@@ -3,292 +3,602 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>FitPunkte 💪</title>
+<title>FitPunkte</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f1117">
+<meta name="theme-color" content="#0e0f13">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FitPunkte">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f1117;--card:#1a1d27;--card2:#232735;--txt:#eef0f6;--mut:#8a90a6;--acc:#ff5fa2;--acc2:#7c5cff;--ok:#2ed47a;--warn:#ffb84d;--line:#2c3142}
+:root{
+  --bg:#0e0f13;--s1:#16181e;--s2:#1e2129;--s3:#272b35;--line:#262a33;
+  --txt:#f2f3f5;--mut:#8b90a0;--mut2:#5d6271;
+  --acc:#ff5c9d;--acc-soft:rgba(255,92,157,.14);--ok:#3ccf8e;--ok-soft:rgba(60,207,142,.14);--warn:#f5b84a;
+  --r:16px;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top) 0 calc(78px + env(safe-area-inset-bottom))}
-.wrap{max-width:520px;margin:0 auto;padding:16px}
-h1{font-size:22px;margin:4px 0 2px}
-.sub{color:var(--mut);font-size:14px;margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
-.hero{background:linear-gradient(135deg,#ff5fa2 0%,#7c5cff 100%);border:none;text-align:center}
-.hero .big{font-size:52px;font-weight:800;line-height:1}
-.hero .lbl{opacity:.9;font-size:14px;margin-top:4px}
-.row{display:flex;gap:10px}
-.stat{flex:1;background:var(--card2);border-radius:14px;padding:12px;text-align:center}
-.stat b{display:block;font-size:22px}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,sans-serif;font-size:15px;-webkit-font-smoothing:antialiased}
+body{padding:env(safe-area-inset-top) 0 calc(84px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+input,select,textarea{font:inherit;color:var(--txt)}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.wrap{max-width:520px;margin:0 auto;padding:18px 16px}
+.view{display:none}.view.on{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.top{display:flex;align-items:center;justify-content:space-between;margin:2px 0 18px}
+.top h1{font-size:24px;font-weight:700;margin:0;letter-spacing:-.02em}
+.top .sm{font-size:13px;color:var(--mut)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mut2);display:inline-block}
+.dot.ok{background:var(--ok)}.dot.err{background:#ff6b6b}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.card h3{margin:0 0 12px;font-size:13px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;display:flex;justify-content:space-between;align-items:center}
+.card h3 a{color:var(--acc);text-transform:none;letter-spacing:0;font-weight:600;cursor:pointer}
+.points{text-align:left}
+.points .n{font-size:56px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;transition:transform .25s}
+.points .n.pop{transform:scale(1.08);color:var(--acc)}
+.points .l{color:var(--mut);margin-top:6px;font-size:14px}
+.prog{height:6px;background:var(--s3);border-radius:99px;overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width .4s}
+.prog.ok i{background:var(--ok)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin-top:8px}
+.week{display:flex;justify-content:space-between;gap:4px}
+.wd{flex:1;text-align:center;font-size:11px;color:var(--mut2)}
+.wd i{display:flex;align-items:center;justify-content:center;aspect-ratio:1;max-width:38px;margin:0 auto 6px;border-radius:50%;background:var(--s2);font-style:normal;font-size:13px;color:var(--mut);font-weight:500}
+.wd.done i{background:var(--ok);color:#06140d}
+.wd.today i{box-shadow:0 0 0 2px var(--acc) inset}
+.wd.done.today i{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--acc)}
+.hint{font-size:14px;color:var(--txt);margin-top:12px}
+.hint b{color:var(--acc)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:14px;padding:15px;font-size:16px;font-weight:600;background:var(--acc);color:#fff}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--s2);color:var(--txt);border:1px solid var(--line)}
+.btn.small{padding:10px 12px;font-size:14px;width:auto}
+.btn.danger{background:transparent;color:#ff6b6b;border:1px solid #3a2328}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.feed .it{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.feed .it:first-child{border-top:none;padding-top:0}
+.ic{width:38px;height:38px;border-radius:12px;background:var(--s2);display:flex;align-items:center;justify-content:center;color:var(--txt);flex:none}
+.ic.acc{background:var(--acc-soft);color:var(--acc)}
+.it .tx{flex:1;min-width:0}
+.it .tx b{font-weight:600;font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .tx span{font-size:13px;color:var(--mut)}
+.it .pt{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ok);font-size:14px}
+.reacts{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.rb{background:var(--s2);border:1px solid var(--line);border-radius:99px;padding:2px 8px;font-size:12px;line-height:1.3}
+.rb.on{background:var(--acc-soft);border-color:var(--acc)}
+.empty{color:var(--mut);font-size:14px;text-align:center;padding:12px 0}
+/* Form */
+.lbl{font-size:13px;color:var(--mut);margin:18px 0 8px;font-weight:500}
+.types{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.type{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--mut);min-width:0}
+.type span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.type svg.i{width:24px;height:24px;color:var(--txt)}
+.type.on{border-color:var(--acc);background:var(--acc-soft);color:var(--txt)}
+.type.on svg.i{color:var(--acc)}
+.type.add{border-style:dashed}
+.seg{display:flex;background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;padding:10px 4px;border-radius:9px;font-size:14px;color:var(--mut);font-weight:500}
+.seg button.on{background:var(--s3);color:var(--txt)}
+.field{width:100%;background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;outline:none}
+.field:focus{border-color:var(--acc)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.preview{display:flex;justify-content:space-between;align-items:center;background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:18px}
+.preview .big{font-size:22px;font-weight:700;color:var(--ok)}
+.preview small{color:var(--mut);font-size:12px;display:block;margin-top:2px}
+/* Rewards */
+.rw{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.rw:first-child{border-top:none;padding-top:0}
+.rw .tx{flex:1}.rw .tx b{display:block;font-weight:600}
+.rw .tx span{font-size:13px;color:var(--mut)}
+.pill{font-size:12px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--s2);color:var(--mut)}
+.pill.open{background:rgba(245,184,74,.14);color:var(--warn)}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.iconbtn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.iconbtn:active{background:var(--s2)}
+/* Kalender */
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.calhead b{font-weight:600}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .h{font-size:11px;color:var(--mut2);text-align:center;padding-bottom:2px}
+.cal .d{aspect-ratio:1;border-radius:8px;background:var(--s2);font-size:12px;color:var(--mut);display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.cal .d.l1{background:rgba(60,207,142,.28);color:var(--txt)}
+.cal .d.l2{background:rgba(60,207,142,.55);color:#06140d}
+.cal .d.l3{background:var(--ok);color:#06140d;font-weight:600}
+.cal .d.today{box-shadow:0 0 0 2px var(--acc) inset}
+.cal .d.sel{outline:2px solid var(--txt);outline-offset:1px}
+.cal .d.x{background:none}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{font-size:24px;font-weight:700;display:block;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--mut)}
-.bar{height:12px;background:var(--card2);border-radius:99px;overflow:hidden;margin-top:8px}
-.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),#7be3ff);border-radius:99px;transition:width .5s}
-.lbl2{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.chip{background:var(--card2);border:2px solid transparent;border-radius:14px;padding:12px 4px;text-align:center;font-size:13px;cursor:pointer;color:var(--txt)}
-.chip .e{font-size:26px;display:block;margin-bottom:4px}
-.chip.on{border-color:var(--acc);background:#2b1f2c}
-label{font-size:13px;color:var(--mut);display:block;margin:14px 0 6px}
-input,select{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:16px}
-.mins{display:flex;gap:6px;flex-wrap:wrap}
-.mins button{flex:1;min-width:56px}
-button{font:inherit;cursor:pointer}
-.btn{width:100%;border:none;border-radius:14px;padding:15px;font-size:17px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));margin-top:16px}
-.btn:disabled{opacity:.4}
-.sbtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:10px;font-size:14px}
-.sbtn.on{border-color:var(--acc);color:var(--acc)}
-.preview{text-align:center;margin-top:12px;font-size:15px}
-.badge{display:inline-block;background:#173a2a;color:var(--ok);border-radius:99px;padding:4px 12px;font-weight:700;font-size:14px}
-.badge.p{background:#2b1f3d;color:#b9a5ff}
-.reward{display:flex;align-items:center;gap:12px;background:var(--card2);border-radius:14px;padding:12px;margin-bottom:8px}
-.reward .e{font-size:30px}
-.reward .n{flex:1}
-.reward .n b{display:block;font-size:15px}
-.reward .n span{font-size:12px;color:var(--mut)}
-.reward button{border:none;border-radius:10px;padding:9px 12px;font-weight:700;color:#fff;background:var(--ok)}
-.reward button:disabled{background:#3a3f50;color:var(--mut)}
-.del{background:none!important;color:var(--mut)!important;padding:6px!important;font-size:18px}
-.item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
-.item:last-child{border:none}
-.item small{color:var(--mut);display:block}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#151822ee;backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
-.tabs button{flex:1;background:none;border:none;color:var(--mut);padding:10px 0 12px;font-size:11px}
-.tabs button .e{font-size:22px;display:block}
-.tabs button.on{color:var(--acc)}
-.view{display:none}.view.on{display:block}
-.week{display:flex;justify-content:space-between;margin-top:10px}
-.day{width:36px;text-align:center;font-size:11px;color:var(--mut)}
-.day i{display:block;width:32px;height:32px;margin:0 auto 4px;border-radius:50%;background:var(--card2);line-height:32px;font-style:normal;font-size:15px}
-.day.done i{background:var(--ok);color:#0f1117}
-.day.today i{outline:2px solid var(--acc)}
-.quote{font-style:italic;color:#cfd3e2;text-align:center;font-size:15px}
-.modal{position:fixed;inset:0;background:#000a;display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
-.modal.on{display:flex}
-.modal .card{max-width:400px;width:100%;text-align:center}
-.modal .big{font-size:60px}
-.status{font-size:11px;color:var(--mut);text-align:center;margin-top:6px}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bd{background:var(--s2);border-radius:14px;padding:14px 6px;text-align:center}
+.bd .ic{margin:0 auto 8px;background:var(--acc-soft);color:var(--acc)}
+.bd b{font-size:12px;font-weight:600;display:block}
+.bd span{font-size:11px;color:var(--mut);display:block;margin-top:2px;line-height:1.3}
+.bd.lock{opacity:.4}.bd.lock .ic{background:var(--s3);color:var(--mut)}
+/* Tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(14,15,19,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11px;color:var(--mut2);font-weight:500}
+.tabs button.on{color:var(--txt)}
+.tabs button.plus svg.i{width:26px;height:26px;background:var(--acc);color:#fff;border-radius:12px;padding:5px;box-sizing:content-box;margin-top:-4px}
+/* Sheet / Toast */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.sheet.on{display:flex}
+.sheet .box{background:var(--s1);border:1px solid var(--line);border-bottom:none;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:up .2s ease;max-height:88vh;overflow:auto}
+@keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.sheet h2{margin:0 0 6px;font-size:20px;font-weight:700}
+.sheet .body{color:var(--mut);font-size:15px;line-height:1.5}
+.sheet .acts{display:flex;gap:8px;margin-top:18px}.sheet .acts>*{flex:1}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));max-width:488px;margin:0 auto;background:var(--s3);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;z-index:40;transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s}
+.toast.on{transform:none;opacity:1;pointer-events:auto}
+.toast .tx{flex:1;font-size:14px}
+.toast button{color:var(--acc);font-weight:600;font-size:14px}
+.status{font-size:12px;color:var(--mut2);text-align:center;margin-top:16px}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
-.empty{color:var(--mut);text-align:center;font-size:14px;padding:10px}
+.setup{position:fixed;inset:0;background:var(--bg);z-index:45;display:none;align-items:center;justify-content:center;padding:24px}
+.setup.on{display:flex}
+.setup .in{max-width:360px;width:100%;text-align:center}
+.setup img{width:88px;border-radius:22px}
+.setup h2{font-size:26px;margin:16px 0 6px;letter-spacing:-.02em}
+.setup p{color:var(--mut);margin:0 0 24px;line-height:1.5}
+.gbtn{background:#fff;color:#1f1f1f}
+.msg{font-size:13px;color:var(--mut);margin-top:12px;min-height:18px}
+.iconpick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.iconpick button{aspect-ratio:1;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;border:1px solid transparent}
+.iconpick button.on{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
+.who{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--s3);font-size:10px;font-weight:700;color:var(--txt);margin-right:4px;vertical-align:1px}
+.who.me{background:var(--acc);color:#fff!important;-webkit-text-fill-color:#fff}
+.chart text{fill:var(--mut);font-size:10px;font-family:Inter,sans-serif}
+.list .it{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.list .it:first-child{border-top:none}
+.note{font-size:13px;color:var(--mut);margin-top:3px;font-style:italic}
 </style>
 </head>
 <body>
 <canvas id="confetti"></canvas>
-<div class="modal" id="setup" style="z-index:40"><div class="card" style="text-align:left">
-  <div style="text-align:center"><img src="icon-192.png" alt="" style="width:84px;border-radius:20px"></div>
-  <h2 style="text-align:center;margin:8px 0 4px">FitPunkte</h2>
+
+<!-- Login / Team -->
+<div class="setup" id="setup"><div class="in">
+  <img src="icon-192.png" alt="">
+  <h2>FitPunkte</h2>
   <div id="stLogin">
-    <div class="sub" style="text-align:center">Melde dich an – deine Punkte sind dann sicher in deinem Google-Konto gespeichert.</div>
-    <button class="btn" onclick="REMOTE&&REMOTE.login()" style="background:#fff;color:#1f1f1f;display:flex;align-items:center;justify-content:center;gap:10px">
+    <p>Trainieren, Punkte sammeln, Belohnungen einlösen.</p>
+    <button class="btn gbtn" onclick="REMOTE&&REMOTE.login()">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
       Mit Google anmelden</button>
   </div>
   <div id="stTeam" style="display:none">
-    <div class="sub" style="text-align:center">Angemeldet ✓<br>Code vom Partner-Handy eingeben – oder neu starten.</div>
-    <input id="codeIn" placeholder="Sync-Code" autocapitalize="off" autocomplete="off">
+    <p>Code vom Partner-Handy eingeben – oder neu starten.</p>
+    <input class="field" id="codeIn" placeholder="Sync-Code" autocapitalize="off" autocomplete="off" style="text-align:center;margin-bottom:10px">
     <button class="btn" onclick="joinCode()">Verbinden</button>
-    <button class="btn sbtn" onclick="newCode()">✨ Neu starten (neuer Code)</button>
+    <button class="btn ghost" onclick="newCode()" style="margin-top:8px">Neu starten</button>
   </div>
-  <div class="status" id="setupMsg"></div>
+  <div class="msg" id="setupMsg"></div>
 </div></div>
+
 <div class="wrap">
 
 <!-- START -->
 <section class="view on" id="v-home">
-  <h1 id="hello">Hey! 👋</h1>
-  <div class="sub" id="quoteTop"></div>
-  <div class="card hero">
-    <div class="big" id="pts">0</div>
-    <div class="lbl">Punkte zum Einlösen</div>
-  </div>
-  <div class="row" style="margin-bottom:14px">
-    <div class="stat"><b id="streak">0🔥</b><span>Tage-Serie</span></div>
-    <div class="stat"><b id="lvl">1</b><span>Level</span></div>
-    <div class="stat"><b id="total">0</b><span>Einheiten</span></div>
+  <div class="top"><div><div class="sm" id="dateTxt"></div><h1 id="hello">Hallo</h1></div><span class="dot" id="syncDot" title=""></span></div>
+  <div class="card points">
+    <div class="n" id="pts">0</div>
+    <div class="l">Punkte verfügbar</div>
+    <div class="prog"><i id="lvlBar"></i></div>
+    <div class="meta"><span id="lvlName">Level 1</span><span id="lvlTxt"></span></div>
   </div>
   <div class="card">
-    <div class="lbl2"><span>Wochenziel</span><span id="weekTxt">0 / 3</span></div>
-    <div class="bar"><i id="weekBar" style="width:0"></i></div>
+    <h3><span>Diese Woche</span><span id="weekTxt" style="text-transform:none;letter-spacing:0"></span></h3>
     <div class="week" id="weekDays"></div>
+    <div class="hint" id="weekHint"></div>
   </div>
-  <div class="card">
-    <div class="lbl2"><span id="lvlName">Level 1</span><span id="lvlTxt"></span></div>
-    <div class="bar"><i id="lvlBar" style="width:0;background:linear-gradient(90deg,var(--acc),var(--acc2))"></i></div>
+  <div class="card" id="teamCard" style="display:none">
+    <h3><span>Team-Ziel</span><span id="teamTxt" style="text-transform:none;letter-spacing:0"></span></h3>
+    <div class="prog ok"><i id="teamBar"></i></div>
+    <div class="meta" id="teamMeta"></div>
   </div>
-  <div class="card" id="nextRewardCard"></div>
-  <button class="btn" onclick="go('log')">➕ Sport eintragen</button>
+  <div class="card" id="openCard" style="display:none"><h3>Offene Belohnungen</h3><div id="openList"></div></div>
+  <button class="btn" onclick="startLog()" style="margin-bottom:12px"><svg class="i"><use href="#i-plus"/></svg>Training eintragen</button>
+  <div class="card feed"><h3><span>Aktivität</span><a onclick="go('progress')">Alle</a></h3><div id="feed"></div></div>
   <div class="status" id="status"></div>
 </section>
 
-<!-- EINTRAGEN -->
+<!-- EINTRAGEN / BEARBEITEN -->
 <section class="view" id="v-log">
-  <h1>Sport eintragen</h1>
-  <div class="sub">Was hast du gemacht?</div>
-  <div class="grid" id="types"></div>
-  <label>Wie lange? (Minuten)</label>
-  <div class="mins" id="minBtns"></div>
-  <input type="number" id="minIn" inputmode="numeric" placeholder="oder eigene Minuten" style="margin-top:8px">
-  <label>Wie anstrengend?</label>
-  <div class="mins" id="intBtns"></div>
+  <div class="top"><h1 id="logTitle">Training eintragen</h1><button class="iconbtn" id="logCancel" onclick="cancelEdit()" style="display:none"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="lbl" style="margin-top:0">Sportart</div>
+  <div class="types" id="types"></div>
+  <div class="lbl">Dauer (Minuten)</div>
+  <div class="seg" id="minBtns"></div>
+  <input class="field" type="number" id="minIn" inputmode="numeric" placeholder="Andere Dauer" style="margin-top:8px">
+  <div class="lbl">Intensität</div>
+  <div class="seg" id="intBtns"></div>
+  <div class="lbl">Datum</div>
+  <div class="seg" id="dayBtns"></div>
+  <input class="field" type="date" id="dateIn" style="margin-top:8px">
+  <div class="lbl">Details (optional)</div>
+  <div class="two"><input class="field" id="distIn" inputmode="decimal" placeholder="Distanz in km"><input class="field" id="noteIn" placeholder="Notiz" maxlength="60"></div>
   <div class="preview" id="preview"></div>
-  <button class="btn" id="saveBtn" onclick="saveWorkout()">Eintragen & Punkte holen</button>
+  <button class="btn" id="saveBtn" onclick="saveWorkout()" style="margin-top:12px">Eintragen</button>
+  <button class="btn danger" id="delBtn" onclick="deleteEdit()" style="margin-top:8px;display:none">Eintrag löschen</button>
 </section>
 
 <!-- BELOHNUNGEN -->
 <section class="view" id="v-shop">
-  <h1>Belohnungen 🎁</h1>
-  <div class="sub">Du hast <b id="pts2">0</b> Punkte</div>
-  <div id="rewards"></div>
+  <div class="top"><h1>Belohnungen</h1><div class="sm"><b id="pts2" style="color:var(--txt);font-size:15px">0</b> Punkte</div></div>
+  <div class="card"><div id="rewards"></div></div>
   <div class="card">
-    <b>Neue Belohnung</b>
-    <label>Name</label><input id="rName" placeholder="z. B. Pizzaabend">
-    <div class="row">
-      <div style="flex:1"><label>Emoji</label><input id="rEmoji" placeholder="🍕" maxlength="4"></div>
-      <div style="flex:1"><label>Punkte</label><input id="rCost" type="number" inputmode="numeric" placeholder="150"></div>
-    </div>
-    <button class="btn" onclick="addReward()">Hinzufügen</button>
+    <h3>Neue Belohnung</h3>
+    <div class="two"><input class="field" id="rName" placeholder="z. B. Pizzaabend" maxlength="40"><input class="field" id="rCost" type="number" inputmode="numeric" placeholder="Punkte"></div>
+    <button class="btn ghost" onclick="addReward()" style="margin-top:10px">Hinzufügen</button>
   </div>
+  <div class="card"><h3>Eingelöst</h3><div id="redeemed"></div></div>
 </section>
 
-<!-- VERLAUF -->
-<section class="view" id="v-hist">
-  <h1>Verlauf 📅</h1>
-  <div class="card"><b>Sport</b><div id="histW"></div></div>
-  <div class="card"><b>Eingelöst</b><div id="histR"></div></div>
+<!-- FORTSCHRITT -->
+<section class="view" id="v-progress">
+  <div class="top"><h1>Fortschritt</h1></div>
+  <div class="seg" id="personSeg" style="margin-bottom:12px;display:none"></div>
+  <div class="stats" id="stats"></div>
   <div class="card">
-    <b>Einstellungen</b>
-    <label>Name</label><input id="setName" placeholder="Name">
-    <label>Wochenziel (Einheiten)</label><input id="setGoal" type="number" inputmode="numeric">
-    <button class="btn" onclick="saveSettings()">Speichern</button>
+    <div class="calhead"><button class="iconbtn" onclick="calMove(-1)"><svg class="i"><use href="#i-chevL"/></svg></button><b id="calTitle"></b><button class="iconbtn" onclick="calMove(1)"><svg class="i"><use href="#i-chevR"/></svg></button></div>
+    <div class="cal" id="cal"></div>
+    <div class="list" id="dayList" style="margin-top:12px"></div>
   </div>
-  <div class="card" id="codeCard">
-    <b>👤 Konto</b>
-    <div class="sub" id="acct" style="margin:6px 0">–</div>
-    <label>🔗 Sync-Code (für das Partner-Handy)</label>
-    <input id="codeShow" readonly onclick="this.select()">
-    <div class="row"><button class="btn sbtn" style="flex:1" onclick="copyCode()">📋 Kopieren</button><button class="btn sbtn" style="flex:1" onclick="logout()">Abmelden</button></div>
+  <div class="card"><h3>Minuten pro Woche</h3><div id="chart"></div></div>
+  <div class="card"><h3><span>Abzeichen</span><span id="bdCount" style="text-transform:none;letter-spacing:0"></span></h3><div class="badges" id="badges"></div></div>
+  <div class="card"><h3>Alle Einträge</h3><div class="list" id="allList"></div></div>
+</section>
+
+<!-- PROFIL -->
+<section class="view" id="v-profile">
+  <div class="top"><h1>Profil</h1></div>
+  <div class="card">
+    <h3>Ziele</h3>
+    <div class="lbl" style="margin-top:0">Dein Name</div>
+    <input class="field" id="setName" maxlength="20">
+    <div class="lbl">Dein Wochenziel (Trainingstage)</div>
+    <div class="seg" id="goalSeg"></div>
+    <div id="teamGoalBox"><div class="lbl">Team-Ziel pro Woche (Einheiten zusammen)</div><div class="seg" id="teamGoalSeg"></div></div>
+    <button class="btn" onclick="saveSettings()" style="margin-top:16px">Speichern</button>
+  </div>
+  <div class="card"><h3><span>Eigene Sportarten</span><a onclick="openTypeSheet()">Hinzufügen</a></h3><div id="ownTypes"></div></div>
+  <div class="card">
+    <h3>Konto</h3>
+    <div style="font-size:14px" id="acct">–</div>
+    <div class="lbl">Sync-Code für das Partner-Handy</div>
+    <div class="row"><input class="field" id="codeShow" readonly onclick="this.select()" style="flex:3;font-size:14px"><button class="btn ghost small" onclick="copyCode()" style="flex:1"><svg class="i"><use href="#i-copy"/></svg></button></div>
   </div>
   <div class="card">
-    <b>💾 Backup</b>
-    <div class="sub" style="margin:6px 0">Alle Daten als Datei sichern – z. B. einmal im Monat.</div>
-    <div class="row"><button class="btn sbtn" style="flex:1" onclick="exportBackup()">⬇️ Herunterladen</button><button class="btn sbtn" style="flex:1" onclick="document.getElementById('impFile').click()">⬆️ Wiederherstellen</button></div>
+    <h3>Backup</h3>
+    <div style="font-size:14px;color:var(--mut);margin-bottom:12px">Alle Daten als Datei sichern und wiederherstellen.</div>
+    <div class="row"><button class="btn ghost small" onclick="exportBackup()"><svg class="i"><use href="#i-down"/></svg>Sichern</button><button class="btn ghost small" onclick="$('impFile').click()"><svg class="i"><use href="#i-up"/></svg>Wiederherstellen</button></div>
     <input type="file" id="impFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
   </div>
+  <button class="btn danger" onclick="logout()">Abmelden</button>
 </section>
 </div>
 
 <nav class="tabs">
-  <button class="on" data-v="home" onclick="go('home')"><span class="e">🏠</span>Start</button>
-  <button data-v="log" onclick="go('log')"><span class="e">➕</span>Eintragen</button>
-  <button data-v="shop" onclick="go('shop')"><span class="e">🎁</span>Belohnungen</button>
-  <button data-v="hist" onclick="go('hist')"><span class="e">📅</span>Verlauf</button>
+  <button class="on" data-v="home" onclick="go('home')"><svg class="i"><use href="#i-home"/></svg>Start</button>
+  <button data-v="shop" onclick="go('shop')"><svg class="i"><use href="#i-gift"/></svg>Belohnungen</button>
+  <button class="plus" data-v="log" onclick="startLog()"><svg class="i"><use href="#i-plus"/></svg>Eintragen</button>
+  <button data-v="progress" onclick="go('progress')"><svg class="i"><use href="#i-chart"/></svg>Fortschritt</button>
+  <button data-v="profile" onclick="go('profile')"><svg class="i"><use href="#i-user"/></svg>Profil</button>
 </nav>
 
-<div class="modal" id="modal"><div class="card">
-  <div class="big" id="mE">🎉</div>
-  <h2 id="mT" style="margin:8px 0"></h2>
-  <div id="mB" style="color:var(--mut)"></div>
-  <div class="row" id="mBtns" style="margin-top:6px"></div>
-</div></div>
+<div class="sheet" id="sheet" onclick="if(event.target===this)closeSheet()"><div class="box"><h2 id="shT"></h2><div class="body" id="shB"></div><div class="acts" id="shA"></div></div></div>
+<div class="toast" id="toast"><div class="tx" id="toastTx"></div><button id="toastBtn">Rückgängig</button></div>
+
+<svg width="0" height="0" style="position:absolute" id="sprite"></svg>
 
 <script src="firebase-config.js"></script>
 <script>
-const TYPES=[["🏃","Laufen"],["🚴","Rad"],["🏋️","Kraft"],["🧘","Yoga"],["🏊","Schwimmen"],["💃","Tanzen"],["🚶","Spaziergang"],["🤸","Workout"],["⚽","Sonstiges"]];
-const INT=[["😌","Locker",1],["😤","Mittel",1.25],["🥵","Hart",1.5]];
-const QUOTES=["Jede Einheit zählt – auch die kurze! 💖","Du bist stärker als deine Ausreden.","Heute ist ein guter Tag für Bewegung ☀️","Kleine Schritte, große Wirkung.","Dein zukünftiges Ich sagt Danke! 🙌","Nicht perfekt – aber dabei. Das zählt.","Belohnung wartet schon auf dich 🎁"];
-const DEFAULT={rev:0,name:"",goal:3,workouts:[],redeemed:[],rewards:[
- {id:"r1",e:"🍫",n:"Lieblingssnack",c:50},
- {id:"r2",e:"💆",n:"Massage (20 Min)",c:120},
- {id:"r3",e:"🎬",n:"Filmabend – sie wählt",c:150},
- {id:"r4",e:"🍳",n:"Frühstück ans Bett",c:200},
- {id:"r5",e:"🍕",n:"Essen gehen",c:400},
- {id:"r6",e:"🛍️",n:"Shopping-Gutschein",c:800}]};
-function norm(d){return JSON.parse(JSON.stringify(Object.assign({},DEFAULT,d||{})))}
-let S=norm(),sel={t:null,m:null,i:1};
+/* ================= Icons ================= */
+const ICONS={
+ home:"M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z",
+ plus:"M12 5v14M5 12h14",
+ gift:"M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z",
+ chart:"M4 20V11M10 20V5M16 20v-6M21 20H3",
+ user:"M20 21a8 8 0 0 0-16 0M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+ x:"M6 6l12 12M18 6 6 18",
+ check:"M5 12.5l4.5 4.5L19 7",
+ trash:"M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3",
+ copy:"M9 9h11v11H9zM5 15H4V4h11v1",
+ down:"M12 3v12M7 10l5 5 5-5M4 21h16",
+ up:"M12 21V9M7 14l5-5 5 5M4 3h16",
+ chevL:"M15 6l-6 6 6 6", chevR:"M9 6l6 6-6 6",
+ flame:"M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z",
+ trophy:"M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4",
+ clock:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2",
+ users:"M16 21a6 6 0 0 0-12 0M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21a6 6 0 0 0-4-5.6M16 4.2a4 4 0 0 1 0 7.6",
+ target:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
+ run:"M14 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 22l3.5-6.5L13 18v4M9.5 15.5 11 9l4 3 4 1M11 9 7 10l-2 3",
+ bike:"M5.5 19a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM18.5 19a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM5.5 15.5 9 9h5l4.5 6.5M9 9l3 6.5H5.5M13 6h2.5",
+ dumbbell:"M6 7v10M18 7v10M3 9.5v5M21 9.5v5M6 12h12",
+ yoga:"M12 20c-4 0-8-2-9-5 3 0 6 1 9 5zM12 20c4 0 8-2 9-5-3 0-6 1-9 5zM12 20c-2-3-2-8 0-12 2 4 2 9 0 12z",
+ swim:"M2 19c2 0 2-1.5 4-1.5S8 19 10 19s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M2 14c2 0 2-1.5 4-1.5S8 14 10 14s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5M16 7a2 2 0 1 0 4 0 2 2 0 0 0-4 0M6 11l4-3 3 2",
+ music:"M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
+ walk:"M8 3c1.7 0 3 2 3 4.5S10 12 8 12s-3-2-3-4.5S6.3 3 8 3zM6 14h4v2a2 2 0 0 1-4 0zM16 8c1.7 0 3 2 3 4.5S18 17 16 17s-3-2-3-4.5S14.3 8 16 8zM14 19h4v.5a2 2 0 0 1-4 0z",
+ activity:"M3 12h4l3-8 4 16 3-8h4",
+ star:"M12 3l2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.4 6.5 20.3l1-6.2L3 9.7l6.2-.9z",
+ ball:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20",
+ mountain:"M3 20 9 9l4 6 3-4 5 9z",
+ racket:"M14.5 9.5a5 5 0 1 0-7.07-7.07 5 5 0 0 0 7.07 7.07zM14.5 9.5 21 16l-2 2-6.5-6.5",
+ heart:"M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z",
+ zap:"M13 2 4 14h7l-1 8 9-12h-7z",
+ snow:"M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9"
+};
+document.getElementById("sprite").innerHTML=Object.entries(ICONS).map(([k,d])=>`<symbol id="i-${k}" viewBox="0 0 24 24"><path d="${d}"/></symbol>`).join("");
+const ico=(k,cls="")=>`<svg class="i ${cls}"><use href="#i-${ICONS[k]?k:"star"}"/></svg>`;
+const PICK=["run","bike","dumbbell","yoga","swim","music","walk","activity","ball","mountain","racket","zap","heart","target","snow","star"];
 
-/* ---------- Speicher ---------- */
+/* ================= Daten ================= */
+const TYPES=[{n:"Laufen",i:"run"},{n:"Rad",i:"bike"},{n:"Kraft",i:"dumbbell"},{n:"Yoga",i:"yoga"},{n:"Schwimmen",i:"swim"},{n:"Tanzen",i:"music"},{n:"Spaziergang",i:"walk"},{n:"Workout",i:"activity"}];
+const LEGACY_ICON={"Laufen":"run","Rad":"bike","Kraft":"dumbbell","Yoga":"yoga","Schwimmen":"swim","Tanzen":"music","Spaziergang":"walk","Workout":"activity"};
+const INT=[["Locker",1],["Mittel",1.25],["Hart",1.5]];
+const TEAM_BONUS=30;
+const DEFAULT={rev:0,name:"",goal:3,teamGoal:5,people:{},customTypes:[],workouts:[],redeemed:[],rewards:[
+ {id:"r1",n:"Lieblingssnack",c:50},{id:"r2",n:"Massage (20 Min)",c:120},{id:"r3",n:"Filmabend – du wählst",c:150},
+ {id:"r4",n:"Frühstück ans Bett",c:200},{id:"r5",n:"Essen gehen",c:400},{id:"r6",n:"Shopping-Gutschein",c:800}]};
+function norm(d){const x=JSON.parse(JSON.stringify(Object.assign({},DEFAULT,d||{})));if(!x.people||typeof x.people!=="object")x.people={};return x}
+let S=norm(),ME={uid:"local",name:""},sel=null,editId=null,viewUid=null,calM=null,calSel=null;
+
 const LS="fitpunkte_state",LC="fitpunkte_code";
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
 function loadLocal(){const x=lsGet(LS);if(x)try{S=norm(JSON.parse(x))}catch(e){}}
 function saveLocal(){lsSet(LS,JSON.stringify(S))}
-function setStatus(t){const el=document.getElementById("status");if(el)el.textContent=t}
-// Jede Änderung läuft über mutate(fn): lokal sofort, dann in der Cloud (Transaktion)
-function mutate(fn){fn(S);S.rev++;saveLocal();render();if(window.REMOTE)window.REMOTE.mutate(fn)}
-// wird vom Firebase-Teil aufgerufen, wenn neue Daten kommen
-window.applyRemote=function(d){if(!d||!Array.isArray(d.workouts))return;S=norm(d);saveLocal();render()};
+function setStatus(t,state){$("status").textContent=t;const d=$("syncDot");d.className="dot"+(state?" "+state:"");d.title=t}
+function mutate(fn){fn(S);S.rev++;saveLocal();render();if(window.REMOTE&&window.REMOTE.mutate)window.REMOTE.mutate(fn)}
+window.applyRemote=function(d){if(!d||!Array.isArray(d.workouts))return;S=norm(d);saveLocal();render();afterSync()};
+window.setMe=function(u){ME={uid:u.uid,name:(u.displayName||"").split(" ")[0]};render()};
 loadLocal();
 
-/* ---------- Logik ---------- */
-const dkey=d=>{d=new Date(d);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
-const earned=()=>S.workouts.reduce((a,w)=>a+w.p,0);
-const spent=()=>S.redeemed.reduce((a,r)=>a+r.c,0);
-const balance=()=>earned()-spent();
-function streak(){const days=new Set(S.workouts.map(w=>dkey(w.d)));let n=0,d=new Date();if(!days.has(dkey(d)))d.setDate(d.getDate()-1);while(days.has(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
-function weekStart(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d}
-function calcPts(m,i){const st=streak(),todayDone=S.workouts.some(w=>dkey(w.d)===dkey(new Date()));const bonus=10+(todayDone?0:Math.min((st+1)*2,20));return {base:Math.round(m*i),bonus,total:Math.round(m*i)+bonus}}
-const LV=["Sofa-Starter","Aufgewärmt","In Bewegung","Fit-Fan","Power-Frau","Sport-Queen","Legende"];
-
-/* ---------- UI ---------- */
-function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+/* ================= Hilfen ================= */
 const $=id=>document.getElementById(id);
-function render(){
- const b=balance(),e=earned();
- $("hello").textContent="Hey"+(S.name?" "+S.name:"")+"! 👋";
- $("pts").textContent=b;$("pts2").textContent=b;
- $("streak").textContent=streak()+"🔥";
- $("total").textContent=S.workouts.length;
- const lv=Math.floor(e/250)+1,inL=e%250;
- $("lvl").textContent=lv;
- $("lvlName").textContent="Level "+lv+" · "+LV[Math.min(lv-1,LV.length-1)];
- $("lvlTxt").textContent=inL+" / 250";
- $("lvlBar").style.width=(inL/250*100)+"%";
- const ws=weekStart(),wd=new Set(S.workouts.filter(w=>new Date(w.d)>=ws).map(w=>dkey(w.d)));
- $("weekTxt").textContent=wd.size+" / "+S.goal+(wd.size>=S.goal?" ✅":"");
- $("weekBar").style.width=Math.min(wd.size/S.goal*100,100)+"%";
- let h="";["Mo","Di","Mi","Do","Fr","Sa","So"].forEach((n,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);const k=dkey(d);h+=`<div class="day ${wd.has(k)?"done":""} ${k===dkey(new Date())?"today":""}"><i>${wd.has(k)?"✓":d.getDate()}</i>${n}</div>`});
- $("weekDays").innerHTML=h;
- const next=[...S.rewards].sort((a,c)=>a.c-c.c).find(r=>r.c>b);
- const can=S.rewards.filter(r=>r.c<=b).length;
- $("nextRewardCard").innerHTML=next?`<div class="lbl2"><span>Nächste Belohnung: ${next.e} ${esc(next.n)}</span><span>noch ${next.c-b}</span></div><div class="bar"><i style="width:${Math.max(b,0)/next.c*100}%;background:linear-gradient(90deg,var(--warn),var(--acc))"></i></div>${can?`<div style="margin-top:10px;font-size:14px">🎁 Du kannst schon <b>${can}</b> Belohnung${can>1?"en":""} einlösen!</div>`:""}`:`<div class="quote">Du kannst dir alles holen! 🤩</div>`;
- $("quoteTop").textContent=QUOTES[new Date().getDate()%QUOTES.length];
- $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>`<div class="reward"><span class="e">${esc(r.e)}</span><div class="n"><b>${esc(r.n)}</b><span class="badge p">${r.c} Punkte</span></div><button ${r.c>b?"disabled":""} onclick="askRedeem('${r.id}')">${r.c>b?"🔒":"Holen"}</button><button class="del" onclick="askDel('${r.id}')">✕</button></div>`).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
- $("histW").innerHTML=[...S.workouts].reverse().slice(0,40).map(w=>`<div class="item"><div>${w.e} ${w.t} · ${w.m} Min<small>${new Date(w.d).toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit"})}</small></div><span class="badge">+${w.p}</span><button class="del sbtn" onclick="askDelW('${w.id}')">✕</button></div>`).join("")||`<div class="empty">Noch nichts eingetragen</div>`;
- $("histR").innerHTML=[...S.redeemed].reverse().map(r=>`<div class="item"><div>${esc(r.e)} ${esc(r.n)}<small>${new Date(r.d).toLocaleDateString("de-DE")}</small></div><span class="badge p">−${r.c}</span></div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
- if(document.activeElement!==$("setName"))$("setName").value=S.name||"";
- if(document.activeElement!==$("setGoal"))$("setGoal").value=S.goal;
- $("codeShow").value=lsGet(LC)||"";
- renderLog();
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dkey=d=>{d=new Date(d);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fromKey=k=>{const [y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d,12)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+function weekStart(d=new Date()){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function kw(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
+function relDay(ts){const k=dkey(ts),t=dkey(new Date()),y=dkey(addDays(new Date(),-1));return k===t?"Heute":k===y?"Gestern":new Date(ts).toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"short"})}
+const fmtKm=v=>String(v).replace(".",",")+" km";
+
+/* ================= Personen ================= */
+const peopleIds=()=>Object.keys(S.people||{}).filter(u=>u!=="local");
+const isTeam=()=>peopleIds().length>=2;
+const partnerId=()=>peopleIds().find(u=>u!==ME.uid)||null;
+const pName=u=>u===ME.uid?(S.people[u]&&S.people[u].name)||ME.name||"Du":(S.people[u]&&S.people[u].name)||"Partner";
+const initial=u=>(pName(u)[0]||"?").toUpperCase();
+function wOf(u){return S.workouts.filter(w=>w.uid?w.uid===u:(u===ME.uid&&!isTeam()))}
+function rOf(u){return S.redeemed.filter(r=>r.uid?r.uid===u:(u===ME.uid&&!isTeam()))}
+const goalOf=u=>(S.people[u]&&S.people[u].goal)||S.goal||3;
+
+/* ================= Punkte & Serien ================= */
+function daysSet(u){return new Set(wOf(u).map(w=>dkey(w.d)))}
+function streakAt(u,endKey){const ds=daysSet(u);let n=0,d=fromKey(endKey);while(ds.has(dkey(d))){n++;d=addDays(d,-1)}return n}
+function curStreak(u){const t=dkey(new Date());return daysSet(u).has(t)?streakAt(u,t):streakAt(u,dkey(addDays(new Date(),-1)))}
+function longestStreak(u){const ks=[...daysSet(u)].sort();let best=0,run=0,prev=null;ks.forEach(k=>{run=prev&&dkey(addDays(fromKey(prev),1))===k?run+1:1;best=Math.max(best,run);prev=k});return best}
+function calcPts(u,m,inten,dayK,excludeId){
+ const base=Math.round(m*inten);
+ const sameDay=wOf(u).some(w=>w.id!==excludeId&&dkey(w.d)===dayK);
+ const before=streakAt(u,dkey(addDays(fromKey(dayK),-1)));
+ const bonus=sameDay?0:10+Math.min((before+1)*2,20);
+ return {base,bonus,total:base+bonus,streak:before+1}
 }
+function teamWeeks(){ // {weekKey: [uids die Bonus bekommen]}
+ const out={};if(!isTeam())return out;
+ const by={};S.workouts.forEach(w=>{if(!w.uid)return;const k=dkey(weekStart(new Date(w.d)));(by[k]=by[k]||[]).push(w.uid)});
+ Object.entries(by).forEach(([k,arr])=>{if(arr.length>=(S.teamGoal||5))out[k]=[...new Set(arr)]});
+ return out;
+}
+function teamBonusOf(u){return Object.values(teamWeeks()).filter(a=>a.includes(u)).length*TEAM_BONUS}
+const earned=u=>wOf(u).reduce((a,w)=>a+(w.p||0),0)+teamBonusOf(u);
+const spent=u=>rOf(u).reduce((a,r)=>a+r.c,0);
+const balance=u=>earned(u)-spent(u);
+const LV=["Einsteiger","Aufgewärmt","In Bewegung","Regelmäßig","Stark","Ausdauernd","Profi","Legende"];
+
+/* ================= Abzeichen ================= */
+const BADGES=[
+ {id:"first",t:"Erster Schritt",d:"1. Training",i:"star",f:s=>s.n>=1},
+ {id:"s10",t:"Dranbleiber",d:"10 Trainings",i:"target",f:s=>s.n>=10},
+ {id:"s25",t:"Routine",d:"25 Trainings",i:"activity",f:s=>s.n>=25},
+ {id:"s50",t:"Halbe Hundert",d:"50 Trainings",i:"zap",f:s=>s.n>=50},
+ {id:"s100",t:"Hundert",d:"100 Trainings",i:"trophy",f:s=>s.n>=100},
+ {id:"st3",t:"3 am Stück",d:"3 Tage Serie",i:"flame",f:s=>s.ls>=3},
+ {id:"st7",t:"Volle Woche",d:"7 Tage Serie",i:"flame",f:s=>s.ls>=7},
+ {id:"hour",t:"Eine Stunde",d:"60+ Min am Stück",i:"clock",f:s=>s.maxM>=60},
+ {id:"m1000",t:"1000 Minuten",d:"insgesamt",i:"clock",f:s=>s.min>=1000},
+ {id:"g4",t:"Ziel-Profi",d:"4× Wochenziel",i:"check",f:s=>s.goals>=4},
+ {id:"team",t:"Teamwork",d:"Team-Ziel erreicht",i:"users",f:s=>s.team>=1},
+ {id:"var",t:"Vielseitig",d:"4 Sportarten",i:"heart",f:s=>s.types>=4}];
+function statsOf(u){const ws=wOf(u);const byWeek={};ws.forEach(w=>{const k=dkey(weekStart(new Date(w.d)));(byWeek[k]=byWeek[k]||new Set()).add(dkey(w.d))});
+ return {n:ws.length,min:ws.reduce((a,w)=>a+w.m,0),maxM:Math.max(0,...ws.map(w=>w.m)),ls:longestStreak(u),goals:Object.values(byWeek).filter(s=>s.size>=goalOf(u)).length,team:Object.values(teamWeeks()).filter(a=>a.includes(u)).length,types:new Set(ws.map(w=>w.t)).size}}
+const earnedBadges=u=>{const s=statsOf(u);return BADGES.filter(b=>b.f(s)).map(b=>b.id)};
+function checkBadges(celebrate){
+ const p=S.people[ME.uid];if(!p&&isTeam())return;
+ const now=earnedBadges(ME.uid),seen=(p&&p.badges)||null;
+ if(seen===null){mutate(s=>{s.people[ME.uid]=Object.assign({name:ME.name,goal:S.goal||3},s.people[ME.uid]||{},{badges:now})});return}
+ const fresh=now.filter(b=>!seen.includes(b));
+ if(fresh.length){mutate(s=>{const q=s.people[ME.uid]=s.people[ME.uid]||{};q.badges=[...new Set([...(q.badges||[]),...fresh])]});
+  if(celebrate){const b=BADGES.find(x=>x.id===fresh[0]);setTimeout(()=>{confetti();sheet("Neues Abzeichen",`<div style="text-align:center;padding:10px 0"><div class="ic acc" style="width:64px;height:64px;margin:0 auto 12px;border-radius:18px">${ico(b.i)}</div><b style="color:var(--txt);font-size:17px">${b.t}</b><br>${b.d}</div>`,[["Weiter",null]])},400)}}
+}
+
+/* ================= Navigation ================= */
+function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
+
+/* ================= Rendering ================= */
+let lastBal=null;
+function render(){
+ const u=ME.uid,b=balance(u),e=earned(u);
+ const nm=pName(u);$("hello").textContent=nm&&nm!=="Du"?"Hallo "+nm:"Hallo";
+ $("dateTxt").textContent=new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+ const pe=$("pts");pe.textContent=b;$("pts2").textContent=b;
+ if(lastBal!==null&&b>lastBal){pe.classList.add("pop");setTimeout(()=>pe.classList.remove("pop"),350)}lastBal=b;
+ const lv=Math.floor(e/250)+1,inL=e%250;
+ $("lvlName").textContent="Level "+lv+" · "+LV[Math.min(lv-1,LV.length-1)];$("lvlTxt").textContent=(250-inL)+" bis Level "+(lv+1);$("lvlBar").style.width=(inL/250*100)+"%";
+ // Woche
+ const ws=weekStart(),ds=daysSet(u),g=goalOf(u);let wd=0,h="";
+ ["M","D","M","D","F","S","S"].forEach((n,i)=>{const d=addDays(ws,i),k=dkey(d),done=ds.has(k);if(done)wd++;h+=`<div class="wd ${done?"done":""} ${k===dkey(new Date())?"today":""}"><i>${done?ico("check"):d.getDate()}</i>${n}</div>`});
+ $("weekDays").innerHTML=h;$("weekTxt").textContent=wd+" / "+g;
+ const st=curStreak(u),todayDone=ds.has(dkey(new Date()));
+ $("weekHint").innerHTML=wd>=g?`Wochenziel erreicht.${st>1?` <b>${st} Tage</b> in Folge.`:""}`:`Noch <b>${g-wd} ${g-wd===1?"Tag":"Tage"}</b> bis zum Wochenziel.${!todayDone&&st>0?` Heute trainieren hält deine <b>${st}-Tage-Serie</b>.`:""}`;
+ // Team
+ if(isTeam()){$("teamCard").style.display="block";const wk=dkey(ws),cnt=S.workouts.filter(w=>w.uid&&dkey(weekStart(new Date(w.d)))===wk),tg=S.teamGoal||5;
+  $("teamTxt").textContent=Math.min(cnt.length,tg)+" / "+tg;$("teamBar").style.width=Math.min(cnt.length/tg*100,100)+"%";
+  const by=peopleIds().map(p=>`<span><span class="who ${p===u?"me":""}">${esc(initial(p))}</span>${cnt.filter(w=>w.uid===p).length}</span>`).join(" ");
+  $("teamMeta").innerHTML=`<span>${by}</span><span>${cnt.length>=tg?"Bonus +"+TEAM_BONUS+" für jeden ✓":"Bei Ziel: +"+TEAM_BONUS+" für jeden"}</span>`}
+ else $("teamCard").style.display="none";
+ // Offene Belohnungen
+ const open=S.redeemed.filter(r=>r.done===false);
+ $("openCard").style.display=open.length?"block":"none";
+ $("openList").innerHTML=open.map(r=>{const forMe=r.uid===u;return `<div class="rw"><div class="ic acc">${ico("gift")}</div><div class="tx"><b>${esc(r.n)}</b><span>${forMe?(isTeam()?"Wartet auf "+esc(pName(partnerId())):"Offen"):esc(pName(r.uid))+" hat eingelöst"}</span></div>${!forMe||!isTeam()?`<button class="btn small" onclick="markDone('${r.id}')">Erledigt</button>`:`<span class="pill open">Offen</span>`}</div>`}).join("");
+ // Feed
+ const fe=[...S.workouts].sort((a,c)=>c.d-a.d).slice(0,5);
+ $("feed").innerHTML=fe.map(w=>feedItem(w)).join("")||`<div class="empty">Noch keine Trainings. Leg los.</div>`;
+ renderShop();renderProgress();renderProfile();if($("v-log").classList.contains("on"))renderLog();
+}
+function typeIcon(w){return w.i||LEGACY_ICON[w.t]||"star"}
+function reactBar(w){
+ const owner=w.uid||ME.uid,R=w.react||{},canReact=isTeam()&&owner!==ME.uid;
+ const got=Object.entries(R).filter(([k])=>k!==owner);
+ if(canReact){const myR=R[ME.uid];return `<div class="reacts">${["👏","🔥","💪","❤️"].map(e=>`<button class="rb ${myR===e?"on":""}" onclick="event.stopPropagation();react('${w.id}','${e}')">${e}</button>`).join("")}</div>`}
+ return got.length?`<div class="reacts">${got.map(([k,e])=>`<span class="rb">${e} ${esc(pName(k))}</span>`).join("")}</div>`:"";
+}
+function feedItem(w){const team=isTeam(),owner=w.uid||ME.uid;
+ return `<div class="it"><div class="ic">${ico(typeIcon(w))}</div><div class="tx"><b>${team?`<span class="who ${owner===ME.uid?"me":""}">${esc(initial(owner))}</span>`:""}${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span>${relDay(w.d)}${w.note?" · "+esc(w.note):""}</span>${reactBar(w)}</div><div class="pt">+${w.p}</div></div>`}
+function react(id,e){mutate(s=>{const w=s.workouts.find(x=>x.id===id);if(!w)return;w.react=w.react||{};if(w.react[ME.uid]===e)delete w.react[ME.uid];else w.react[ME.uid]=e})}
+
+/* ---------- Eintragen ---------- */
+const allTypes=()=>TYPES.concat((S.customTypes||[]).map(c=>({n:c.n,i:c.i||"star",id:c.id})));
+function blankSel(){return {t:null,m:null,i:1,day:dkey(new Date()),km:"",note:""}}
+function startLog(){editId=null;sel=blankSel();fillLogInputs();go("log")}
+function startEdit(id){const w=S.workouts.find(x=>x.id===id);if(!w)return;if(isTeam()&&w.uid&&w.uid!==ME.uid)return sheet("Nicht deins","Nur "+esc(pName(w.uid))+" kann diesen Eintrag bearbeiten.",[["OK",null]]);
+ editId=id;const ti=allTypes().findIndex(t=>t.n===w.t);sel={t:ti>=0?ti:null,m:w.m,i:w.int||1,day:dkey(w.d),km:w.km||"",note:w.note||""};fillLogInputs();go("log")}
+function cancelEdit(){editId=null;sel=blankSel();go("progress")}
+function fillLogInputs(){$("minIn").value=[10,20,30,45,60].includes(sel.m)?"":(sel.m||"");$("dateIn").value=sel.day;$("dateIn").max=dkey(new Date());$("distIn").value=sel.km?String(sel.km).replace(".",","):"";$("noteIn").value=sel.note||""}
 function renderLog(){
- $("types").innerHTML=TYPES.map((t,i)=>`<div class="chip ${sel.t===i?"on":""}" onclick="sel.t=${i};renderLog()"><span class="e">${t[0]}</span>${t[1]}</div>`).join("");
- $("minBtns").innerHTML=[10,20,30,45,60].map(m=>`<button class="sbtn ${sel.m===m?"on":""}" onclick="sel.m=${m};$('minIn').value='';renderLog()">${m}</button>`).join("");
- $("intBtns").innerHTML=INT.map(x=>`<button class="sbtn ${sel.i===x[2]?"on":""}" onclick="sel.i=${x[2]};renderLog()">${x[0]} ${x[1]}</button>`).join("");
- const ok=sel.t!==null&&sel.m>0;$("saveBtn").style.opacity=ok?1:.5;
- if(ok){const p=calcPts(sel.m,sel.i);$("preview").innerHTML=`Du bekommst <span class="badge">+${p.total} Punkte</span><br><small style="color:var(--mut)">${p.base} für Training + ${p.bonus} Bonus${p.bonus>10?" (Serien-Bonus 🔥)":""}</small>`}else $("preview").innerHTML="";
+ if(!sel)sel=blankSel();
+ $("logTitle").textContent=editId?"Eintrag bearbeiten":"Training eintragen";$("logCancel").style.display=editId?"flex":"none";$("delBtn").style.display=editId?"flex":"none";$("saveBtn").textContent=editId?"Speichern":"Eintragen";
+ $("types").innerHTML=allTypes().map((t,i)=>`<button class="type ${sel.t===i?"on":""}" onclick="sel.t=${i};renderLog()">${ico(t.i)}<span>${esc(t.n)}</span></button>`).join("")+`<button class="type add" onclick="openTypeSheet()">${ico("plus")}<span>Eigene</span></button>`;
+ $("minBtns").innerHTML=[10,20,30,45,60].map(m=>`<button class="${sel.m===m?"on":""}" onclick="sel.m=${m};$('minIn').value='';renderLog()">${m}</button>`).join("");
+ $("intBtns").innerHTML=INT.map(x=>`<button class="${sel.i===x[1]?"on":""}" onclick="sel.i=${x[1]};renderLog()">${x[0]}</button>`).join("");
+ const t0=dkey(new Date()),t1=dkey(addDays(new Date(),-1)),t2=dkey(addDays(new Date(),-2));
+ $("dayBtns").innerHTML=[[t0,"Heute"],[t1,"Gestern"],[t2,"Vorgestern"]].map(([k,l])=>`<button class="${sel.day===k?"on":""}" onclick="sel.day='${k}';$('dateIn').value='${k}';renderLog()">${l}</button>`).join("");
+ const ok=sel.t!==null&&sel.m>0;$("saveBtn").style.opacity=ok?1:.45;
+ if(ok){const old=editId&&S.workouts.find(x=>x.id===editId);const p=calcPts(ME.uid,sel.m,sel.i,sel.day,editId);const bonus=old?(old.bonus!=null?old.bonus:p.bonus):p.bonus;const tot=p.base+bonus;
+  $("preview").style.display="flex";$("preview").innerHTML=`<div><div style="font-weight:600">${editId?"Neue Punkte":"Du bekommst"}</div><small>${p.base} Training + ${bonus} Bonus${!old&&p.streak>1&&p.bonus>10?" · "+p.streak+"-Tage-Serie":""}</small></div><div class="big">+${tot}</div>`}
+ else $("preview").style.display="none";
 }
 $("minIn").addEventListener("input",e=>{sel.m=parseInt(e.target.value)||null;renderLog()});
-
+$("dateIn").addEventListener("change",e=>{if(e.target.value&&e.target.value<=dkey(new Date())){sel.day=e.target.value;renderLog()}});
+$("distIn").addEventListener("input",e=>sel.km=e.target.value);
+$("noteIn").addEventListener("input",e=>sel.note=e.target.value);
 function saveWorkout(){
- if(sel.t===null||!(sel.m>0))return modal("✋","Fast geschafft",sel.t===null?"Bitte zuerst eine Sportart antippen.":"Bitte noch die Minuten wählen.",[["OK",null]]);
- const t=TYPES[sel.t],p=calcPts(sel.m,sel.i),w={id:"w"+Date.now(),d:Date.now(),e:t[0],t:t[1],m:sel.m,p:p.total};
+ if(sel.t===null)return sheet("Sportart fehlt","Tippe oben eine Sportart an.",[["OK",null]]);
+ if(!(sel.m>0))return sheet("Dauer fehlt","Wähle, wie lange du trainiert hast.",[["OK",null]]);
+ const t=allTypes()[sel.t];const km=parseFloat(String(sel.km).replace(",","."));const kmV=km>0?Math.round(km*100)/100:null;const note=(sel.note||"").trim().slice(0,60)||null;
+ const ts=sel.day===dkey(new Date())?Date.now():fromKey(sel.day).getTime();
+ if(editId){const old=S.workouts.find(x=>x.id===editId);if(!old)return startLog();
+  const p=calcPts(ME.uid,sel.m,sel.i,sel.day,editId);const bonus=old.bonus!=null?old.bonus:Math.max(0,(old.p||0)-Math.round(old.m*(old.int||1)));
+  const keepTs=dkey(old.d)===sel.day?old.d:ts;const id=editId;const upd={d:keepTs,t:t.n,i:t.i,m:sel.m,int:sel.i,km:kmV,note,base:p.base,bonus,p:p.base+bonus};
+  mutate(s=>{const w=s.workouts.find(x=>x.id===id);if(w)Object.assign(w,upd)});editId=null;sel=blankSel();toast("Gespeichert");go("progress");return}
+ const p=calcPts(ME.uid,sel.m,sel.i,sel.day);
+ const w={id:"w"+Date.now()+Math.random().toString(36).slice(2,6),uid:ME.uid==="local"?undefined:ME.uid,d:ts,t:t.n,i:t.i,m:sel.m,int:sel.i,km:kmV,note,base:p.base,bonus:p.bonus,p:p.total};
+ const before=wOf(ME.uid).length,wkBefore=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamBefore=Object.keys(teamWeeks()).length;
  mutate(s=>{if(!s.workouts.some(x=>x.id===w.id))s.workouts.push(w)});
- sel={t:null,m:null,i:1};$("minIn").value="";
- confetti();go("home");const st=streak();
- modal("🎉","+"+p.total+" Punkte!",(st>1?`${st} Tage in Folge – Wahnsinn! 🔥<br>`:"")+QUOTES[Math.floor(Math.random()*QUOTES.length)],[["Super!",null]]);
+ sel=blankSel();go("home");
+ const wkAfter=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamAfter=Object.keys(teamWeeks()).length;
+ toast("+"+p.total+" Punkte · "+t.n,()=>mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==w.id)}));
+ if(teamAfter>teamBefore){confetti();sheet("Team-Ziel geschafft","Ihr habt das Team-Ziel diese Woche erreicht. Jeder bekommt <b style='color:var(--txt)'>+"+TEAM_BONUS+" Punkte</b>.",[["Stark",null]])}
+ else if(wkBefore<goalOf(ME.uid)&&wkAfter>=goalOf(ME.uid)){confetti();sheet("Wochenziel erreicht",`${wkAfter} Trainingstage diese Woche. Weiter so.`,[["Weiter",null]])}
+ checkBadges(true);
 }
-function askRedeem(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;modal(r.e,r.n+" holen?",`Kostet ${r.c} Punkte. Danach hast du noch ${balance()-r.c}.`,[["Abbrechen",null,1],["Einlösen 🎁",()=>{const x={id:"x"+Date.now(),e:r.e,n:r.n,c:r.c,d:Date.now()};mutate(s=>{if(!s.redeemed.some(y=>y.id===x.id))s.redeemed.push(x)});confetti();modal(r.e,"Eingelöst!","Jetzt einfordern: <b>"+esc(r.n)+"</b> 😄",[["Yay!",null]])}]])}
-function askDel(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;modal("🗑️","Belohnung löschen?",esc(r.n),[["Nein",null,1],["Löschen",()=>mutate(s=>{s.rewards=s.rewards.filter(x=>x.id!==id)})]])}
-function askDelW(id){modal("🗑️","Eintrag löschen?","Die Punkte werden wieder abgezogen.",[["Nein",null,1],["Löschen",()=>mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==id)})]])}
-function addReward(){const n=$("rName").value.trim(),c=parseInt($("rCost").value),e=$("rEmoji").value.trim()||"🎁";if(!n||!(c>0))return modal("✋","Fehlt was","Bitte Name und Punkte eingeben.",[["OK",null]]);const r={id:"r"+Date.now(),e,n,c};mutate(s=>{if(!s.rewards.some(x=>x.id===r.id))s.rewards.push(r)});["rName","rCost","rEmoji"].forEach(i=>$(i).value="")}
-function saveSettings(){const n=$("setName").value.trim(),g=Math.max(1,parseInt($("setGoal").value)||3);mutate(s=>{s.name=n;s.goal=g});modal("✅","Gespeichert","",[["OK",null]])}
-function modal(e,t,b,btns){$("mE").textContent=e;$("mT").textContent=t;$("mB").innerHTML=b;const box=$("mBtns");box.innerHTML="";btns.forEach(([l,fn,sec])=>{const x=document.createElement("button");x.className=sec?"btn sbtn":"btn";x.style.flex="1";x.textContent=l;x.onclick=()=>{$("modal").classList.remove("on");fn&&fn()};box.appendChild(x)});$("modal").classList.add("on")}
+function deleteEdit(){const id=editId;sheet("Eintrag löschen?","Die Punkte werden wieder abgezogen.",[["Abbrechen",null,1],["Löschen",()=>{mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==id)});editId=null;sel=blankSel();go("progress")},"danger"]])}
+
+/* ---------- Eigene Sportarten ---------- */
+let pickI="star";
+function openTypeSheet(){pickI="run";
+ sheet("Eigene Sportart",`<input class="field" id="tName" placeholder="z. B. Bouldern" maxlength="18"><div class="lbl">Symbol</div><div class="iconpick" id="iconPick"></div>`,[["Abbrechen",null,1],["Hinzufügen",addType,null,true]]);drawPick();setTimeout(()=>$("tName")&&$("tName").focus(),60)}
+function drawPick(){$("iconPick").innerHTML=PICK.map(k=>`<button class="${pickI===k?"on":""}" onclick="pickI='${k}';drawPick()">${ico(k)}</button>`).join("")}
+function addType(){const n=($("tName").value||"").trim();if(!n)return false;if(allTypes().some(t=>t.n.toLowerCase()===n.toLowerCase())){$("tName").value="";$("tName").placeholder="Gibt es schon";return false}
+ const c={id:"t"+Date.now(),n,i:pickI};mutate(s=>{s.customTypes=s.customTypes||[];if(!s.customTypes.some(x=>x.id===c.id))s.customTypes.push(c)});if(sel)sel.t=allTypes().length-1;render()}
+function delType(id){const c=(S.customTypes||[]).find(x=>x.id===id);if(!c)return;sheet("Sportart entfernen?",esc(c.n)+" verschwindet aus der Auswahl. Alte Einträge bleiben erhalten.",[["Abbrechen",null,1],["Entfernen",()=>{mutate(s=>{s.customTypes=(s.customTypes||[]).filter(x=>x.id!==id)});if(sel)sel.t=null},"danger"]])}
+
+/* ---------- Belohnungen ---------- */
+function renderShop(){const b=balance(ME.uid);
+ $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>{const can=r.c<=b;return `<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${r.c} Punkte${can?"":" · noch "+(r.c-b)}</span>${can?"":`<div class="prog" style="margin-top:6px;height:4px"><i style="width:${Math.max(0,b)/r.c*100}%"></i></div>`}</div><button class="btn small ${can?"":"ghost"}" ${can?"":"disabled style='opacity:.45'"} onclick="askRedeem('${r.id}')">Einlösen</button><button class="iconbtn" onclick="askDel('${r.id}')">${ico("trash")}</button></div>`}).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
+ $("redeemed").innerHTML=[...S.redeemed].sort((a,c)=>c.d-a.d).slice(0,30).map(r=>`<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${isTeam()&&r.uid?esc(pName(r.uid))+" · ":""}${new Date(r.d).toLocaleDateString("de-DE")} · ${r.c} P</span></div>${r.done===false?`<button class="pill open" onclick="markDone('${r.id}')">Offen</button>`:`<span class="pill done">Erledigt</span>`}</div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
+}
+function askRedeem(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;const b=balance(ME.uid);if(r.c>b)return;
+ sheet(r.n,`Kostet <b style="color:var(--txt)">${r.c} Punkte</b>. Danach hast du noch ${b-r.c}.${isTeam()?"<br>"+esc(pName(partnerId()))+" sieht die Belohnung als offen und hakt sie ab, wenn sie erledigt ist.":""}`,[["Abbrechen",null,1],["Einlösen",()=>{const x={id:"x"+Date.now(),uid:ME.uid==="local"?undefined:ME.uid,n:r.n,c:r.c,d:Date.now(),done:false};mutate(s=>{if(!s.redeemed.some(y=>y.id===x.id))s.redeemed.push(x)});confetti();toast("Eingelöst: "+r.n)}]])}
+function markDone(id){const r=S.redeemed.find(x=>x.id===id);if(!r)return;if(isTeam()&&r.uid===ME.uid)return sheet("Noch offen",esc(pName(partnerId()))+" hakt die Belohnung ab, sobald sie erledigt ist.",[["OK",null]]);
+ sheet("Erledigt?",esc(r.n)+" als erledigt markieren.",[["Abbrechen",null,1],["Erledigt",()=>mutate(s=>{const y=s.redeemed.find(z=>z.id===id);if(y){y.done=true;y.doneAt=Date.now()}})]])}
+function askDel(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;sheet("Belohnung löschen?",esc(r.n),[["Abbrechen",null,1],["Löschen",()=>mutate(s=>{s.rewards=s.rewards.filter(x=>x.id!==id)}),"danger"]])}
+function addReward(){const n=$("rName").value.trim(),c=parseInt($("rCost").value);if(!n||!(c>0))return sheet("Angaben fehlen","Bitte Name und Punkte eingeben.",[["OK",null]]);const r={id:"r"+Date.now(),n,c};mutate(s=>{if(!s.rewards.some(x=>x.id===r.id))s.rewards.push(r)});$("rName").value="";$("rCost").value=""}
+
+/* ---------- Fortschritt ---------- */
+function renderProgress(){
+ if(!viewUid||!(viewUid===ME.uid||S.people[viewUid]))viewUid=ME.uid;const u=viewUid;
+ if(isTeam()){$("personSeg").style.display="flex";$("personSeg").innerHTML=[ME.uid,partnerId()].map(p=>`<button class="${u===p?"on":""}" onclick="viewUid='${p}';calSel=null;renderProgress()">${esc(pName(p))}</button>`).join("")}else $("personSeg").style.display="none";
+ const ws=wOf(u),s=statsOf(u);
+ const fav=Object.entries(ws.reduce((a,w)=>(a[w.t]=(a[w.t]||0)+1,a),{})).sort((a,b)=>b[1]-a[1])[0];
+ $("stats").innerHTML=[[s.n,"Trainings"],[s.min>=600?Math.round(s.min/60)+" h":s.min+" min","Gesamtzeit"],[curStreak(u)+" / "+s.ls,"Serie jetzt / Rekord"],[fav?esc(fav[0]):"–","Lieblingssport"]].map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+ // Kalender
+ if(!calM){const n=new Date();calM=new Date(n.getFullYear(),n.getMonth(),1)}
+ $("calTitle").textContent=calM.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+ const mins={};ws.forEach(w=>{const k=dkey(w.d);mins[k]=(mins[k]||0)+w.m});
+ let h=["Mo","Di","Mi","Do","Fr","Sa","So"].map(d=>`<div class="h">${d}</div>`).join("");
+ const off=(calM.getDay()+6)%7,days=new Date(calM.getFullYear(),calM.getMonth()+1,0).getDate();
+ for(let i=0;i<off;i++)h+=`<div class="d x"></div>`;
+ for(let d=1;d<=days;d++){const k=dkey(new Date(calM.getFullYear(),calM.getMonth(),d)),m=mins[k]||0,l=m===0?"":m<30?"l1":m<60?"l2":"l3";h+=`<button class="d ${l} ${k===dkey(new Date())?"today":""} ${calSel===k?"sel":""}" onclick="calSel=calSel==='${k}'?null:'${k}';renderProgress()">${d}</button>`}
+ $("cal").innerHTML=h;
+ const dl=calSel?ws.filter(w=>dkey(w.d)===calSel):[];
+ $("dayList").innerHTML=calSel?(dl.length?dl.map(w=>listItem(w)).join(""):`<div class="empty">${new Date(fromKey(calSel)).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})}: kein Training</div>`):"";
+ // Diagramm: 8 Wochen
+ const W=8,ws0=weekStart(),vals=[];for(let i=W-1;i>=0;i--){const st=addDays(ws0,-7*i),en=addDays(st,7);vals.push({k:kw(st),v:ws.filter(w=>w.d>=st.getTime()&&w.d<en.getTime()).reduce((a,w)=>a+w.m,0),cur:i===0})}
+ const mx=Math.max(60,...vals.map(x=>x.v)),cw=320,ch=140,bw=cw/W;
+ $("chart").innerHTML=`<svg class="chart" viewBox="0 0 ${cw} ${ch+20}" width="100%">${vals.map((x,i)=>{const hh=Math.max(x.v?4:2,x.v/mx*ch*.82),xx=i*bw+bw*.2,yy=ch-hh;return `<rect x="${xx}" y="${yy}" width="${bw*.6}" height="${hh}" rx="4" fill="${x.cur?"var(--acc)":x.v?"var(--s3)":"var(--s2)"}"/>${x.v?`<text x="${xx+bw*.3}" y="${yy-5}" text-anchor="middle" style="fill:var(--txt)">${x.v}</text>`:""}<text x="${xx+bw*.3}" y="${ch+15}" text-anchor="middle">KW${x.k}</text>`}).join("")}</svg>`;
+ // Abzeichen
+ const eb=earnedBadges(u);$("bdCount").textContent=eb.length+" / "+BADGES.length;
+ $("badges").innerHTML=BADGES.map(b=>`<div class="bd ${eb.includes(b.id)?"":"lock"}"><div class="ic">${ico(b.i)}</div><b>${b.t}</b><span>${b.d}</span></div>`).join("");
+ // Liste
+ $("allList").innerHTML=[...ws].sort((a,c)=>c.d-a.d).slice(0,60).map(w=>listItem(w)).join("")||`<div class="empty">Noch keine Einträge</div>`;
+}
+function listItem(w){const own=!isTeam()||(w.uid||ME.uid)===ME.uid;
+ return `<div class="it" ${own?`onclick="startEdit('${w.id}')"`:""}><div class="ic">${ico(typeIcon(w))}</div><div class="tx" style="flex:1;min-width:0"><b style="font-weight:600;display:block">${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span style="font-size:13px;color:var(--mut)">${relDay(w.d)} · ${INT.find(x=>x[1]===(w.int||1))[0]}</span>${w.note?`<div class="note">${esc(w.note)}</div>`:""}${reactBar(w)}</div><div style="text-align:right"><div class="pt" style="color:var(--ok);font-weight:600">+${w.p}</div>${own?`<div style="color:var(--mut2);margin-top:4px">${ico("chevR")}</div>`:""}</div></div>`}
+function calMove(n){calM=new Date(calM.getFullYear(),calM.getMonth()+n,1);calSel=null;renderProgress()}
+
+/* ---------- Profil ---------- */
+let goalSel=null,teamGoalSel=null;
+function renderProfile(){
+ const me=S.people[ME.uid]||{};
+ if(document.activeElement!==$("setName"))$("setName").value=me.name||(peopleIds().length?"":S.name)||ME.name||"";
+ if(goalSel===null)goalSel=goalOf(ME.uid);if(teamGoalSel===null)teamGoalSel=S.teamGoal||5;
+ $("goalSeg").innerHTML=[1,2,3,4,5,6,7].map(n=>`<button class="${goalSel===n?"on":""}" onclick="goalSel=${n};renderProfile()">${n}</button>`).join("");
+ $("teamGoalBox").style.display=isTeam()?"block":"none";
+ $("teamGoalSeg").innerHTML=[3,4,5,6,8,10].map(n=>`<button class="${teamGoalSel===n?"on":""}" onclick="teamGoalSel=${n};renderProfile()">${n}</button>`).join("");
+ $("ownTypes").innerHTML=(S.customTypes||[]).map(c=>`<div class="rw"><div class="ic">${ico(c.i||"star")}</div><div class="tx"><b>${esc(c.n)}</b></div><button class="iconbtn" onclick="delType('${c.id}')">${ico("trash")}</button></div>`).join("")||`<div class="empty" style="text-align:left;padding:0">Keine – füge z. B. Bouldern oder Tennis hinzu.</div>`;
+ $("codeShow").value=lsGet(LC)||"–";
+}
+function saveSettings(){const n=$("setName").value.trim().slice(0,20),g=goalSel,tg=teamGoalSel;
+ mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{name:n,goal:g});if(!isTeam()){s.name=n;s.goal=g}s.teamGoal=tg});toast("Gespeichert")}
+
+/* ---------- Sheet / Toast ---------- */
+function sheet(t,b,btns){$("shT").textContent=t;$("shB").innerHTML=b;const box=$("shA");box.innerHTML="";
+ btns.forEach(([l,fn,style,keep])=>{const x=document.createElement("button");x.className="btn "+(style===1?"ghost":style==="danger"?"danger":"");x.textContent=l;
+  x.onclick=()=>{const r=fn?fn():undefined;if(r===false)return;closeSheet()};box.appendChild(x)});$("sheet").classList.add("on")}
+function closeSheet(){$("sheet").classList.remove("on")}
+let toastT=null;
+function toast(t,undo){$("toastTx").textContent=t;const b=$("toastBtn");b.style.display=undo?"block":"none";b.onclick=()=>{undo&&undo();$("toast").classList.remove("on");clearTimeout(toastT)};$("toast").classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>$("toast").classList.remove("on"),undo?6000:2200)}
 
 /* ---------- Anmeldung / Team ---------- */
 function randCode(){const a="abcdefghjkmnpqrstuvwxyz23456789",r=new Uint32Array(20);crypto.getRandomValues(r);let s="";r.forEach((v,i)=>{s+=a[v%a.length];if(i%5===4&&i<19)s+="-"});return s}
@@ -296,24 +606,35 @@ window.showSetup=function(stage,msg){$("setup").classList.add("on");$("stLogin")
 window.hideSetup=function(){$("setup").classList.remove("on")};
 window.setAccount=function(t){$("acct").textContent=t};
 window.setCode=function(c){lsSet(LC,c);render()};
-function joinCode(){const c=$("codeIn").value.trim().toLowerCase();if(c.length<20)return $("setupMsg").textContent="Code zu kurz – bitte komplett eingeben.";$("setupMsg").textContent="⏳ Verbinde …";window.REMOTE.join(c)}
-function newCode(){const c=randCode();$("setupMsg").textContent="⏳ Erstelle …";window.REMOTE.create(c).then(ok=>{if(ok)modal("🔗","Dein Sync-Code",`<input value="${c}" readonly onclick="this.select()" style="text-align:center;margin:8px 0">Gib ihn dem Partner-Handy. Steht jederzeit unter <b>Verlauf → Konto</b>.`,[["Verstanden",null]])})}
-function copyCode(){const c=lsGet(LC)||"";(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>modal("📋","Kopiert!","",[["OK",null]])).catch(()=>{$("codeShow").select();modal("📋","Bitte manuell kopieren","Code ist markiert.",[["OK",null]])})}
-function logout(){modal("🚪","Abmelden?","Deine Daten bleiben in deinem Konto gespeichert. Mit Google-Login sind sie sofort wieder da.",[["Nein",null,1],["Abmelden",()=>{lsSet(LC,null);lsSet(LS,null);(window.REMOTE?window.REMOTE.logout():Promise.resolve()).finally(()=>location.reload())}]])}
+function joinCode(){const c=$("codeIn").value.trim().toLowerCase();if(c.length<20)return $("setupMsg").textContent="Code zu kurz – bitte komplett eingeben.";$("setupMsg").textContent="Verbinde …";window.REMOTE.join(c)}
+function newCode(){const c=randCode();$("setupMsg").textContent="Erstelle …";window.REMOTE.create(c).then(ok=>{if(ok)sheet("Dein Sync-Code",`<input class="field" value="${c}" readonly onclick="this.select()" style="text-align:center;margin:10px 0">Gib ihn dem Partner-Handy. Er steht jederzeit unter <b style="color:var(--txt)">Profil → Konto</b>.`,[["Verstanden",null]])})}
+function copyCode(){const c=lsGet(LC)||"";(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>toast("Code kopiert")).catch(()=>{$("codeShow").select();toast("Code markiert – bitte kopieren")})}
+function logout(){sheet("Abmelden?","Deine Daten bleiben in deinem Konto gespeichert.",[["Abbrechen",null,1],["Abmelden",()=>{lsSet(LC,null);lsSet(LS,null);(window.REMOTE&&window.REMOTE.logout?window.REMOTE.logout():Promise.resolve()).finally(()=>location.reload())},"danger"]])}
+// nach jedem Sync: eigenes Profil anlegen, alte Einträge zuordnen
+let migAsked=false,badgeInit=false;
+function afterSync(){
+ if(ME.uid==="local")return;
+ if(!S.people[ME.uid]){mutate(s=>{if(!s.people[ME.uid])s.people[ME.uid]={name:ME.name||s.name||"",goal:s.goal||3,badges:null}});return}
+ const untagged=S.workouts.filter(w=>!w.uid).length+S.redeemed.filter(r=>!r.uid).length;
+ if(untagged&&!migAsked&&!lsGet("fp_mig_"+ME.uid)){migAsked=true;
+  sheet("Bisherige Einträge",`Es gibt ${S.workouts.filter(w=>!w.uid).length} Trainings von vor dem Update. Gehören die dir?`,[["Nein",()=>lsSet("fp_mig_"+ME.uid,"1"),1],["Ja, meine",()=>{lsSet("fp_mig_"+ME.uid,"1");mutate(s=>{s.workouts.forEach(w=>{if(!w.uid)w.uid=ME.uid});s.redeemed.forEach(r=>{if(!r.uid){r.uid=ME.uid;if(r.done===undefined)r.done=true}})})}]])}
+ if(!badgeInit){badgeInit=true;checkBadges(false)}
+}
 
 /* ---------- Backup ---------- */
-function exportBackup(){const blob=new Blob([JSON.stringify({app:"fitpunkte",v:1,date:new Date().toISOString(),data:{name:S.name,goal:S.goal,workouts:S.workouts,redeemed:S.redeemed,rewards:S.rewards}},null,1)],{type:"application/json"});
+function exportBackup(){const data=JSON.parse(JSON.stringify(S));delete data.members;
+ const blob=new Blob([JSON.stringify({app:"fitpunkte",v:2,date:new Date().toISOString(),data},null,1)],{type:"application/json"});
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fitpunkte-backup-"+dkey(new Date())+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 function importBackup(inp){const f=inp.files[0];inp.value="";if(!f)return;f.text().then(t=>{const j=JSON.parse(t),d=j.data||j;if(!Array.isArray(d.workouts))throw 0;
- modal("⬆️","Backup wiederherstellen?",`${d.workouts.length} Einheiten, ${(d.redeemed||[]).length} eingelöste Belohnungen.<br>Der aktuelle Stand wird <b>ersetzt</b>.`,[["Abbrechen",null,1],["Wiederherstellen",()=>{const x=JSON.parse(JSON.stringify(d));mutate(s=>{s.workouts=x.workouts;s.redeemed=x.redeemed||[];s.rewards=x.rewards||s.rewards;if(x.name!==undefined)s.name=x.name;if(x.goal)s.goal=x.goal});modal("✅","Wiederhergestellt","",[["OK",null]])}]])}).catch(()=>modal("⚠️","Ungültige Datei","Das ist keine FitPunkte-Backup-Datei.",[["OK",null]]))}
+ sheet("Backup wiederherstellen?",`${d.workouts.length} Trainings, ${(d.redeemed||[]).length} eingelöste Belohnungen.<br>Der aktuelle Stand wird ersetzt.`,[["Abbrechen",null,1],["Wiederherstellen",()=>{const x=JSON.parse(JSON.stringify(d));mutate(s=>{["workouts","redeemed","rewards","customTypes","people","name","goal","teamGoal"].forEach(k=>{if(x[k]!==undefined)s[k]=x[k]})});toast("Wiederhergestellt")}]])}).catch(()=>sheet("Ungültige Datei","Das ist keine FitPunkte-Backup-Datei.",[["OK",null]]))}
 
-/* ---------- Konfetti ---------- */
-function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const P=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,s:5+Math.random()*6,r:Math.random()*6,col:["#ff5fa2","#7c5cff","#2ed47a","#ffb84d","#7be3ff"][Math.floor(Math.random()*5)]}));let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.col;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});if(++f<160)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)})()}
+/* ---------- Konfetti (nur Meilensteine) ---------- */
+function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const cols=["#ff5c9d","#3ccf8e","#f2f3f5","#f5b84a"];const P=Array.from({length:90},()=>({x:c.width/2+(Math.random()-.5)*80,y:c.height*.35,vx:(Math.random()-.5)*12,vy:-Math.random()*12-4,s:4+Math.random()*5,r:Math.random()*6,col:cols[Math.floor(Math.random()*cols.length)]}));let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.vx*=.99;p.r+=.15;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.col;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.5);x.restore()});if(++f<110)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)})()}
 
-render();
+/* ---------- Start ---------- */
+sel=blankSel();render();
 const CFG=window.FIREBASE_CONFIG;
-if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("📱 Nur lokal – Firebase noch nicht eingerichtet (firebase-config.js)")}
-
+if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Gerät gespeichert","");if(!badgeInit){badgeInit=true;checkBadges(false)}}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
@@ -329,7 +650,7 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
   const app=initializeApp(CFG),auth=getAuth(app);
   let fs;try{fs=initializeFirestore(app,{localCache:persistentLocalCache()})}catch(e){fs=initializeFirestore(app,{})}
   await setPersistence(auth,browserLocalPersistence).catch(()=>{});
-  getRedirectResult(auth).catch(e=>showSetup("login","⚠️ "+e.code));
+  getRedirectResult(auth).catch(e=>showSetup("login",e.code));
   const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});
   let ref=null,unsub=null,user=null;
   const clean=o=>{const c=JSON.parse(JSON.stringify(o));delete c.members;return c};
@@ -337,34 +658,34 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
 
   function subscribe(code){
    ref=doc(fs,"fitpunkte",code);if(unsub)unsub();
-   setCode(code);hideSetup();setStatus("⏳ Verbinde …");
-   unsub=onSnapshot(ref,snap=>{if(snap.exists()){window.applyRemote(snap.data());setStatus(snap.metadata.hasPendingWrites?"⏳ Speichere …":"☁️ Synchronisiert")}},
-    e=>{setStatus("⚠️ Sync-Fehler: "+e.code);if(e.code==="permission-denied"){showSetup("team","Kein Zugriff auf dieses Team – Code prüfen.")}});
+   setCode(code);hideSetup();setStatus("Verbinde …","");
+   unsub=onSnapshot(ref,snap=>{if(snap.exists()){window.applyRemote(snap.data());setStatus(snap.metadata.hasPendingWrites?"Speichere …":"Synchronisiert","ok")}},
+    e=>{setStatus("Sync-Fehler: "+e.code,"err");if(e.code==="permission-denied")showSetup("team","Kein Zugriff auf dieses Team – Code prüfen.")});
   }
   async function remember(code){await setDoc(doc(fs,"users",user.uid),{team:code,email:user.email||"",at:Date.now()},{merge:true})}
 
   window.REMOTE={
    async login(){
-    $("setupMsg").textContent="⏳ Anmelden …";
+    $("setupMsg").textContent="Anmelden …";
     try{await signInWithPopup(auth,provider)}
     catch(e){
-     if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)){try{await signInWithRedirect(auth,provider)}catch(e2){$("setupMsg").textContent="⚠️ "+err(e2)}}
-     else if(e.code!=="auth/popup-closed-by-user")$("setupMsg").textContent="⚠️ "+err(e);
-     else $("setupMsg").textContent="";
+     if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)){try{await signInWithRedirect(auth,provider)}catch(e2){$("setupMsg").textContent=err(e2)}}
+     else $("setupMsg").textContent=e.code==="auth/popup-closed-by-user"?"":err(e);
     }
    },
    async create(code){
-    try{await setDoc(doc(fs,"fitpunkte",code),Object.assign(clean(S),{members:[user.uid]}));await remember(code);subscribe(code);return true}
-    catch(e){$("setupMsg").textContent="⚠️ "+err(e);return false}
+    try{const d=clean(S);d.people=d.people||{};d.people[user.uid]=Object.assign({name:(user.displayName||"").split(" ")[0],goal:S.goal||3,badges:null},d.people[user.uid]||{});d.workouts.forEach(w=>{if(!w.uid)w.uid=user.uid});
+     await setDoc(doc(fs,"fitpunkte",code),Object.assign(d,{members:[user.uid]}));await remember(code);subscribe(code);return true}
+    catch(e){$("setupMsg").textContent=err(e);return false}
    },
    async join(code){
     try{await updateDoc(doc(fs,"fitpunkte",code),{members:arrayUnion(user.uid)});await remember(code);subscribe(code)}
-    catch(e){$("setupMsg").textContent=e.code==="not-found"?"Diesen Code gibt es nicht.":e.code==="permission-denied"?"Code falsch oder kein Zugriff.":"⚠️ "+err(e)}
+    catch(e){$("setupMsg").textContent=e.code==="not-found"?"Diesen Code gibt es nicht.":e.code==="permission-denied"?"Code falsch oder kein Zugriff.":err(e)}
    },
    mutate(fn){
     if(!ref)return;
     runTransaction(fs,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error("weg");const d=window.norm(s.data());fn(d);d.rev=(d.rev||0)+1;tx.set(ref,d)})
-     .catch(()=>setDoc(ref,clean(S),{merge:true}).catch(e=>setStatus("⚠️ "+e.code)));
+     .catch(()=>setDoc(ref,clean(S),{merge:true}).catch(e=>setStatus("Fehler: "+e.code,"err")));
    },
    logout(){return signOut(auth)}
   };
@@ -372,17 +693,16 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
   onAuthStateChanged(auth,async u=>{
    user=u;
    if(!u){setAccount("Nicht angemeldet");showSetup("login");return}
-   setAccount("Angemeldet als "+(u.email||u.displayName||"Google-Konto"));
+   setMe(u);setAccount((u.displayName?u.displayName+" · ":"")+(u.email||"Google-Konto"));
    try{
     const me=await getDoc(doc(fs,"users",u.uid));
     if(me.exists()&&me.data().team){subscribe(me.data().team);return}
-    // altes Gerät hatte schon einen Code (vor dem Google-Login) -> automatisch übernehmen
     const old=localStorage.getItem("fitpunkte_code");
     if(old){await window.REMOTE.join(old);if(ref)return}
     showSetup("team");
-   }catch(e){showSetup("team","⚠️ "+err(e))}
+   }catch(e){showSetup("team",err(e))}
   });
- }catch(e){setStatus("⚠️ Firebase-Fehler: "+(e.code||e.message))}
+ }catch(e){setStatus("Firebase-Fehler: "+(e.code||e.message),"err")}
 }
 </script>
 </body>
