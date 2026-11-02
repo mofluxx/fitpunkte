@@ -134,6 +134,20 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .cal .d.today{box-shadow:0 0 0 2px var(--acc) inset}
 .cal .d.sel{outline:2px solid var(--txt);outline-offset:1px}
 .cal .d.x{background:none}
+.cal .d{position:relative}
+.cal .d.pause{background:transparent;box-shadow:0 0 0 1.5px var(--warn) inset;color:var(--warn)}
+.cal .d.plan::after{content:"";position:absolute;bottom:4px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--acc)}
+.wd.pause i{background:transparent;box-shadow:0 0 0 1.5px var(--warn) inset;color:var(--warn)}
+.wd.plan i{box-shadow:0 0 0 1.5px var(--acc) inset;color:var(--acc)}
+.mini{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:13px;font-weight:600;color:var(--warn);background:rgba(245,184,74,.12);border-radius:99px;padding:6px 12px}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.sw:first-child{border-top:none}
+.tg{width:46px;height:28px;border-radius:99px;background:var(--s3);position:relative;transition:.2s;flex:none}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tg.on{background:var(--ok)}.tg.on::after{left:21px}
+.costin{width:84px;padding:8px 10px;font-size:15px}
+.types.sm{grid-template-columns:repeat(4,1fr);gap:6px}
+.types.sm .type{padding:8px 2px;font-size:11px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .stat{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:14px}
 .stat b{font-size:24px;font-weight:700;display:block;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
@@ -248,7 +262,9 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div class="prog ok"><i id="teamBar"></i></div>
     <div class="meta" id="teamMeta"></div>
   </div>
+  <div class="card" id="planCard" style="display:none"><h3>Heute geplant</h3><div id="planList"></div></div>
   <div class="card" id="openCard" style="display:none"><h3>Offene Belohnungen</h3><div id="openList"></div></div>
+  <div class="card" id="wishCard" style="display:none"><h3>Neue Wünsche</h3><div id="wishHome"></div></div>
   <button class="btn" onclick="startLog()" style="margin-bottom:12px"><svg class="i"><use href="#i-plus"/></svg>Training eintragen</button>
   <div class="card feed"><h3><span>Aktivität</span><a onclick="go('progress')">Alle</a></h3><div id="feed"></div></div>
   <div class="status" id="status"></div>
@@ -278,6 +294,12 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 <section class="view" id="v-shop">
   <div class="top"><h1>Belohnungen</h1><div class="sm"><b id="pts2" style="color:var(--txt);font-size:15px">0</b> Punkte</div></div>
   <div class="card"><div id="rewards"></div></div>
+  <div class="card">
+    <h3>Wunschliste</h3>
+    <div id="wishHint" style="font-size:14px;color:var(--mut);margin-bottom:10px"></div>
+    <div class="row"><input class="field" id="wishIn" placeholder="Was wünschst du dir?" maxlength="40" style="flex:3"><button class="btn small" onclick="addWish()" style="flex:1">Wünschen</button></div>
+    <div id="wishes" style="margin-top:10px"></div>
+  </div>
   <div class="card">
     <h3>Neue Belohnung</h3>
     <div class="two"><input class="field" id="rName" placeholder="z. B. Pizzaabend" maxlength="40"><input class="field" id="rCost" type="number" inputmode="numeric" placeholder="Punkte"></div>
@@ -319,6 +341,12 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div class="two" style="margin-top:4px"><div><div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99"></div><div></div></div>
     <div class="lbl">Ziel</div><div class="opt" id="pfAim"></div>
     <button class="btn ghost" onclick="saveAbout()" style="margin-top:14px">Speichern</button>
+  </div>
+  <div class="card" id="pushCard">
+    <h3>Benachrichtigungen</h3>
+    <div id="pushState" style="font-size:14px;color:var(--mut);margin-bottom:10px"></div>
+    <button class="btn ghost" id="pushBtn" onclick="enablePush()">Aktivieren</button>
+    <div id="pushOpts" style="margin-top:6px"></div>
   </div>
   <div class="card">
     <h3>Darstellung</h3>
@@ -407,7 +435,7 @@ const TYPES=[{n:"Laufen",i:"run"},{n:"Rad",i:"bike"},{n:"Kraft",i:"dumbbell"},{n
 const LEGACY_ICON={"Laufen":"run","Rad":"bike","Kraft":"dumbbell","Yoga":"yoga","Schwimmen":"swim","Tanzen":"music","Spaziergang":"walk","Workout":"activity"};
 const INT=[["Locker",1],["Mittel",1.25],["Hart",1.5]];
 const TEAM_BONUS=30;
-const DEFAULT={rev:0,name:"",goal:3,teamGoal:5,people:{},customTypes:[],workouts:[],redeemed:[],rewards:[
+const DEFAULT={rev:0,name:"",goal:3,teamGoal:5,people:{},customTypes:[],wishes:[],plans:[],workouts:[],redeemed:[],rewards:[
  {id:"r1",n:"Lieblingssnack",c:50},{id:"r2",n:"Massage (20 Min)",c:120},{id:"r3",n:"Filmabend – du wählst",c:150},
  {id:"r4",n:"Frühstück ans Bett",c:200},{id:"r5",n:"Essen gehen",c:400},{id:"r6",n:"Shopping-Gutschein",c:800}]};
 function norm(d){const x=JSON.parse(JSON.stringify(Object.assign({},DEFAULT,d||{})));if(!x.people||typeof x.people!=="object")x.people={};return x}
@@ -447,9 +475,15 @@ const goalOf=u=>(S.people[u]&&S.people[u].goal)||S.goal||3;
 
 /* ================= Punkte & Serien ================= */
 function daysSet(u){return new Set(wOf(u).map(w=>dkey(w.d)))}
-function streakAt(u,endKey){const ds=daysSet(u);let n=0,d=fromKey(endKey);while(ds.has(dkey(d))){n++;d=addDays(d,-1)}return n}
-function curStreak(u){const t=dkey(new Date());return daysSet(u).has(t)?streakAt(u,t):streakAt(u,dkey(addDays(new Date(),-1)))}
-function longestStreak(u){const ks=[...daysSet(u)].sort();let best=0,run=0,prev=null;ks.forEach(k=>{run=prev&&dkey(addDays(fromKey(prev),1))===k?run+1:1;best=Math.max(best,run);prev=k});return best}
+const PAUSES_PER_MONTH=2;
+function pauseSet(u){return new Set(((S.people[u]||{}).pauses)||[])}
+function streakAt(u,endKey){const ds=daysSet(u),ps=pauseSet(u);let n=0,d=fromKey(endKey);while(ds.has(dkey(d))||ps.has(dkey(d))){if(ds.has(dkey(d)))n++;d=addDays(d,-1)}return n}
+function curStreak(u){const t=dkey(new Date()),ds=daysSet(u),ps=pauseSet(u);return (ds.has(t)||ps.has(t))?streakAt(u,t):streakAt(u,dkey(addDays(new Date(),-1)))}
+function longestStreak(u){const ds=daysSet(u),ps=pauseSet(u);const ks=[...new Set([...ds,...ps])].sort();let best=0,run=0,prev=null;ks.forEach(k=>{const cont=prev&&dkey(addDays(fromKey(prev),1))===k;run=cont?run:0;if(ds.has(k))run++;best=Math.max(best,run);prev=k});return best}
+function pausesLeft(u,monthKey){const mk=monthKey||dkey(new Date()).slice(0,7);return PAUSES_PER_MONTH-[...pauseSet(u)].filter(k=>k.startsWith(mk)).length}
+function togglePause(k){const u=ME.uid;if(daysSet(u).has(k))return;const has=pauseSet(u).has(k);
+ if(!has&&pausesLeft(u,k.slice(0,7))<=0)return sheet("Keine Pausentage mehr","Pro Monat gibt es "+PAUSES_PER_MONTH+" Pausentage. Ab nächstem Monat wieder.",[["OK",null]]);
+ mutate(s=>{const p=s.people[u]=s.people[u]||{};p.pauses=(p.pauses||[]).filter(x=>x!==k);if(!has)p.pauses.push(k)});toast(has?"Pausentag entfernt":"Pausentag genommen – Serie bleibt")}
 function calcPts(u,m,inten,dayK,excludeId){
  const base=Math.round(m*inten);
  const sameDay=wOf(u).some(w=>w.id!==excludeId&&dkey(w.d)===dayK);
@@ -512,10 +546,20 @@ function render(){
  if(canN&&nx)$("nextTxt").textContent="noch "+(nx.c-b)+" · "+canN+" einlösbar";
  // Woche
  const ws=weekStart(),ds=daysSet(u),g=goalOf(u);let wd=0,h="";
- ["M","D","M","D","F","S","S"].forEach((n,i)=>{const d=addDays(ws,i),k=dkey(d),done=ds.has(k);if(done)wd++;h+=`<div class="wd ${done?"done":""} ${k===dkey(new Date())?"today":""}"><i>${done?ico("check"):d.getDate()}</i>${n}</div>`});
+ ["M","D","M","D","F","S","S"].forEach((n,i)=>{const d=addDays(ws,i),k=dkey(d),done=ds.has(k);if(done)wd++;const pz=pauseSet(u).has(k),pl=!done&&!pz&&k>=dkey(new Date())&&(S.plans||[]).some(x=>x.day===k&&(x.uid||ME.uid)===u);h+=`<div class="wd ${done?"done":""} ${pz&&!done?"pause":""} ${pl?"plan":""} ${k===dkey(new Date())?"today":""}"><i>${done?ico("check"):pz?"–":d.getDate()}</i>${n}</div>`});
  $("weekDays").innerHTML=h;$("weekTxt").textContent=wd+" / "+g;
  const st=curStreak(u),todayDone=ds.has(dkey(new Date()));
- $("weekHint").innerHTML=wd>=g?`Wochenziel erreicht.${st>1?` <b>${st} Tage</b> in Folge.`:""}`:`Noch <b>${g-wd} ${g-wd===1?"Tag":"Tage"}</b> bis zum Wochenziel.${!todayDone&&st>0?` Heute trainieren hält deine <b>${st}-Tage-Serie</b>.`:""}`;
+ const tk=dkey(new Date()),todayPause=pauseSet(u).has(tk),pl=pausesLeft(u);
+ $("weekHint").innerHTML=(wd>=g?`Wochenziel erreicht.${st>1?` <b>${st} Tage</b> in Folge.`:""}`:`Noch <b>${g-wd} ${g-wd===1?"Tag":"Tage"}</b> bis zum Wochenziel.${!todayDone&&!todayPause&&st>0?` Heute trainieren hält deine <b>${st}-Tage-Serie</b>.`:""}`)
+  +(todayPause&&!todayDone?`<br><button class="mini" onclick="togglePause('${tk}')">Heute Pausentag · zurücknehmen</button>`:(!todayDone&&st>0&&pl>0?`<br><button class="mini" onclick="togglePause('${tk}')">Pausentag nehmen · noch ${pl} diesen Monat</button>`:""));
+ // Heute geplant
+ const todayPlans=(S.plans||[]).filter(x=>x.day===tk&&(x.uid||ME.uid)===u);
+ $("planCard").style.display=todayPlans.length?"block":"none";
+ $("planList").innerHTML=todayPlans.map(x=>`<div class="rw"><div class="ic acc">${ico(x.i||"star")}</div><div class="tx"><b>${esc(x.t)}${x.m?" · "+x.m+" Min":""}</b><span>Heute geplant</span></div><button class="btn small" onclick="logFromPlan('${x.id}')">Eintragen</button></div>`).join("");
+ // Wünsche zum Freigeben
+ const wishFor=(S.wishes||[]).filter(x=>isTeam()&&x.uid&&x.uid!==u);
+ $("wishCard").style.display=wishFor.length?"block":"none";
+ $("wishHome").innerHTML=wishFor.map(x=>`<div class="rw"><div class="ic acc">${ico("heart")}</div><div class="tx"><b>${esc(x.n)}</b><span>${esc(pName(x.uid))} wünscht sich das</span></div><button class="btn small" onclick="go('shop')">Punkte festlegen</button></div>`).join("");
  // Team
  if(isTeam()){$("teamCard").style.display="block";const wk=dkey(ws),cnt=S.workouts.filter(w=>w.uid&&dkey(weekStart(new Date(w.d)))===wk),tg=S.teamGoal||5;
   $("teamTxt").textContent=Math.min(cnt.length,tg)+" / "+tg;$("teamBar").style.width=Math.min(cnt.length/tg*100,100)+"%";
@@ -529,7 +573,7 @@ function render(){
  // Feed
  const fe=[...S.workouts].sort((a,c)=>c.d-a.d).slice(0,5);
  $("feed").innerHTML=fe.map(w=>feedItem(w)).join("")||`<div class="empty">Noch keine Trainings. Leg los.</div>`;
- renderShop();renderProgress();renderProfile();if($("v-log").classList.contains("on"))renderLog();
+ renderShop();renderWishes();renderProgress();renderProfile();if($("v-log").classList.contains("on"))renderLog();
 }
 function typeIcon(w){return w.i||LEGACY_ICON[w.t]||"star"}
 function reactBar(w){
@@ -579,7 +623,8 @@ function saveWorkout(){
  const p=calcPts(ME.uid,sel.m,sel.i,sel.day);
  const w={id:"w"+Date.now()+Math.random().toString(36).slice(2,6),uid:ME.uid==="local"?undefined:ME.uid,d:ts,t:t.n,i:t.i,m:sel.m,int:sel.i,km:kmV,note,base:p.base,bonus:p.bonus,p:p.total};
  const before=wOf(ME.uid).length,wkBefore=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamBefore=Object.keys(teamWeeks()).length;
- mutate(s=>{if(!s.workouts.some(x=>x.id===w.id))s.workouts.push(w)});
+ const planId=sel.planId;
+ const pk=ME.uid,dk=dkey(w.d);mutate(s=>{if(!s.workouts.some(x=>x.id===w.id))s.workouts.push(w);if(planId)s.plans=(s.plans||[]).filter(x=>x.id!==planId);const pp=s.people[pk];if(pp&&pp.pauses)pp.pauses=pp.pauses.filter(x=>x!==dk)});
  sel=blankSel();go("home");
  const wkAfter=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamAfter=Object.keys(teamWeeks()).length;
  toast("+"+p.total+" Punkte · "+t.n,()=>mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==w.id)}));
@@ -603,6 +648,15 @@ function renderShop(){const b=balance(ME.uid);
  $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>{const can=r.c<=b;return `<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${r.c} Punkte${can?"":" · noch "+(r.c-b)}</span>${can?"":`<div class="prog" style="margin-top:6px;height:4px"><i style="width:${Math.max(0,b)/r.c*100}%"></i></div>`}</div><button class="btn small ${can?"":"ghost"}" ${can?"":"disabled style='opacity:.45'"} onclick="askRedeem('${r.id}')">Einlösen</button><button class="iconbtn" onclick="askDel('${r.id}')">${ico("trash")}</button></div>`}).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
  $("redeemed").innerHTML=[...S.redeemed].sort((a,c)=>c.d-a.d).slice(0,30).map(r=>`<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${isTeam()&&r.uid?esc(pName(r.uid))+" · ":""}${new Date(r.d).toLocaleDateString("de-DE")} · ${r.c} P</span></div>${r.done===false?`<button class="pill open" onclick="markDone('${r.id}')">Offen</button>`:`<span class="pill done">Erledigt</span>`}</div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
 }
+function renderWishes(){const team=isTeam(),pn=team?esc(pName(partnerId())):"";
+ $("wishHint").textContent=team?"Du wünschst dir etwas, "+pName(partnerId())+" legt die Punkte fest und gibt es frei.":"Sammle hier Ideen und gib sie mit Punkten frei.";
+ $("wishes").innerHTML=(S.wishes||[]).map(x=>{const mineW=!team||!x.uid||x.uid===ME.uid;const canApprove=!team||(x.uid&&x.uid!==ME.uid);
+  return `<div class="rw"><div class="tx"><b>${esc(x.n)}</b><span>${team?(x.uid===ME.uid?"Wartet auf "+pn:esc(pName(x.uid))+" wünscht sich das"):"Idee"}</span></div>${canApprove?`<input class="field costin" id="wc_${x.id}" type="number" inputmode="numeric" placeholder="Punkte"><button class="btn small" onclick="approveWish('${x.id}')">${ico("check")}</button>`:""}<button class="iconbtn" onclick="dropWish('${x.id}')">${ico("x")}</button></div>`}).join("");}
+function addWish(){const n=$("wishIn").value.trim().slice(0,40);if(!n)return;const w={id:"q"+Date.now(),uid:ME.uid==="local"?undefined:ME.uid,n,d:Date.now()};mutate(s=>{s.wishes=s.wishes||[];if(!s.wishes.some(x=>x.id===w.id))s.wishes.push(w)});$("wishIn").value="";toast(isTeam()?"Wunsch geschickt":"Gespeichert")}
+function approveWish(id){const x=(S.wishes||[]).find(y=>y.id===id);if(!x)return;const c=parseInt(($("wc_"+id)||{}).value);if(!(c>0))return sheet("Punkte fehlen","Lege fest, wie viele Punkte der Wunsch kostet.",[["OK",null]]);
+ const r={id:"r"+Date.now(),n:x.n,c,from:x.uid||null};mutate(s=>{s.wishes=(s.wishes||[]).filter(y=>y.id!==id);if(!s.rewards.some(y=>y.id===r.id))s.rewards.push(r)});toast("Freigegeben: "+x.n+" · "+c+" P")}
+function dropWish(id){const x=(S.wishes||[]).find(y=>y.id===id);if(!x)return;const own=!isTeam()||x.uid===ME.uid;sheet(own?"Wunsch zurückziehen?":"Wunsch ablehnen?",esc(x.n),[["Abbrechen",null,1],[own?"Zurückziehen":"Ablehnen",()=>mutate(s=>{s.wishes=(s.wishes||[]).filter(y=>y.id!==id)}),"danger"]])}
+
 function askRedeem(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;const b=balance(ME.uid);if(r.c>b)return;
  sheet(r.n,`Kostet <b style="color:var(--txt)">${r.c} Punkte</b>. Danach hast du noch ${b-r.c}.${isTeam()?"<br>"+esc(pName(partnerId()))+" sieht die Belohnung als offen und hakt sie ab, wenn sie erledigt ist.":""}`,[["Abbrechen",null,1],["Einlösen",()=>{const x={id:"x"+Date.now(),uid:ME.uid==="local"?undefined:ME.uid,n:r.n,c:r.c,d:Date.now(),done:false};mutate(s=>{if(!s.redeemed.some(y=>y.id===x.id))s.redeemed.push(x)});confetti();toast("Eingelöst: "+r.n)}]])}
 function markDone(id){const r=S.redeemed.find(x=>x.id===id);if(!r)return;if(isTeam()&&r.uid===ME.uid)return sheet("Noch offen",esc(pName(partnerId()))+" hakt die Belohnung ab, sobald sie erledigt ist.",[["OK",null]]);
@@ -624,10 +678,10 @@ function renderProgress(){
  let h=["Mo","Di","Mi","Do","Fr","Sa","So"].map(d=>`<div class="h">${d}</div>`).join("");
  const off=(calM.getDay()+6)%7,days=new Date(calM.getFullYear(),calM.getMonth()+1,0).getDate();
  for(let i=0;i<off;i++)h+=`<div class="d x"></div>`;
- for(let d=1;d<=days;d++){const k=dkey(new Date(calM.getFullYear(),calM.getMonth(),d)),m=mins[k]||0,l=m===0?"":m<30?"l1":m<60?"l2":"l3";h+=`<button class="d ${l} ${k===dkey(new Date())?"today":""} ${calSel===k?"sel":""}" onclick="calSel=calSel==='${k}'?null:'${k}';renderProgress()">${d}</button>`}
+ for(let d=1;d<=days;d++){const k=dkey(new Date(calM.getFullYear(),calM.getMonth(),d)),m=mins[k]||0,l=m===0?"":m<30?"l1":m<60?"l2":"l3";const pz=!m&&pauseSet(u).has(k),pn=(S.plans||[]).some(x=>x.day===k&&(x.uid||ME.uid)===u)&&!m;h+=`<button class="d ${l} ${pz?"pause":""} ${pn?"plan":""} ${k===dkey(new Date())?"today":""} ${calSel===k?"sel":""}" onclick="calSel=calSel==='${k}'?null:'${k}';renderProgress()">${d}</button>`}
  $("cal").innerHTML=h;
  const dl=calSel?ws.filter(w=>dkey(w.d)===calSel):[];
- $("dayList").innerHTML=calSel?(dl.length?dl.map(w=>listItem(w)).join(""):`<div class="empty">${new Date(fromKey(calSel)).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})}: kein Training</div>`):"";
+ $("dayList").innerHTML=calSel?dayPanel(u,calSel,dl):"";
  // Diagramm: 8 Wochen
  const W=8,ws0=weekStart(),vals=[];for(let i=W-1;i>=0;i--){const st=addDays(ws0,-7*i),en=addDays(st,7);vals.push({k:kw(st),v:ws.filter(w=>w.d>=st.getTime()&&w.d<en.getTime()).reduce((a,w)=>a+w.m,0),cur:i===0})}
  const mx=Math.max(60,...vals.map(x=>x.v)),cw=320,ch=140,bw=cw/W;
@@ -640,6 +694,29 @@ function renderProgress(){
 }
 function listItem(w){const own=!isTeam()||(w.uid||ME.uid)===ME.uid;
  return `<div class="it" ${own?`onclick="startEdit('${w.id}')"`:""}><div class="ic">${ico(typeIcon(w))}</div><div class="tx" style="flex:1;min-width:0"><b style="font-weight:600;display:block">${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span style="font-size:13px;color:var(--mut)">${relDay(w.d)} · ${INT.find(x=>x[1]===(w.int||1))[0]}</span>${w.note?`<div class="note">${esc(w.note)}</div>`:""}${reactBar(w)}</div><div style="text-align:right"><div class="pt" style="color:var(--ok);font-weight:600">+${w.p}</div>${own?`<div style="color:var(--mut2);margin-top:4px">${ico("chevR")}</div>`:""}</div></div>`}
+function dayPanel(u,k,dl){const own=u===ME.uid,today=dkey(new Date()),label=fromKey(k).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+ const plans=(S.plans||[]).filter(x=>x.day===k&&(x.uid||ME.uid)===u),pz=pauseSet(u).has(k);
+ let h=`<div style="font-weight:600;margin-bottom:4px">${label}</div>`;
+ h+=dl.map(w=>listItem(w)).join("");
+ h+=plans.map(x=>`<div class="rw"><div class="ic acc">${ico(x.i||"star")}</div><div class="tx"><b>${esc(x.t)}${x.m?" · "+x.m+" Min":""}</b><span>Geplant</span></div>${own&&k<=today&&!dl.length?`<button class="btn small" onclick="logFromPlan('${x.id}')">Eintragen</button>`:""}${own?`<button class="iconbtn" onclick="delPlan('${x.id}')">${ico("trash")}</button>`:""}</div>`).join("");
+ if(!dl.length&&!plans.length)h+=`<div class="empty" style="text-align:left;padding:4px 0">${pz?"Pausentag":"Kein Training"}</div>`;
+ if(own){const acts=[];if(k>=today)acts.push(`<button class="btn ghost small" onclick="openPlan('${k}')">${ico("plus")}Training planen</button>`);
+  if(k<=today&&!dl.length)acts.push(`<button class="btn ghost small" onclick="togglePause('${k}')">${pz?"Pausentag entfernen":"Als Pausentag markieren"}</button>`);
+  if(acts.length)h+=`<div class="row" style="margin-top:10px">${acts.join("")}</div>`;
+  if(k<=today&&!dl.length&&!pz)h+=`<div style="font-size:12px;color:var(--mut);margin-top:6px">Pausentage halten deine Serie · noch ${pausesLeft(u,k.slice(0,7))} in diesem Monat</div>`}
+ return h}
+
+/* ---------- Training planen ---------- */
+let planSel={t:null,m:null,k:null};
+function openPlan(k){planSel={t:null,m:null,k};sheet("Training planen",`<div style="margin-bottom:8px">${fromKey(k).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"})}</div><div class="types sm" id="planTypes"></div><div class="lbl">Dauer (optional)</div><div class="seg" id="planMins"></div>`,[["Abbrechen",null,1],["Planen",savePlan]]);drawPlan()}
+function drawPlan(){$("planTypes").innerHTML=allTypes().map((t,i)=>`<button class="type ${planSel.t===i?"on":""}" onclick="planSel.t=${i};drawPlan()">${ico(t.i)}<span>${esc(t.n)}</span></button>`).join("");
+ $("planMins").innerHTML=[20,30,45,60].map(m=>`<button class="${planSel.m===m?"on":""}" onclick="planSel.m=planSel.m===${m}?null:${m};drawPlan()">${m}</button>`).join("")}
+function savePlan(){if(planSel.t===null)return false;const t=allTypes()[planSel.t];const p={id:"p"+Date.now(),uid:ME.uid==="local"?undefined:ME.uid,day:planSel.k,t:t.n,i:t.i,m:planSel.m};
+ mutate(s=>{s.plans=(s.plans||[]).filter(x=>x.day>=dkey(addDays(new Date(),-14)));if(!s.plans.some(x=>x.id===p.id))s.plans.push(p)});toast("Geplant: "+t.n)}
+function delPlan(id){mutate(s=>{s.plans=(s.plans||[]).filter(x=>x.id!==id)})}
+function logFromPlan(id){const x=(S.plans||[]).find(y=>y.id===id);if(!x)return;editId=null;const ti=allTypes().findIndex(t=>t.n===x.t);
+ sel=Object.assign(blankSel(),{t:ti>=0?ti:null,m:x.m||null,day:x.day<=dkey(new Date())?x.day:dkey(new Date()),planId:id});fillLogInputs();go("log")}
+
 function calMove(n){calM=new Date(calM.getFullYear(),calM.getMonth()+n,1);calSel=null;renderProgress()}
 
 /* ---------- Profil ---------- */
@@ -657,6 +734,7 @@ function renderProfile(){
  const p=myProfile();if(ab._k!==meKey()+(p.onb?1:0)){ab={gender:p.gender||null,aim:p.aim||null,_k:meKey()+(p.onb?1:0)};if(document.activeElement!==$("pfAge"))$("pfAge").value=p.age||""}
  $("pfGender").innerHTML=GENDERS.map(g=>`<button class="${ab.gender===g?"on":""}" onclick="ab.gender='${g}';renderProfile()">${g}</button>`).join("");
  $("pfAim").innerHTML=AIMS.map(a=>`<button class="${ab.aim===a?"on":""}" onclick="ab.aim='${a}';renderProfile()">${a}</button>`).join("");
+ renderPush();
  const t=getTheme();$("themeSeg").innerHTML=[["system","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([k,l])=>`<button class="${t===k?"on":""}" onclick="setTheme('${k}')">${l}</button>`).join("");
 }
 function saveSettings(){const n=$("setName").value.trim().slice(0,20),g=goalSel,tg=teamGoalSel;
@@ -727,6 +805,22 @@ function saveOnb(){const n=$("obName").value.trim().slice(0,20);if(!n)return $("
 let ab={gender:null,aim:null};
 function saveAbout(){const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender,aim=ab.aim;mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{gender:g,age,aim})});toast("Gespeichert")}
 
+/* ---------- Benachrichtigungen ---------- */
+const pushSupported=()=>"Notification" in window&&"serviceWorker" in navigator&&"PushManager" in window;
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent),isStandalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function renderPush(){const card=$("pushCard");if(ME.uid==="local"){card.style.display="none";return}card.style.display="block";
+ const st=$("pushState"),btn=$("pushBtn"),on=pushSupported()&&Notification.permission==="granted"&&lsGet("fp_push")==="1";
+ if(!pushSupported()){st.innerHTML=isIOS&&!isStandalone?"Auf dem iPhone: App über <b>Teilen → Zum Home-Bildschirm</b> hinzufügen und von dort öffnen, dann hier aktivieren.":"Dieser Browser unterstützt keine Benachrichtigungen.";btn.style.display="none"}
+ else if(Notification.permission==="denied"){st.textContent="Benachrichtigungen sind blockiert. Erlaube sie in den Einstellungen des Handys bzw. Browsers für diese App.";btn.style.display="none"}
+ else if(on){st.textContent="Aktiv auf diesem Gerät.";btn.style.display="none"}
+ else{st.textContent="Erfahre, wenn "+(isTeam()?pName(partnerId()):"dein Partner")+" trainiert oder etwas einlöst – und bekomme eine Erinnerung nach 2 Tagen Pause.";btn.style.display="flex"}
+ const n=(S.people[ME.uid]||{}).notify||{};
+ $("pushOpts").innerHTML=on?[["partner","Aktivitäten vom Partner"],["reminder","Erinnerungen"]].map(([k,l])=>`<div class="sw"><span>${l}</span><button class="tg ${n[k]!==false?"on":""}" onclick="toggleNotify('${k}')"></button></div>`).join(""):""}
+function enablePush(){if(!pushSupported())return renderPush();
+ Notification.requestPermission().then(p=>{if(p!=="granted")return renderPush();$("pushState").textContent="Wird eingerichtet …";
+  (window.REMOTE&&window.REMOTE.enablePush?window.REMOTE.enablePush():Promise.resolve("Keine Verbindung")).then(r=>{if(r==="ok"){lsSet("fp_push","1");toast("Benachrichtigungen aktiv")}else sheet("Nicht geklappt",esc(r),[["OK",null]]);renderPush()})})}
+function toggleNotify(k){mutate(s=>{const p=s.people[ME.uid]=s.people[ME.uid]||{};p.notify=Object.assign({},p.notify||{});p.notify[k]=p.notify[k]===false})}
+
 /* ---------- Darstellung ---------- */
 function getTheme(){return lsGet("fp_theme")||"system"}
 function applyTheme(){const t=getTheme(),l=t==="light"||(t==="system"&&matchMedia("(prefers-color-scheme: light)").matches);document.documentElement.dataset.theme=l?"light":"dark";document.querySelector('meta[name=theme-color]').content=l?"#f4f5f7":"#0e0f13"}
@@ -785,7 +879,8 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
   const clean=o=>{const c=JSON.parse(JSON.stringify(o));delete c.members;return c};
   const err=e=>(e&&(e.code||e.message))||"unbekannt";
 
-  function subscribe(code){
+  async function refreshPush(){try{if(localStorage.getItem("fp_push")==="1"&&"Notification" in window&&Notification.permission==="granted"&&window.VAPID_KEY)await window.REMOTE.enablePush()}catch(e){}}
+  function subscribe(code){setTimeout(refreshPush,3000);
    ref=doc(fs,"fitpunkte",code);if(unsub)unsub();
    setCode(code);hideSetup();setStatus("Verbinde …","");
    unsub=onSnapshot(ref,snap=>{if(snap.exists()){window.applyRemote(snap.data());setStatus(snap.metadata.hasPendingWrites?"Speichere …":"Synchronisiert","ok")}},
@@ -825,6 +920,19 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
      .catch(()=>setDoc(ref,clean(S),{merge:true}).catch(e=>setStatus("Fehler: "+e.code,"err")));
    },
    logout(){return signOut(auth)},
+   async enablePush(){
+    try{
+     if(!window.VAPID_KEY)return "Push ist noch nicht eingerichtet: In firebase-config.js fehlt der VAPID-Schlüssel (siehe Anleitung).";
+     const m=await import(B+"firebase-messaging.js");
+     if(!(await m.isSupported()))return "Dieser Browser unterstützt keine Push-Nachrichten.";
+     const reg=await navigator.serviceWorker.ready;
+     const token=await m.getToken(m.getMessaging(app),{vapidKey:window.VAPID_KEY,serviceWorkerRegistration:reg});
+     if(!token)return "Kein Push-Token erhalten.";
+     await setDoc(doc(fs,"users",user.uid),{tokens:arrayUnion(token)},{merge:true});
+     m.onMessage(m.getMessaging(app),p=>{const n=p.notification||p.data||{};toast((n.title||"")+(n.body?" · "+n.body:""))});
+     return "ok";
+    }catch(e){return err(e)}
+   },
    isPassword(){const u=auth.currentUser;return !!(u&&u.providerData.some(p=>p.providerId==="password"))},
    async email(reg,mail,pw){
     const de={"auth/invalid-email":"Ungültige E-Mail-Adresse.","auth/invalid-credential":"E-Mail oder Passwort falsch.","auth/wrong-password":"E-Mail oder Passwort falsch.","auth/user-not-found":"E-Mail oder Passwort falsch.","auth/email-already-in-use":"Für diese E-Mail gibt es schon ein Konto – bitte anmelden.","auth/weak-password":"Passwort zu kurz (mind. 6 Zeichen).","auth/too-many-requests":"Zu viele Versuche – bitte kurz warten.","auth/operation-not-allowed":"E-Mail-Login ist in Firebase noch nicht aktiviert.","auth/network-request-failed":"Keine Internetverbindung."};
@@ -868,7 +976,7 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
     const old=localStorage.getItem("fitpunkte_code");
     if(old){await window.REMOTE.join(old);if(ref)return}
     showSetup("team");
-   }catch(e){showSetup("team",err(e))}
+   }catch(e){const lc=localStorage.getItem("fitpunkte_code");if(lc){subscribe(lc);setStatus("Offline – wird synchronisiert, sobald Internet da ist","")}else showSetup("team",err(e))}
   });
  }catch(e){setStatus("Firebase-Fehler: "+(e.code||e.message),"err")}
 }
