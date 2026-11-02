@@ -80,12 +80,20 @@ button{font:inherit;cursor:pointer}
 <body>
 <canvas id="confetti"></canvas>
 <div class="modal" id="setup" style="z-index:40"><div class="card" style="text-align:left">
-  <div style="text-align:center;font-size:56px">💪</div>
-  <h2 style="text-align:center;margin:6px 0">FitPunkte</h2>
-  <div class="sub" style="text-align:center">Sync-Code eingeben (vom anderen Handy) oder neuen erstellen.</div>
-  <input id="codeIn" placeholder="Sync-Code" autocapitalize="off" autocomplete="off">
-  <button class="btn" onclick="joinCode()">Verbinden</button>
-  <button class="btn sbtn" onclick="newCode()">✨ Neuen Code erstellen</button>
+  <div style="text-align:center"><img src="icon-192.png" alt="" style="width:84px;border-radius:20px"></div>
+  <h2 style="text-align:center;margin:8px 0 4px">FitPunkte</h2>
+  <div id="stLogin">
+    <div class="sub" style="text-align:center">Melde dich an – deine Punkte sind dann sicher in deinem Google-Konto gespeichert.</div>
+    <button class="btn" onclick="REMOTE&&REMOTE.login()" style="background:#fff;color:#1f1f1f;display:flex;align-items:center;justify-content:center;gap:10px">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+      Mit Google anmelden</button>
+  </div>
+  <div id="stTeam" style="display:none">
+    <div class="sub" style="text-align:center">Angemeldet ✓<br>Code vom Partner-Handy eingeben – oder neu starten.</div>
+    <input id="codeIn" placeholder="Sync-Code" autocapitalize="off" autocomplete="off">
+    <button class="btn" onclick="joinCode()">Verbinden</button>
+    <button class="btn sbtn" onclick="newCode()">✨ Neu starten (neuer Code)</button>
+  </div>
   <div class="status" id="setupMsg"></div>
 </div></div>
 <div class="wrap">
@@ -159,10 +167,17 @@ button{font:inherit;cursor:pointer}
     <button class="btn" onclick="saveSettings()">Speichern</button>
   </div>
   <div class="card" id="codeCard">
-    <b>🔗 Sync-Code</b>
-    <div class="sub" style="margin:6px 0">Mit diesem Code sieht ein zweites Handy dieselben Daten. Wie ein Passwort behandeln!</div>
+    <b>👤 Konto</b>
+    <div class="sub" id="acct" style="margin:6px 0">–</div>
+    <label>🔗 Sync-Code (für das Partner-Handy)</label>
     <input id="codeShow" readonly onclick="this.select()">
     <div class="row"><button class="btn sbtn" style="flex:1" onclick="copyCode()">📋 Kopieren</button><button class="btn sbtn" style="flex:1" onclick="logout()">Abmelden</button></div>
+  </div>
+  <div class="card">
+    <b>💾 Backup</b>
+    <div class="sub" style="margin:6px 0">Alle Daten als Datei sichern – z. B. einmal im Monat.</div>
+    <div class="row"><button class="btn sbtn" style="flex:1" onclick="exportBackup()">⬇️ Herunterladen</button><button class="btn sbtn" style="flex:1" onclick="document.getElementById('impFile').click()">⬆️ Wiederherstellen</button></div>
+    <input type="file" id="impFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
   </div>
 </section>
 </div>
@@ -248,7 +263,7 @@ function render(){
  $("histR").innerHTML=[...S.redeemed].reverse().map(r=>`<div class="item"><div>${esc(r.e)} ${esc(r.n)}<small>${new Date(r.d).toLocaleDateString("de-DE")}</small></div><span class="badge p">−${r.c}</span></div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
  if(document.activeElement!==$("setName"))$("setName").value=S.name||"";
  if(document.activeElement!==$("setGoal"))$("setGoal").value=S.goal;
- $("codeShow").value=lsGet(LC)||"";$("codeCard").style.display=lsGet(LC)?"block":"none";
+ $("codeShow").value=lsGet(LC)||"";
  renderLog();
 }
 function renderLog(){
@@ -275,15 +290,22 @@ function addReward(){const n=$("rName").value.trim(),c=parseInt($("rCost").value
 function saveSettings(){const n=$("setName").value.trim(),g=Math.max(1,parseInt($("setGoal").value)||3);mutate(s=>{s.name=n;s.goal=g});modal("✅","Gespeichert","",[["OK",null]])}
 function modal(e,t,b,btns){$("mE").textContent=e;$("mT").textContent=t;$("mB").innerHTML=b;const box=$("mBtns");box.innerHTML="";btns.forEach(([l,fn,sec])=>{const x=document.createElement("button");x.className=sec?"btn sbtn":"btn";x.style.flex="1";x.textContent=l;x.onclick=()=>{$("modal").classList.remove("on");fn&&fn()};box.appendChild(x)});$("modal").classList.add("on")}
 
-/* ---------- Sync-Code ---------- */
+/* ---------- Anmeldung / Team ---------- */
 function randCode(){const a="abcdefghjkmnpqrstuvwxyz23456789",r=new Uint32Array(20);crypto.getRandomValues(r);let s="";r.forEach((v,i)=>{s+=a[v%a.length];if(i%5===4&&i<19)s+="-"});return s}
-function showSetup(msg){$("setup").classList.add("on");$("setupMsg").textContent=msg||""}
-function joinCode(){const c=$("codeIn").value.trim().toLowerCase();if(c.length<20)return $("setupMsg").textContent="Code zu kurz – bitte komplett eingeben.";startSync(c,false)}
-function newCode(){startSync(randCode(),true)}
-function startSync(code,isNew){lsSet(LC,code);$("setup").classList.remove("on");if(window.REMOTE)window.REMOTE.connect(code,isNew);render();
- if(isNew)modal("🔗","Dein Sync-Code",`<input value="${code}" readonly onclick="this.select()" style="text-align:center;margin:8px 0">Gib ihn dem zweiten Handy. Du findest ihn jederzeit unter <b>Verlauf → Sync-Code</b>.`,[["Verstanden",null]])}
+window.showSetup=function(stage,msg){$("setup").classList.add("on");$("stLogin").style.display=stage==="login"?"block":"none";$("stTeam").style.display=stage==="team"?"block":"none";$("setupMsg").textContent=msg||""};
+window.hideSetup=function(){$("setup").classList.remove("on")};
+window.setAccount=function(t){$("acct").textContent=t};
+window.setCode=function(c){lsSet(LC,c);render()};
+function joinCode(){const c=$("codeIn").value.trim().toLowerCase();if(c.length<20)return $("setupMsg").textContent="Code zu kurz – bitte komplett eingeben.";$("setupMsg").textContent="⏳ Verbinde …";window.REMOTE.join(c)}
+function newCode(){const c=randCode();$("setupMsg").textContent="⏳ Erstelle …";window.REMOTE.create(c).then(ok=>{if(ok)modal("🔗","Dein Sync-Code",`<input value="${c}" readonly onclick="this.select()" style="text-align:center;margin:8px 0">Gib ihn dem Partner-Handy. Steht jederzeit unter <b>Verlauf → Konto</b>.`,[["Verstanden",null]])})}
 function copyCode(){const c=lsGet(LC)||"";(navigator.clipboard?navigator.clipboard.writeText(c):Promise.reject()).then(()=>modal("📋","Kopiert!","",[["OK",null]])).catch(()=>{$("codeShow").select();modal("📋","Bitte manuell kopieren","Code ist markiert.",[["OK",null]])})}
-function logout(){modal("🚪","Abmelden?","Auf diesem Handy werden die Daten entfernt. In der Cloud bleiben sie – mit dem Code kommst du wieder rein.",[["Nein",null,1],["Abmelden",()=>{lsSet(LC,null);lsSet(LS,null);location.reload()}]])}
+function logout(){modal("🚪","Abmelden?","Deine Daten bleiben in deinem Konto gespeichert. Mit Google-Login sind sie sofort wieder da.",[["Nein",null,1],["Abmelden",()=>{lsSet(LC,null);lsSet(LS,null);(window.REMOTE?window.REMOTE.logout():Promise.resolve()).finally(()=>location.reload())}]])}
+
+/* ---------- Backup ---------- */
+function exportBackup(){const blob=new Blob([JSON.stringify({app:"fitpunkte",v:1,date:new Date().toISOString(),data:{name:S.name,goal:S.goal,workouts:S.workouts,redeemed:S.redeemed,rewards:S.rewards}},null,1)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fitpunkte-backup-"+dkey(new Date())+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function importBackup(inp){const f=inp.files[0];inp.value="";if(!f)return;f.text().then(t=>{const j=JSON.parse(t),d=j.data||j;if(!Array.isArray(d.workouts))throw 0;
+ modal("⬆️","Backup wiederherstellen?",`${d.workouts.length} Einheiten, ${(d.redeemed||[]).length} eingelöste Belohnungen.<br>Der aktuelle Stand wird <b>ersetzt</b>.`,[["Abbrechen",null,1],["Wiederherstellen",()=>{const x=JSON.parse(JSON.stringify(d));mutate(s=>{s.workouts=x.workouts;s.redeemed=x.redeemed||[];s.rewards=x.rewards||s.rewards;if(x.name!==undefined)s.name=x.name;if(x.goal)s.goal=x.goal});modal("✅","Wiederhergestellt","",[["OK",null]])}]])}).catch(()=>modal("⚠️","Ungültige Datei","Das ist keine FitPunkte-Backup-Datei.",[["OK",null]]))}
 
 /* ---------- Konfetti ---------- */
 function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const P=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.5,vx:(Math.random()-.5)*4,vy:2+Math.random()*4,s:5+Math.random()*6,r:Math.random()*6,col:["#ff5fa2","#7c5cff","#2ed47a","#ffb84d","#7be3ff"][Math.floor(Math.random()*5)]}));let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.col;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore()});if(++f<160)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height)})()}
@@ -291,45 +313,75 @@ function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidt
 render();
 const CFG=window.FIREBASE_CONFIG;
 if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("📱 Nur lokal – Firebase noch nicht eingerichtet (firebase-config.js)")}
-else if(!lsGet(LC)){showSetup()}
+
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
-<!-- ---------- Firebase-Sync ---------- -->
+<!-- ---------- Firebase: Google-Login + Sync ---------- -->
 <script type="module">
 const CFG=window.FIREBASE_CONFIG;
 if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
- const V="10.12.2",B=`https://www.gstatic.com/firebasejs/${V}/`;
+ const B="https://www.gstatic.com/firebasejs/10.12.2/";
  try{
   const {initializeApp}=await import(B+"firebase-app.js");
-  const {getAuth,signInAnonymously,onAuthStateChanged}=await import(B+"firebase-auth.js");
-  const {initializeFirestore,persistentLocalCache,doc,onSnapshot,runTransaction,setDoc}=await import(B+"firebase-firestore.js");
+  const {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut,setPersistence,browserLocalPersistence}=await import(B+"firebase-auth.js");
+  const {initializeFirestore,persistentLocalCache,doc,getDoc,setDoc,updateDoc,onSnapshot,runTransaction,arrayUnion}=await import(B+"firebase-firestore.js");
   const app=initializeApp(CFG),auth=getAuth(app);
   let fs;try{fs=initializeFirestore(app,{localCache:persistentLocalCache()})}catch(e){fs=initializeFirestore(app,{})}
-  const user=await new Promise((res,rej)=>{const un=onAuthStateChanged(auth,u=>{if(u){un();res(u)}});signInAnonymously(auth).catch(rej)});
-  let ref=null,unsub=null;
-  const norm=window.norm;
+  await setPersistence(auth,browserLocalPersistence).catch(()=>{});
+  getRedirectResult(auth).catch(e=>showSetup("login","⚠️ "+e.code));
+  const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});
+  let ref=null,unsub=null,user=null;
+  const clean=o=>{const c=JSON.parse(JSON.stringify(o));delete c.members;return c};
+  const err=e=>(e&&(e.code||e.message))||"unbekannt";
+
+  function subscribe(code){
+   ref=doc(fs,"fitpunkte",code);if(unsub)unsub();
+   setCode(code);hideSetup();setStatus("⏳ Verbinde …");
+   unsub=onSnapshot(ref,snap=>{if(snap.exists()){window.applyRemote(snap.data());setStatus(snap.metadata.hasPendingWrites?"⏳ Speichere …":"☁️ Synchronisiert")}},
+    e=>{setStatus("⚠️ Sync-Fehler: "+e.code);if(e.code==="permission-denied"){showSetup("team","Kein Zugriff auf dieses Team – Code prüfen.")}});
+  }
+  async function remember(code){await setDoc(doc(fs,"users",user.uid),{team:code,email:user.email||"",at:Date.now()},{merge:true})}
+
   window.REMOTE={
-   connect(code,isNew){
-    ref=doc(fs,"fitpunkte",code);if(unsub)unsub();
-    setStatus("⏳ Verbinde …");
-    let first=true;
-    unsub=onSnapshot(ref,snap=>{
-     if(snap.exists()){window.applyRemote(snap.data());setStatus(snap.metadata.hasPendingWrites?"⏳ Speichere …":"☁️ Synchronisiert")}
-     else if(first){ // neuer Code: aktuellen Stand hochladen
-      setDoc(ref,JSON.parse(JSON.stringify(S))).catch(e=>setStatus("⚠️ "+e.code));
-     }
-     first=false;
-    },err=>{setStatus("⚠️ Sync-Fehler: "+err.code)});
+   async login(){
+    $("setupMsg").textContent="⏳ Anmelden …";
+    try{await signInWithPopup(auth,provider)}
+    catch(e){
+     if(["auth/popup-blocked","auth/operation-not-supported-in-this-environment","auth/cancelled-popup-request"].includes(e.code)){try{await signInWithRedirect(auth,provider)}catch(e2){$("setupMsg").textContent="⚠️ "+err(e2)}}
+     else if(e.code!=="auth/popup-closed-by-user")$("setupMsg").textContent="⚠️ "+err(e);
+     else $("setupMsg").textContent="";
+    }
+   },
+   async create(code){
+    try{await setDoc(doc(fs,"fitpunkte",code),Object.assign(clean(S),{members:[user.uid]}));await remember(code);subscribe(code);return true}
+    catch(e){$("setupMsg").textContent="⚠️ "+err(e);return false}
+   },
+   async join(code){
+    try{await updateDoc(doc(fs,"fitpunkte",code),{members:arrayUnion(user.uid)});await remember(code);subscribe(code)}
+    catch(e){$("setupMsg").textContent=e.code==="not-found"?"Diesen Code gibt es nicht.":e.code==="permission-denied"?"Code falsch oder kein Zugriff.":"⚠️ "+err(e)}
    },
    mutate(fn){
     if(!ref)return;
-    runTransaction(fs,async tx=>{const s=await tx.get(ref);const d=norm(s.exists()?s.data():S);fn(d);d.rev=(d.rev||0)+1;tx.set(ref,d)})
-     .catch(()=>setDoc(ref,JSON.parse(JSON.stringify(S))).catch(e=>setStatus("⚠️ "+e.code)));
-   }
+    runTransaction(fs,async tx=>{const s=await tx.get(ref);if(!s.exists())throw new Error("weg");const d=window.norm(s.data());fn(d);d.rev=(d.rev||0)+1;tx.set(ref,d)})
+     .catch(()=>setDoc(ref,clean(S),{merge:true}).catch(e=>setStatus("⚠️ "+e.code)));
+   },
+   logout(){return signOut(auth)}
   };
-  const code=localStorage.getItem("fitpunkte_code");
-  if(code)window.REMOTE.connect(code,false);
+
+  onAuthStateChanged(auth,async u=>{
+   user=u;
+   if(!u){setAccount("Nicht angemeldet");showSetup("login");return}
+   setAccount("Angemeldet als "+(u.email||u.displayName||"Google-Konto"));
+   try{
+    const me=await getDoc(doc(fs,"users",u.uid));
+    if(me.exists()&&me.data().team){subscribe(me.data().team);return}
+    // altes Gerät hatte schon einen Code (vor dem Google-Login) -> automatisch übernehmen
+    const old=localStorage.getItem("fitpunkte_code");
+    if(old){await window.REMOTE.join(old);if(ref)return}
+    showSetup("team");
+   }catch(e){showSetup("team","⚠️ "+err(e))}
+  });
  }catch(e){setStatus("⚠️ Firebase-Fehler: "+(e.code||e.message))}
 }
 </script>
