@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /fitpunkte/{code} {
+      // nur angemeldete App-Nutzer, nur mit langem Code, kein Auflisten aller Codes
+      allow get, create, update: if request.auth != null && code.size() >= 20;
+    }
+  }
+}
