@@ -13,4 +13,4 @@ window.FIREBASE_CONFIG = {
 window.APPLE_LOGIN = false;
 
 // Push-Nachrichten: Schlüssel aus Firebase → Projekteinstellungen → Cloud Messaging → Web-Push-Zertifikate
-window.VAPID_KEY = "";
+window.VAPID_KEY = "BEIDM5euNB662b0Ribpe3WsLA7VvpKM1Zoo7m3sUyRZXNsDA_b7Oy6WRkVws87vxpwLs3CQFeYQmsFZyyESMrtk";
