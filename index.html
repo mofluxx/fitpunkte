@@ -278,13 +278,14 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
   <div class="lbl">Dauer (Minuten)</div>
   <div class="seg" id="minBtns"></div>
   <input class="field" type="number" id="minIn" inputmode="numeric" placeholder="Andere Dauer" style="margin-top:8px">
-  <div class="lbl">Intensität</div>
-  <div class="seg" id="intBtns"></div>
+  <div class="lbl" style="display:flex;justify-content:space-between"><span>Anstrengung</span><span id="rpeTxt" style="color:var(--txt)"></span></div>
+  <div class="seg" id="intBtns" style="gap:2px"></div>
+  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut2);margin-top:4px"><span>sehr leicht</span><span>Maximum</span></div>
   <div class="lbl">Datum</div>
   <div class="seg" id="dayBtns"></div>
   <input class="field" type="date" id="dateIn" style="margin-top:8px">
   <div class="lbl">Details (optional)</div>
-  <div class="two"><input class="field" id="distIn" inputmode="decimal" placeholder="Distanz in km"><input class="field" id="noteIn" placeholder="Notiz" maxlength="60"></div>
+  <div class="two" id="detailsRow"><input class="field" id="distIn" inputmode="decimal" placeholder="Distanz in km"><input class="field" id="noteIn" placeholder="Notiz" maxlength="60"></div>
   <div class="preview" id="preview"></div>
   <button class="btn" id="saveBtn" onclick="saveWorkout()" style="margin-top:12px">Eintragen</button>
   <button class="btn danger" id="delBtn" onclick="deleteEdit()" style="margin-top:8px;display:none">Eintrag löschen</button>
@@ -352,6 +353,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <h3>Darstellung</h3>
     <div class="seg" id="themeSeg"></div>
   </div>
+  <div class="card"><h3>Punkte-Regeln</h3><div id="rulesBox" style="font-size:14px"></div></div>
   <div class="card"><h3><span>Eigene Sportarten</span><a onclick="openTypeSheet()">Hinzufügen</a></h3><div id="ownTypes"></div></div>
   <div class="card">
     <h3>Konto</h3>
@@ -431,7 +433,15 @@ const ico=(k,cls="")=>`<svg class="i ${cls}"><use href="#i-${ICONS[k]?k:"star"}"
 const PICK=["run","bike","dumbbell","yoga","swim","music","walk","activity","ball","mountain","racket","zap","heart","target","snow","star"];
 
 /* ================= Daten ================= */
-const TYPES=[{n:"Laufen",i:"run"},{n:"Rad",i:"bike"},{n:"Kraft",i:"dumbbell"},{n:"Yoga",i:"yoga"},{n:"Schwimmen",i:"swim"},{n:"Tanzen",i:"music"},{n:"Spaziergang",i:"walk"},{n:"Workout",i:"activity"}];
+const TYPES=[{n:"Laufen",i:"run",f:1.3,dist:1},{n:"Rad",i:"bike",f:1.1,dist:1},{n:"Kraft",i:"dumbbell",f:1.0},{n:"Yoga",i:"yoga",f:0.7},{n:"Schwimmen",i:"swim",f:1.3,dist:1},{n:"Tanzen",i:"music",f:1.0},{n:"Spaziergang",i:"walk",f:0.5},{n:"Workout",i:"activity",f:1.4}];
+const FACTORS=[0.5,0.7,1.0,1.1,1.3,1.5];
+const fmtF=f=>"×"+String(f).replace(".",",");
+/* Anstrengung 1–10 -> Multiplikator */
+const rpeMult=r=>Math.round((0.8+0.07*r)*100)/100;
+const rpeLabel=r=>r<=2?"Sehr leicht":r<=4?"Leicht":r<=6?"Mittel":r<=8?"Anstrengend":r===9?"Sehr hart":"Maximum";
+const intLabel=w=>w.rpe?("Anstrengung "+w.rpe+"/10"):((INT.find(x=>x[1]===(w.int||1))||["Locker"])[0]);
+/* Anti-Schummel */
+const MAX_MIN=180,MAX_PER_DAY=3,BACKDATE_DAYS=2,DISPUTE_HOURS=24;
 const LEGACY_ICON={"Laufen":"run","Rad":"bike","Kraft":"dumbbell","Yoga":"yoga","Schwimmen":"swim","Tanzen":"music","Spaziergang":"walk","Workout":"activity"};
 const INT=[["Locker",1],["Mittel",1.25],["Hart",1.5]];
 const TEAM_BONUS=30;
@@ -474,7 +484,10 @@ function rOf(u){return S.redeemed.filter(r=>r.uid?r.uid===u:(u===ME.uid&&!isTeam
 const goalOf=u=>(S.people[u]&&S.people[u].goal)||S.goal||3;
 
 /* ================= Punkte & Serien ================= */
-function daysSet(u){return new Set(wOf(u).map(w=>dkey(w.d)))}
+const valid=w=>!w.rejected;
+const counts=w=>!w.rejected&&!w.disputed;
+function vOf(u){return wOf(u).filter(valid)}
+function daysSet(u){return new Set(vOf(u).map(w=>dkey(w.d)))}
 const PAUSES_PER_MONTH=2;
 function pauseSet(u){return new Set(((S.people[u]||{}).pauses)||[])}
 function streakAt(u,endKey){const ds=daysSet(u),ps=pauseSet(u);let n=0,d=fromKey(endKey);while(ds.has(dkey(d))||ps.has(dkey(d))){if(ds.has(dkey(d)))n++;d=addDays(d,-1)}return n}
@@ -484,21 +497,21 @@ function pausesLeft(u,monthKey){const mk=monthKey||dkey(new Date()).slice(0,7);r
 function togglePause(k){const u=ME.uid;if(daysSet(u).has(k))return;const has=pauseSet(u).has(k);
  if(!has&&pausesLeft(u,k.slice(0,7))<=0)return sheet("Keine Pausentage mehr","Pro Monat gibt es "+PAUSES_PER_MONTH+" Pausentage. Ab nächstem Monat wieder.",[["OK",null]]);
  mutate(s=>{const p=s.people[u]=s.people[u]||{};p.pauses=(p.pauses||[]).filter(x=>x!==k);if(!has)p.pauses.push(k)});toast(has?"Pausentag entfernt":"Pausentag genommen – Serie bleibt")}
-function calcPts(u,m,inten,dayK,excludeId){
- const base=Math.round(m*inten);
- const sameDay=wOf(u).some(w=>w.id!==excludeId&&dkey(w.d)===dayK);
+function calcPts(u,m,inten,dayK,excludeId,factor){
+ const base=Math.round(m*inten*(factor||1));
+ const sameDay=vOf(u).some(w=>w.id!==excludeId&&dkey(w.d)===dayK);
  const before=streakAt(u,dkey(addDays(fromKey(dayK),-1)));
  const bonus=sameDay?0:10+Math.min((before+1)*2,20);
  return {base,bonus,total:base+bonus,streak:before+1}
 }
 function teamWeeks(){ // {weekKey: [uids die Bonus bekommen]}
  const out={};if(!isTeam())return out;
- const by={};S.workouts.forEach(w=>{if(!w.uid)return;const k=dkey(weekStart(new Date(w.d)));(by[k]=by[k]||[]).push(w.uid)});
+ const by={};S.workouts.forEach(w=>{if(!w.uid||w.rejected)return;const k=dkey(weekStart(new Date(w.d)));(by[k]=by[k]||[]).push(w.uid)});
  Object.entries(by).forEach(([k,arr])=>{if(arr.length>=(S.teamGoal||5))out[k]=[...new Set(arr)]});
  return out;
 }
 function teamBonusOf(u){return Object.values(teamWeeks()).filter(a=>a.includes(u)).length*TEAM_BONUS}
-const earned=u=>wOf(u).reduce((a,w)=>a+(w.p||0),0)+teamBonusOf(u);
+const earned=u=>wOf(u).filter(counts).reduce((a,w)=>a+(w.p||0),0)+teamBonusOf(u);
 const spent=u=>rOf(u).reduce((a,r)=>a+r.c,0);
 const balance=u=>earned(u)-spent(u);
 
@@ -516,7 +529,7 @@ const BADGES=[
  {id:"g4",t:"Ziel-Profi",d:"4× Wochenziel",i:"check",f:s=>s.goals>=4},
  {id:"team",t:"Teamwork",d:"Team-Ziel erreicht",i:"users",f:s=>s.team>=1},
  {id:"var",t:"Vielseitig",d:"4 Sportarten",i:"heart",f:s=>s.types>=4}];
-function statsOf(u){const ws=wOf(u);const byWeek={};ws.forEach(w=>{const k=dkey(weekStart(new Date(w.d)));(byWeek[k]=byWeek[k]||new Set()).add(dkey(w.d))});
+function statsOf(u){const ws=vOf(u);const byWeek={};ws.forEach(w=>{const k=dkey(weekStart(new Date(w.d)));(byWeek[k]=byWeek[k]||new Set()).add(dkey(w.d))});
  return {n:ws.length,min:ws.reduce((a,w)=>a+w.m,0),maxM:Math.max(0,...ws.map(w=>w.m)),ls:longestStreak(u),goals:Object.values(byWeek).filter(s=>s.size>=goalOf(u)).length,team:Object.values(teamWeeks()).filter(a=>a.includes(u)).length,types:new Set(ws.map(w=>w.t)).size}}
 const earnedBadges=u=>{const s=statsOf(u);return BADGES.filter(b=>b.f(s)).map(b=>b.id)};
 function checkBadges(celebrate){
@@ -576,6 +589,20 @@ function render(){
  renderShop();renderWishes();renderProgress();renderProfile();if($("v-log").classList.contains("on"))renderLog();
 }
 function typeIcon(w){return w.i||LEGACY_ICON[w.t]||"star"}
+function trustInfo(w){const out=[];
+ if(w.at&&dkey(w.at)!==dkey(w.d))out.push(`<span class="pill">Nachgetragen</span>`);
+ if(w.edits&&w.edits.length)out.push(`<span class="pill" title="${esc(w.edits.map(e=>e.c).join(" | "))}">Bearbeitet: ${esc(w.edits[w.edits.length-1].c)}</span>`);
+ if(w.rejected)out.push(`<span class="pill" style="background:rgba(255,107,107,.14);color:#ff6b6b">Abgelehnt von ${esc(pName(w.rejected.by))}</span>`);
+ else if(w.disputed)out.push(`<span class="pill open">Angezweifelt von ${esc(pName(w.disputed.by))} · Punkte eingefroren</span>`);
+ return out.length?`<div class="reacts">${out.join("")}</div>`:""}
+function canDispute(w){const owner=w.uid;return isTeam()&&owner&&owner!==ME.uid&&!w.disputed&&!w.rejected&&(Date.now()-(w.at||w.d))<DISPUTE_HOURS*3600e3}
+function disputeBar(w){
+ if(w.disputed&&!w.rejected&&w.disputed.by===ME.uid)return `<div class="reacts"><button class="rb" onclick="event.stopPropagation();undispute('${w.id}')">Zweifel zurücknehmen</button><button class="rb" onclick="event.stopPropagation();rejectW('${w.id}')">Ablehnen</button></div>`;
+ if(canDispute(w))return `<div class="reacts"><button class="rb" style="color:var(--mut)" onclick="event.stopPropagation();askDispute('${w.id}')">Anzweifeln</button></div>`;
+ return ""}
+function askDispute(id){const w=S.workouts.find(x=>x.id===id);if(!w)return;sheet("Training anzweifeln?",`${esc(w.t)} · ${w.m} Min von ${esc(pName(w.uid))}.<br>Die Punkte werden eingefroren, bis du den Zweifel zurücknimmst oder den Eintrag ablehnst. Am besten kurz miteinander reden.`,[["Abbrechen",null,1],["Anzweifeln",()=>mutate(s=>{const x=s.workouts.find(y=>y.id===id);if(x&&!x.disputed)x.disputed={by:ME.uid,at:Date.now()}})]])}
+function undispute(id){mutate(s=>{const x=s.workouts.find(y=>y.id===id);if(x)delete x.disputed});toast("Zweifel zurückgenommen")}
+function rejectW(id){sheet("Eintrag ablehnen?","Das Training zählt dann nicht – keine Punkte, nicht fürs Wochenziel.",[["Abbrechen",null,1],["Ablehnen",()=>mutate(s=>{const x=s.workouts.find(y=>y.id===id);if(x){x.rejected={by:ME.uid,at:Date.now()};delete x.disputed}}),"danger"]])}
 function reactBar(w){
  const owner=w.uid||ME.uid,R=w.react||{},canReact=isTeam()&&owner!==ME.uid;
  const got=Object.entries(R).filter(([k])=>k!==owner);
@@ -583,23 +610,26 @@ function reactBar(w){
  return got.length?`<div class="reacts">${got.map(([k,e])=>`<span class="rb">${e} ${esc(pName(k))}</span>`).join("")}</div>`:"";
 }
 function feedItem(w){const team=isTeam(),owner=w.uid||ME.uid;
- return `<div class="it"><div class="ic">${ico(typeIcon(w))}</div><div class="tx"><b>${team?`<span class="who ${owner===ME.uid?"me":""}">${esc(initial(owner))}</span>`:""}${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span>${relDay(w.d)}${w.note?" · "+esc(w.note):""}</span>${reactBar(w)}</div><div class="pt">+${w.p}</div></div>`}
+ return `<div class="it"><div class="ic">${ico(typeIcon(w))}</div><div class="tx"><b>${team?`<span class="who ${owner===ME.uid?"me":""}">${esc(initial(owner))}</span>`:""}${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span>${relDay(w.d)}${w.note?" · "+esc(w.note):""}</span>${trustInfo(w)}${w.rejected?"":reactBar(w)}${disputeBar(w)}</div><div class="pt" style="${counts(w)?"":"color:var(--mut2);text-decoration:line-through"}">+${w.p}</div></div>`}
 function react(id,e){mutate(s=>{const w=s.workouts.find(x=>x.id===id);if(!w)return;w.react=w.react||{};if(w.react[ME.uid]===e)delete w.react[ME.uid];else w.react[ME.uid]=e})}
 
 /* ---------- Eintragen ---------- */
-const allTypes=()=>TYPES.concat((S.customTypes||[]).map(c=>({n:c.n,i:c.i||"star",id:c.id})));
-function blankSel(){return {t:null,m:null,i:1,day:dkey(new Date()),km:"",note:""}}
+const allTypes=()=>TYPES.concat((S.customTypes||[]).map(c=>({n:c.n,i:c.i||"star",id:c.id,f:c.f||1.0,dist:c.dist?1:0})));
+function blankSel(){return {t:null,m:null,rpe:5,day:dkey(new Date()),km:"",note:""}}
 function startLog(){editId=null;sel=blankSel();fillLogInputs();go("log")}
 function startEdit(id){const w=S.workouts.find(x=>x.id===id);if(!w)return;if(isTeam()&&w.uid&&w.uid!==ME.uid)return sheet("Nicht deins","Nur "+esc(pName(w.uid))+" kann diesen Eintrag bearbeiten.",[["OK",null]]);
- editId=id;const ti=allTypes().findIndex(t=>t.n===w.t);sel={t:ti>=0?ti:null,m:w.m,i:w.int||1,day:dkey(w.d),km:w.km||"",note:w.note||""};fillLogInputs();go("log")}
+ if(w.rejected)return sheet("Abgelehnt","Dieser Eintrag wurde abgelehnt und kann nicht mehr bearbeitet werden.",[["OK",null]]);
+ editId=id;const ti=allTypes().findIndex(t=>t.n===w.t);sel={t:ti>=0?ti:null,m:w.m,rpe:w.rpe||(w.int>=1.5?8:w.int>=1.25?5:3),day:dkey(w.d),km:w.km||"",note:w.note||""};fillLogInputs();go("log")}
 function cancelEdit(){editId=null;sel=blankSel();go("progress")}
-function fillLogInputs(){$("minIn").value=[10,20,30,45,60].includes(sel.m)?"":(sel.m||"");$("dateIn").value=sel.day;$("dateIn").max=dkey(new Date());$("distIn").value=sel.km?String(sel.km).replace(".",","):"";$("noteIn").value=sel.note||""}
+function fillLogInputs(){$("minIn").value=[10,20,30,45,60].includes(sel.m)?"":(sel.m||"");$("dateIn").value=sel.day;$("dateIn").max=dkey(new Date());$("dateIn").min=dkey(addDays(new Date(),-BACKDATE_DAYS));$("minIn").max=MAX_MIN;$("distIn").value=sel.km?String(sel.km).replace(".",","):"";$("noteIn").value=sel.note||""}
 function renderLog(){
  if(!sel)sel=blankSel();
  $("logTitle").textContent=editId?"Eintrag bearbeiten":"Training eintragen";$("logCancel").style.display=editId?"flex":"none";$("delBtn").style.display=editId?"flex":"none";$("saveBtn").textContent=editId?"Speichern":"Eintragen";
  $("types").innerHTML=allTypes().map((t,i)=>`<button class="type ${sel.t===i?"on":""}" onclick="sel.t=${i};renderLog()">${ico(t.i)}<span>${esc(t.n)}</span></button>`).join("")+`<button class="type add" onclick="openTypeSheet()">${ico("plus")}<span>Eigene</span></button>`;
  $("minBtns").innerHTML=[10,20,30,45,60].map(m=>`<button class="${sel.m===m?"on":""}" onclick="sel.m=${m};$('minIn').value='';renderLog()">${m}</button>`).join("");
- $("intBtns").innerHTML=INT.map(x=>`<button class="${sel.i===x[1]?"on":""}" onclick="sel.i=${x[1]};renderLog()">${x[0]}</button>`).join("");
+ $("intBtns").innerHTML=[1,2,3,4,5,6,7,8,9,10].map(r=>`<button class="${sel.rpe===r?"on":""}" style="padding:10px 0" onclick="sel.rpe=${r};renderLog()">${r}</button>`).join("");
+ $("rpeTxt").textContent=sel.rpe+" · "+rpeLabel(sel.rpe);
+ const ct=sel.t!==null?allTypes()[sel.t]:null,showDist=!!(ct&&ct.dist);$("distIn").style.display=showDist?"block":"none";$("detailsRow").style.gridTemplateColumns=showDist?"1fr 1fr":"1fr";
  const t0=dkey(new Date()),t1=dkey(addDays(new Date(),-1)),t2=dkey(addDays(new Date(),-2));
  $("dayBtns").innerHTML=[[t0,"Heute"],[t1,"Gestern"],[t2,"Vorgestern"]].map(([k,l])=>`<button class="${sel.day===k?"on":""}" onclick="sel.day='${k}';$('dateIn').value='${k}';renderLog()">${l}</button>`).join("");
  const ok=sel.t!==null&&sel.m>0;$("saveBtn").style.opacity=ok?1:.45;
@@ -608,20 +638,28 @@ function renderLog(){
  else $("preview").style.display="none";
 }
 $("minIn").addEventListener("input",e=>{sel.m=parseInt(e.target.value)||null;renderLog()});
-$("dateIn").addEventListener("change",e=>{if(e.target.value&&e.target.value<=dkey(new Date())){sel.day=e.target.value;renderLog()}});
+$("dateIn").addEventListener("change",e=>{const v=e.target.value,mn=dkey(addDays(new Date(),-BACKDATE_DAYS));if(v&&v<=dkey(new Date())&&v>=mn){sel.day=v;renderLog()}else{e.target.value=sel.day;sheet("Datum nicht möglich","Trainings können bis zu "+BACKDATE_DAYS+" Tage nachgetragen werden.",[["OK",null]])}});
 $("distIn").addEventListener("input",e=>sel.km=e.target.value);
 $("noteIn").addEventListener("input",e=>sel.note=e.target.value);
 function saveWorkout(){
  if(sel.t===null)return sheet("Sportart fehlt","Tippe oben eine Sportart an.",[["OK",null]]);
  if(!(sel.m>0))return sheet("Dauer fehlt","Wähle, wie lange du trainiert hast.",[["OK",null]]);
- const t=allTypes()[sel.t];const km=parseFloat(String(sel.km).replace(",","."));const kmV=km>0?Math.round(km*100)/100:null;const note=(sel.note||"").trim().slice(0,60)||null;
+ if(sel.m>MAX_MIN)return sheet("Zu lang","Pro Eintrag sind maximal "+MAX_MIN+" Minuten möglich. Längere Trainings bitte aufteilen.",[["OK",null]]);
+ if(sel.day<dkey(addDays(new Date(),-BACKDATE_DAYS))||sel.day>dkey(new Date()))return sheet("Datum nicht möglich","Trainings können bis zu "+BACKDATE_DAYS+" Tage nachgetragen werden.",[["OK",null]]);
+ if(!editId&&vOf(ME.uid).filter(w=>dkey(w.d)===sel.day).length>=MAX_PER_DAY)return sheet("Tageslimit erreicht","Pro Tag zählen maximal "+MAX_PER_DAY+" Trainings.",[["OK",null]]);
+ const t=allTypes()[sel.t];const km=parseFloat(String(sel.km).replace(",","."));const kmV=t.dist&&km>0?Math.round(km*100)/100:null;
+ const pace=kmV?sel.m/kmV:null,maxSpeed={Laufen:3,Rad:1.2,Schwimmen:12}[t.n];
+ if(pace&&maxSpeed&&pace<maxSpeed&&!sel.okFast){return sheet("Stimmt das?",`${fmtKm(kmV)} in ${sel.m} Min wäre extrem schnell. Bitte Distanz oder Dauer prüfen.`,[["Korrigieren",null,1],["Stimmt so",()=>{sel.okFast=true;saveWorkout()}]])}
+ const mult=rpeMult(sel.rpe);const note=(sel.note||"").trim().slice(0,60)||null;
  const ts=sel.day===dkey(new Date())?Date.now():fromKey(sel.day).getTime();
  if(editId){const old=S.workouts.find(x=>x.id===editId);if(!old)return startLog();
-  const p=calcPts(ME.uid,sel.m,sel.i,sel.day,editId);const bonus=old.bonus!=null?old.bonus:Math.max(0,(old.p||0)-Math.round(old.m*(old.int||1)));
-  const keepTs=dkey(old.d)===sel.day?old.d:ts;const id=editId;const upd={d:keepTs,t:t.n,i:t.i,m:sel.m,int:sel.i,km:kmV,note,base:p.base,bonus,p:p.base+bonus};
-  mutate(s=>{const w=s.workouts.find(x=>x.id===id);if(w)Object.assign(w,upd)});editId=null;sel=blankSel();toast("Gespeichert");go("progress");return}
- const p=calcPts(ME.uid,sel.m,sel.i,sel.day);
- const w={id:"w"+Date.now()+Math.random().toString(36).slice(2,6),uid:ME.uid==="local"?undefined:ME.uid,d:ts,t:t.n,i:t.i,m:sel.m,int:sel.i,km:kmV,note,base:p.base,bonus:p.bonus,p:p.total};
+  const p=calcPts(ME.uid,sel.m,mult,sel.day,editId,t.f);const bonus=old.bonus!=null?old.bonus:Math.max(0,(old.p||0)-Math.round(old.m*(old.int||1)));
+  const keepTs=dkey(old.d)===sel.day?old.d:ts;const id=editId;const upd={d:keepTs,t:t.n,i:t.i,m:sel.m,int:mult,rpe:sel.rpe,f:t.f,km:kmV,note,base:p.base,bonus,p:p.base+bonus};
+  const ch=[];if(old.t!==t.n)ch.push(old.t+" → "+t.n);if(old.m!==sel.m)ch.push(old.m+" → "+sel.m+" Min");if(dkey(old.d)!==sel.day)ch.push("Datum geändert");if((old.rpe||0)!==sel.rpe&&old.rpe)ch.push("Anstrengung "+old.rpe+" → "+sel.rpe);if((old.km||null)!==kmV)ch.push("Distanz geändert");
+  const log=ch.length?{at:Date.now(),c:ch.join(", ")}:null;
+  mutate(s=>{const w=s.workouts.find(x=>x.id===id);if(w){Object.assign(w,upd);if(log)w.edits=(w.edits||[]).concat([log]).slice(-5)}});editId=null;sel=blankSel();toast("Gespeichert");go("progress");return}
+ const p=calcPts(ME.uid,sel.m,mult,sel.day,null,t.f);
+ const w={id:"w"+Date.now()+Math.random().toString(36).slice(2,6),uid:ME.uid==="local"?undefined:ME.uid,d:ts,at:Date.now(),t:t.n,i:t.i,m:sel.m,int:mult,rpe:sel.rpe,f:t.f,km:kmV,note,base:p.base,bonus:p.bonus,p:p.total};
  const before=wOf(ME.uid).length,wkBefore=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamBefore=Object.keys(teamWeeks()).length;
  const planId=sel.planId;
  const pk=ME.uid,dk=dkey(w.d);mutate(s=>{if(!s.workouts.some(x=>x.id===w.id))s.workouts.push(w);if(planId)s.plans=(s.plans||[]).filter(x=>x.id!==planId);const pp=s.people[pk];if(pp&&pp.pauses)pp.pauses=pp.pauses.filter(x=>x!==dk)});
@@ -635,12 +673,14 @@ function saveWorkout(){
 function deleteEdit(){const id=editId;sheet("Eintrag löschen?","Die Punkte werden wieder abgezogen.",[["Abbrechen",null,1],["Löschen",()=>{mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==id)});editId=null;sel=blankSel();go("progress")},"danger"]])}
 
 /* ---------- Eigene Sportarten ---------- */
-let pickI="star";
-function openTypeSheet(){pickI="run";
- sheet("Eigene Sportart",`<input class="field" id="tName" placeholder="z. B. Bouldern" maxlength="18"><div class="lbl">Symbol</div><div class="iconpick" id="iconPick"></div>`,[["Abbrechen",null,1],["Hinzufügen",addType,null,true]]);drawPick();setTimeout(()=>$("tName")&&$("tName").focus(),60)}
+let pickI="star",pickF=1.0,pickD=false;
+function openTypeSheet(){pickI="run";pickF=1.0;pickD=false;
+ sheet("Eigene Sportart",`<input class="field" id="tName" placeholder="z. B. Bouldern" maxlength="18"><div class="lbl">Symbol</div><div class="iconpick" id="iconPick"></div><div class="lbl">Wie anstrengend im Schnitt? (Punkte-Faktor)</div><div class="seg" id="facPick"></div><div style="font-size:12px;color:var(--mut);margin-top:6px">×0,5 Spaziergang · ×0,7 Yoga · ×1,0 Kraft · ×1,3 Laufen · ×1,5 sehr intensiv</div><div class="sw" style="margin-top:8px"><span>Mit Distanz (km)</span><button class="tg" id="distPick" onclick="pickD=!pickD;this.classList.toggle('on',pickD)"></button></div>`,[["Abbrechen",null,1],["Hinzufügen",addType,null,true]]);drawPick();drawFac();setTimeout(()=>$("tName")&&$("tName").focus(),60)}
+function drawFac(){$("facPick").innerHTML=FACTORS.map(f=>`<button class="${pickF===f?"on":""}" onclick="pickF=${f};drawFac()">${fmtF(f)}</button>`).join("")}
 function drawPick(){$("iconPick").innerHTML=PICK.map(k=>`<button class="${pickI===k?"on":""}" onclick="pickI='${k}';drawPick()">${ico(k)}</button>`).join("")}
 function addType(){const n=($("tName").value||"").trim();if(!n)return false;if(allTypes().some(t=>t.n.toLowerCase()===n.toLowerCase())){$("tName").value="";$("tName").placeholder="Gibt es schon";return false}
- const c={id:"t"+Date.now(),n,i:pickI};mutate(s=>{s.customTypes=s.customTypes||[];if(!s.customTypes.some(x=>x.id===c.id))s.customTypes.push(c)});if(sel)sel.t=allTypes().length-1;render()}
+ const c={id:"t"+Date.now(),n,i:pickI,f:pickF,dist:pickD?1:0};mutate(s=>{s.customTypes=s.customTypes||[];if(!s.customTypes.some(x=>x.id===c.id))s.customTypes.push(c)});if(sel)sel.t=allTypes().length-1;render()}
+function cycleFactor(id){mutate(s=>{const c=(s.customTypes||[]).find(x=>x.id===id);if(!c)return;const i=FACTORS.indexOf(c.f||1.0);c.f=FACTORS[(i+1)%FACTORS.length]})}
 function delType(id){const c=(S.customTypes||[]).find(x=>x.id===id);if(!c)return;sheet("Sportart entfernen?",esc(c.n)+" verschwindet aus der Auswahl. Alte Einträge bleiben erhalten.",[["Abbrechen",null,1],["Entfernen",()=>{mutate(s=>{s.customTypes=(s.customTypes||[]).filter(x=>x.id!==id)});if(sel)sel.t=null},"danger"]])}
 
 /* ---------- Belohnungen ---------- */
@@ -693,7 +733,7 @@ function renderProgress(){
  $("allList").innerHTML=[...ws].sort((a,c)=>c.d-a.d).slice(0,60).map(w=>listItem(w)).join("")||`<div class="empty">Noch keine Einträge</div>`;
 }
 function listItem(w){const own=!isTeam()||(w.uid||ME.uid)===ME.uid;
- return `<div class="it" ${own?`onclick="startEdit('${w.id}')"`:""}><div class="ic">${ico(typeIcon(w))}</div><div class="tx" style="flex:1;min-width:0"><b style="font-weight:600;display:block">${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span style="font-size:13px;color:var(--mut)">${relDay(w.d)} · ${INT.find(x=>x[1]===(w.int||1))[0]}</span>${w.note?`<div class="note">${esc(w.note)}</div>`:""}${reactBar(w)}</div><div style="text-align:right"><div class="pt" style="color:var(--ok);font-weight:600">+${w.p}</div>${own?`<div style="color:var(--mut2);margin-top:4px">${ico("chevR")}</div>`:""}</div></div>`}
+ return `<div class="it" ${own?`onclick="startEdit('${w.id}')"`:""}><div class="ic">${ico(typeIcon(w))}</div><div class="tx" style="flex:1;min-width:0"><b style="font-weight:600;display:block">${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span style="font-size:13px;color:var(--mut)">${relDay(w.d)} · ${intLabel(w)}</span>${w.note?`<div class="note">${esc(w.note)}</div>`:""}${trustInfo(w)}${w.rejected?"":reactBar(w)}${disputeBar(w)}</div><div style="text-align:right"><div class="pt" style="font-weight:600;${counts(w)?"color:var(--ok)":"color:var(--mut2);text-decoration:line-through"}">+${w.p}</div>${own?`<div style="color:var(--mut2);margin-top:4px">${ico("chevR")}</div>`:""}</div></div>`}
 function dayPanel(u,k,dl){const own=u===ME.uid,today=dkey(new Date()),label=fromKey(k).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
  const plans=(S.plans||[]).filter(x=>x.day===k&&(x.uid||ME.uid)===u),pz=pauseSet(u).has(k);
  let h=`<div style="font-weight:600;margin-bottom:4px">${label}</div>`;
@@ -728,12 +768,13 @@ function renderProfile(){
  $("goalSeg").innerHTML=[1,2,3,4,5,6,7].map(n=>`<button class="${goalSel===n?"on":""}" onclick="goalSel=${n};renderProfile()">${n}</button>`).join("");
  $("teamGoalBox").style.display=isTeam()?"block":"none";
  $("teamGoalSeg").innerHTML=[3,4,5,6,8,10].map(n=>`<button class="${teamGoalSel===n?"on":""}" onclick="teamGoalSel=${n};renderProfile()">${n}</button>`).join("");
- $("ownTypes").innerHTML=(S.customTypes||[]).map(c=>`<div class="rw"><div class="ic">${ico(c.i||"star")}</div><div class="tx"><b>${esc(c.n)}</b></div><button class="iconbtn" onclick="delType('${c.id}')">${ico("trash")}</button></div>`).join("")||`<div class="empty" style="text-align:left;padding:0">Keine – füge z. B. Bouldern oder Tennis hinzu.</div>`;
+ $("ownTypes").innerHTML=(S.customTypes||[]).map(c=>`<div class="rw"><div class="ic">${ico(c.i||"star")}</div><div class="tx"><b>${esc(c.n)}</b><span>Punkte-Faktor – antippen zum Ändern</span></div><button class="pill" onclick="cycleFactor('${c.id}')">${fmtF(c.f||1.0)}</button><button class="iconbtn" onclick="delType('${c.id}')">${ico("trash")}</button></div>`).join("")||`<div class="empty" style="text-align:left;padding:0">Keine – füge z. B. Bouldern oder Tennis hinzu.</div>`;
  $("codeShow").value=lsGet(LC)||"–";
  const guest=ME.uid==="local";$("guestBox").style.display=guest&&window.REMOTE?"block":"none";$("codeBox").style.display=guest?"none":"block";$("logoutBtn").style.display=guest?"none":"flex";$("delAccBtn").textContent=guest?"Alle Daten löschen":"Konto löschen";
  const p=myProfile();if(ab._k!==meKey()+(p.onb?1:0)){ab={gender:p.gender||null,aim:p.aim||null,_k:meKey()+(p.onb?1:0)};if(document.activeElement!==$("pfAge"))$("pfAge").value=p.age||""}
  $("pfGender").innerHTML=GENDERS.map(g=>`<button class="${ab.gender===g?"on":""}" onclick="ab.gender='${g}';renderProfile()">${g}</button>`).join("");
  $("pfAim").innerHTML=AIMS.map(a=>`<button class="${ab.aim===a?"on":""}" onclick="ab.aim='${a}';renderProfile()">${a}</button>`).join("");
+ $("rulesBox").innerHTML=`<div style="color:var(--mut);margin-bottom:8px">Minuten × Sport-Faktor × Anstrengung + Tagesbonus</div>`+TYPES.map(t=>`<div class="rw" style="padding:7px 0"><div class="tx"><b style="font-weight:500">${t.n}</b></div><span class="pill">${fmtF(t.f)}</span></div>`).join("")+`<div style="color:var(--mut);margin-top:10px;font-size:13px">Anstrengung 1 = ×0,87 · 5 = ×1,15 · 10 = ×1,5<br>Max. ${MAX_MIN} Min pro Eintrag · ${MAX_PER_DAY} Einträge pro Tag · Nachtragen bis ${BACKDATE_DAYS} Tage${isTeam()?" · Anzweifeln bis "+DISPUTE_HOURS+" Std.":""}</div>`;
  renderPush();
  const t=getTheme();$("themeSeg").innerHTML=[["system","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([k,l])=>`<button class="${t===k?"on":""}" onclick="setTheme('${k}')">${l}</button>`).join("");
 }
