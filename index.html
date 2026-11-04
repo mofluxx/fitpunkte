@@ -193,6 +193,19 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .chart text{fill:var(--mut);font-size:10px;font-family:Inter,sans-serif}
 .list .it{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
 .list .it:first-child{border-top:none}
+.avatar{width:54px;height:54px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex:none}
+.mgrp{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:18px 4px 8px}
+.card.menu{padding:4px 14px}
+.mi{display:flex;align-items:center;gap:12px;width:100%;padding:11px 0;border-top:1px solid var(--line);text-align:left}
+.mi:first-child{border-top:none}
+.mi .ic{width:34px;height:34px;border-radius:10px}
+.mi .mt{flex:1;min-width:0}.mi .mt b{display:block;font-weight:600;font-size:15px}
+.mi .mt small{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chev{width:8px;height:8px;border-right:2px solid var(--mut2);border-top:2px solid var(--mut2);transform:rotate(45deg);margin-right:4px}
+.psub{display:none}.psub.on{display:block;animation:fade .18s ease}
+.back{display:flex;align-items:center;gap:6px;color:var(--acc);font-weight:600;font-size:15px;margin:2px 0 10px}
+.chip{display:inline-block;background:var(--s2);border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-size:13px;font-weight:600;margin:2px 2px}
+.rt{width:100%;border-collapse:collapse;font-size:14px}.rt td{padding:8px 0;border-top:1px solid var(--line)}.rt tr:first-child td{border-top:none}.rt td:last-child{text-align:right}
 .note{font-size:13px;color:var(--mut);margin-top:3px;font-style:italic}
 </style>
 </head>
@@ -322,54 +335,94 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <!-- PROFIL -->
 <section class="view" id="v-profile">
-  <div class="top"><h1>Profil</h1></div>
-  <div class="card">
-    <h3>Ziele</h3>
-    <div class="lbl" style="margin-top:0">Dein Name</div>
-    <input class="field" id="setName" maxlength="20">
-    <div class="lbl">Dein Wochenziel (Trainingstage)</div>
-    <div class="seg" id="goalSeg"></div>
-    <div id="teamGoalBox"><div class="lbl">Team-Ziel pro Woche (Einheiten zusammen)</div><div class="seg" id="teamGoalSeg"></div></div>
-    <button class="btn" onclick="saveSettings()" style="margin-top:16px">Speichern</button>
-  </div>
-  <div class="card">
-    <h3>Über dich</h3>
-    <div class="lbl" style="margin-top:0">Geschlecht</div><div class="opt" id="pfGender"></div>
-    <div class="two" style="margin-top:4px"><div><div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99"></div><div></div></div>
-    <div class="lbl">Ziel</div><div class="opt" id="pfAim"></div>
-    <button class="btn ghost" onclick="saveAbout()" style="margin-top:14px">Speichern</button>
-  </div>
-  <div class="card" id="pushCard">
-    <h3>Benachrichtigungen</h3>
-    <div id="pushState" style="font-size:14px;color:var(--mut);margin-bottom:10px"></div>
-    <button class="btn ghost" id="pushBtn" onclick="enablePush()">Aktivieren</button>
-    <div id="pushOpts" style="margin-top:6px"></div>
-  </div>
-  <div class="card">
-    <h3>Darstellung</h3>
-    <div class="seg" id="themeSeg"></div>
-  </div>
-  <div class="card"><h3>Punkte-Regeln</h3><div id="rulesBox" style="font-size:14px"></div></div>
-  <div class="card"><h3><span>Eigene Sportarten</span><a onclick="openTypeSheet()">Hinzufügen</a></h3><div id="ownTypes"></div></div>
-  <div class="card">
-    <h3>Konto</h3>
-    <div style="font-size:14px" id="acct">–</div>
-    <div id="guestBox" style="display:none;margin-top:12px">
-      <div style="font-size:14px;color:var(--mut);margin-bottom:10px">Melde dich an, um deine Daten zu sichern und mit deinem Partner zu teilen. Deine bisherigen Einträge werden übernommen.</div>
-      <button class="btn" onclick="guestLogin()">Anmelden</button>
+  <!-- Menü -->
+  <div id="pMenu">
+    <div class="top"><h1>Profil</h1></div>
+    <div class="card" style="display:flex;align-items:center;gap:14px">
+      <div class="avatar" id="pAvatar">?</div>
+      <div style="min-width:0"><div style="font-weight:700;font-size:18px" id="pName">–</div><div style="font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="pSub">–</div></div>
     </div>
-    <div id="codeBox"><div class="lbl">Sync-Code für das Partner-Handy</div>
-    <div class="row"><input class="field" id="codeShow" readonly onclick="this.select()" style="flex:3;font-size:14px"><button class="btn ghost small" onclick="copyCode()" style="flex:1"><svg class="i"><use href="#i-copy"/></svg></button></div></div>
+    <div class="mgrp">Persönlich</div>
+    <div class="card menu">
+      <button class="mi" onclick="openSub('about')"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><span class="mt"><b>Mein Profil</b><small>Name, Geschlecht, Alter, Ziel</small></span><span class="chev"></span></button>
+      <button class="mi" onclick="openSub('goals')"><span class="ic"><svg class="i"><use href="#i-target"/></svg></span><span class="mt"><b>Ziele</b><small id="mGoals">Wochenziel</small></span><span class="chev"></span></button>
+    </div>
+    <div class="mgrp">App</div>
+    <div class="card menu">
+      <button class="mi" onclick="openSub('notify')"><span class="ic"><svg class="i"><use href="#i-bell"/></svg></span><span class="mt"><b>Benachrichtigungen</b><small id="mNotify">–</small></span><span class="chev"></span></button>
+      <button class="mi" onclick="openSub('look')"><span class="ic"><svg class="i"><use href="#i-sun"/></svg></span><span class="mt"><b>Darstellung</b><small id="mLook">–</small></span><span class="chev"></span></button>
+      <button class="mi" onclick="openSub('types')"><span class="ic"><svg class="i"><use href="#i-activity"/></svg></span><span class="mt"><b>Sportarten</b><small id="mTypes">Eigene Sportarten verwalten</small></span><span class="chev"></span></button>
+    </div>
+    <div class="mgrp">Info</div>
+    <div class="card menu">
+      <button class="mi" onclick="openSub('rules')"><span class="ic"><svg class="i"><use href="#i-info"/></svg></span><span class="mt"><b>So funktionieren die Punkte</b><small>Formel, Faktoren, Boni, Regeln</small></span><span class="chev"></span></button>
+    </div>
+    <div class="mgrp">Konto</div>
+    <div class="card menu">
+      <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
+      <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
+    </div>
+    <div class="status">FitPunkte 5.1</div>
   </div>
-  <div class="card">
-    <h3>Backup</h3>
-    <div style="font-size:14px;color:var(--mut);margin-bottom:12px">Alle Daten als Datei sichern und wiederherstellen.</div>
-    <div class="row"><button class="btn ghost small" onclick="exportBackup()"><svg class="i"><use href="#i-down"/></svg>Sichern</button><button class="btn ghost small" onclick="$('impFile').click()"><svg class="i"><use href="#i-up"/></svg>Wiederherstellen</button></div>
-    <input type="file" id="impFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
+
+  <!-- Unterseiten -->
+  <div class="psub" id="ps-about">
+    <div class="card">
+      <div class="lbl" style="margin-top:0">Name</div><input class="field" id="setName" maxlength="20">
+      <div class="lbl">Geschlecht</div><div class="opt" id="pfGender"></div>
+      <div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99" style="max-width:140px">
+      <div class="lbl">Was ist dein Ziel?</div><div class="opt" id="pfAim"></div>
+      <button class="btn" onclick="saveAbout()" style="margin-top:18px">Speichern</button>
+    </div>
+    <div style="font-size:12px;color:var(--mut2);padding:0 4px">Name, Alter, Geschlecht und Ziel kann auch dein Partner sehen.</div>
   </div>
-  <button class="btn ghost" id="logoutBtn" onclick="logout()">Abmelden</button>
-  <button class="btn danger" onclick="askDeleteAccount()" style="margin-top:8px" id="delAccBtn">Konto löschen</button>
-  <div class="status">FitPunkte 3.0</div>
+  <div class="psub" id="ps-goals">
+    <div class="card">
+      <div class="lbl" style="margin-top:0">Dein Wochenziel (Trainingstage)</div><div class="seg" id="goalSeg"></div>
+      <div id="teamGoalBox"><div class="lbl">Team-Ziel pro Woche (Trainings zusammen)</div><div class="seg" id="teamGoalSeg"></div>
+      <div style="font-size:12px;color:var(--mut);margin-top:6px">Schafft ihr es zusammen, bekommt jeder +30 Punkte.</div></div>
+      <button class="btn" onclick="saveSettings()" style="margin-top:18px">Speichern</button>
+    </div>
+  </div>
+  <div class="psub" id="ps-notify">
+    <div class="card" id="pushCard">
+      <div id="pushState" style="font-size:14px;color:var(--mut);margin-bottom:10px"></div>
+      <button class="btn ghost" id="pushBtn" onclick="enablePush()">Aktivieren</button>
+      <div id="pushOpts" style="margin-top:6px"></div>
+    </div>
+    <div id="pushGuest" class="card" style="display:none;font-size:14px;color:var(--mut)">Benachrichtigungen gibt es nur mit Konto. Melde dich unter <b style="color:var(--txt)">Konto & Partner</b> an.</div>
+  </div>
+  <div class="psub" id="ps-look"><div class="card"><div class="seg" id="themeSeg"></div><div style="font-size:12px;color:var(--mut);margin-top:8px">Automatisch richtet sich nach der Einstellung deines Handys.</div></div></div>
+  <div class="psub" id="ps-types">
+    <div class="card"><h3><span>Eigene Sportarten</span><a onclick="openTypeSheet()">Hinzufügen</a></h3><div id="ownTypes"></div></div>
+    <div class="card"><h3>Standard-Sportarten</h3><div id="stdTypes"></div></div>
+  </div>
+  <div class="psub" id="ps-rules"><div id="rulesBox"></div></div>
+  <div class="psub" id="ps-account">
+    <div class="card">
+      <h3>Angemeldet</h3>
+      <div style="font-size:14px" id="acct">–</div>
+      <div id="guestBox" style="display:none;margin-top:12px">
+        <div style="font-size:14px;color:var(--mut);margin-bottom:10px">Melde dich an, um deine Daten zu sichern und mit deinem Partner zu teilen. Deine bisherigen Einträge werden übernommen.</div>
+        <button class="btn" onclick="guestLogin()">Anmelden</button>
+      </div>
+    </div>
+    <div class="card" id="codeBox"><h3>Partner verbinden</h3>
+      <div style="font-size:14px;color:var(--mut);margin-bottom:10px" id="partnerTxt"></div>
+      <div class="row"><input class="field" id="codeShow" readonly onclick="this.select()" style="flex:3;font-size:14px"><button class="btn ghost small" onclick="copyCode()" style="flex:1"><svg class="i"><use href="#i-copy"/></svg></button></div>
+    </div>
+    <button class="btn ghost" id="logoutBtn" onclick="logout()">Abmelden</button>
+  </div>
+  <div class="psub" id="ps-data">
+    <div class="card">
+      <h3>Backup</h3>
+      <div style="font-size:14px;color:var(--mut);margin-bottom:12px">Alle Daten als Datei sichern und wiederherstellen. Empfehlung: einmal im Monat.</div>
+      <div class="row"><button class="btn ghost small" onclick="exportBackup()"><svg class="i"><use href="#i-down"/></svg>Sichern</button><button class="btn ghost small" onclick="$('impFile').click()"><svg class="i"><use href="#i-up"/></svg>Wiederherstellen</button></div>
+      <input type="file" id="impFile" accept=".json,application/json" style="display:none" onchange="importBackup(this)">
+    </div>
+    <div class="card"><h3>Gefahrenzone</h3><div style="font-size:14px;color:var(--mut);margin-bottom:12px" id="delTxt"></div>
+      <button class="btn danger" onclick="askDeleteAccount()" id="delAccBtn">Konto löschen</button></div>
+  </div>
 </section>
 </div>
 
@@ -422,7 +475,11 @@ const ICONS={
  heart:"M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z",
  zap:"M13 2 4 14h7l-1 8 9-12h-7z",
  snow:"M12 2v20M4.9 4.9l14.2 14.2M2 12h20M4.9 19.1 19.1 4.9",
- mail:"M3 5h18v14H3zM3 6l9 7 9-7"
+ mail:"M3 5h18v14H3zM3 6l9 7 9-7",
+ bell:"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0",
+ sun:"M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4",
+ info:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01",
+ key:"M15.5 7.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0zM12 11v10M12 17h3M12 14h2"
 };
 document.getElementById("sprite").innerHTML=Object.entries(ICONS).map(([k,d])=>`<symbol id="i-${k}" viewBox="0 0 24 24"><path d="${d}"/></symbol>`).join("");
 const ico=(k,cls="")=>`<svg class="i ${cls}"><use href="#i-${ICONS[k]?k:"star"}"/></svg>`;
@@ -431,7 +488,7 @@ const PICK=["run","bike","dumbbell","yoga","swim","music","walk","activity","bal
 /* ================= Daten ================= */
 const TYPES=[{n:"Laufen",i:"run",f:1.3,dist:1},{n:"Rad",i:"bike",f:1.1,dist:1},{n:"Kraft",i:"dumbbell",f:1.0},{n:"Yoga",i:"yoga",f:0.7},{n:"Schwimmen",i:"swim",f:1.3,dist:1},{n:"Tanzen",i:"music",f:1.0},{n:"Spaziergang",i:"walk",f:0.5},{n:"Workout",i:"activity",f:1.4}];
 const FACTORS=[0.5,0.7,1.0,1.1,1.3,1.5];
-const fmtF=f=>"×"+String(f).replace(".",",");
+const fmtF=f=>"×"+(Number.isInteger(f)?f.toFixed(1):String(f)).replace(".",",");
 /* Anstrengung 1–10 -> Multiplikator */
 const rpeMult=r=>Math.round((0.8+0.07*r)*100)/100;
 const rpeLabel=r=>r<=2?"Sehr leicht":r<=4?"Leicht":r<=6?"Mittel":r<=8?"Anstrengend":r===9?"Sehr hart":"Maximum";
@@ -538,7 +595,11 @@ function checkBadges(celebrate){
 }
 
 /* ================= Navigation ================= */
-function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
+let profSub=null;
+const SUBS={about:"Mein Profil",goals:"Ziele",notify:"Benachrichtigungen",look:"Darstellung",types:"Sportarten",rules:"So funktionieren die Punkte",account:"Konto & Partner",data:"Daten & Backup"};
+function openSub(k){profSub=k;scrollTo(0,0);renderProfile()}
+function closeSub(){profSub=null;scrollTo(0,0);renderProfile()}
+function go(v){if(v==="profile"&&$("v-profile").classList.contains("on"))profSub=null;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
 
 /* ================= Rendering ================= */
 let lastBal=null;
@@ -767,6 +828,19 @@ function calMove(n){calM=new Date(calM.getFullYear(),calM.getMonth()+n,1);calSel
 let goalSel=null,teamGoalSel=null;
 function renderProfile(){
  const me=S.people[ME.uid]||{};
+ // Menü / Unterseite
+ $("pMenu").style.display=profSub?"none":"block";
+ document.querySelectorAll(".psub").forEach(x=>{const on=x.id==="ps-"+profSub;x.classList.toggle("on",on);if(on&&!x.querySelector(".back"))x.insertAdjacentHTML("afterbegin",`<button class="back" onclick="closeSub()"><svg class="i"><use href="#i-chevL"/></svg>Profil</button><div class="top" style="margin-top:0"><h1>${SUBS[profSub]}</h1></div>`)});
+ const nm=pName(ME.uid);$("pAvatar").textContent=(nm&&nm!=="Du"?nm[0]:"?").toUpperCase();$("pName").textContent=nm&&nm!=="Du"?nm:"Profil";
+ $("pSub").textContent=ME.uid==="local"?"Gast · nur auf diesem Gerät":(isTeam()?"Team mit "+pName(partnerId()):"Noch kein Partner verbunden");
+ $("mGoals").textContent=goalOf(ME.uid)+" Trainingstage pro Woche"+(isTeam()?" · Team "+(S.teamGoal||5):"");
+ $("mLook").textContent={system:"Automatisch",light:"Hell",dark:"Dunkel"}[getTheme()];
+ $("mTypes").textContent=(S.customTypes||[]).length?(S.customTypes.length+" eigene"):"Eigene Sportarten anlegen";
+ $("mAcct").textContent=$("acct").textContent||"–";
+ $("mNotify").textContent=ME.uid==="local"?"Nur mit Konto":(pushSupported()&&Notification.permission==="granted"&&lsGet("fp_push")==="1"?"Aktiv":"Aus");
+ $("partnerTxt").innerHTML=isTeam()?"Verbunden mit <b style='color:var(--txt)'>"+esc(pName(partnerId()))+"</b>. Mit diesem Code kann sich ein weiteres Gerät verbinden.":"Gib diesen Code deinem Partner. Er wählt nach der Anmeldung „Code eingeben“.";
+ $("delTxt").textContent=ME.uid==="local"?"Löscht alle Daten auf diesem Gerät.":"Löscht deine Trainings, Punkte und deinen Login. "+(isTeam()?"Die Daten von "+pName(partnerId())+" bleiben erhalten.":"");
+ $("stdTypes").innerHTML=TYPES.map(t=>`<div class="rw" style="padding:8px 0"><div class="ic">${ico(t.i)}</div><div class="tx"><b style="font-weight:500">${t.n}</b></div><span class="pill">${fmtF(t.f)}</span></div>`).join("");
  if(document.activeElement!==$("setName"))$("setName").value=me.name||(peopleIds().length?"":S.name)||ME.name||"";
  if(goalSel===null)goalSel=goalOf(ME.uid);if(teamGoalSel===null)teamGoalSel=S.teamGoal||5;
  $("goalSeg").innerHTML=[1,2,3,4,5,6,7].map(n=>`<button class="${goalSel===n?"on":""}" onclick="goalSel=${n};renderProfile()">${n}</button>`).join("");
@@ -778,12 +852,31 @@ function renderProfile(){
  const p=myProfile();if(ab._k!==meKey()+(p.onb?1:0)){ab={gender:p.gender||null,aim:p.aim||null,_k:meKey()+(p.onb?1:0)};if(document.activeElement!==$("pfAge"))$("pfAge").value=p.age||""}
  $("pfGender").innerHTML=GENDERS.map(g=>`<button class="${ab.gender===g?"on":""}" onclick="ab.gender='${g}';renderProfile()">${g}</button>`).join("");
  $("pfAim").innerHTML=AIMS.map(a=>`<button class="${ab.aim===a?"on":""}" onclick="ab.aim='${a}';renderProfile()">${a}</button>`).join("");
- $("rulesBox").innerHTML=`<div style="color:var(--mut);margin-bottom:8px">Minuten × Sport-Faktor × Anstrengung + Tagesbonus</div>`+TYPES.map(t=>`<div class="rw" style="padding:7px 0"><div class="tx"><b style="font-weight:500">${t.n}</b></div><span class="pill">${fmtF(t.f)}</span></div>`).join("")+`<div style="color:var(--mut);margin-top:10px;font-size:13px">Anstrengung 1 = ×0,87 · 5 = ×1,15 · 10 = ×1,5<br>Max. ${MAX_MIN} Min pro Eintrag · ${MAX_PER_DAY} Einträge pro Tag · Nachtragen bis ${BACKDATE_DAYS} Tage${isTeam()?" · Anzweifeln bis "+DISPUTE_HOURS+" Std.":""}</div>`;
+ $("rulesBox").innerHTML=rulesHTML();
  renderPush();
  const t=getTheme();$("themeSeg").innerHTML=[["system","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([k,l])=>`<button class="${t===k?"on":""}" onclick="setTheme('${k}')">${l}</button>`).join("");
 }
-function saveSettings(){const n=$("setName").value.trim().slice(0,20),g=goalSel,tg=teamGoalSel;
- mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{name:n,goal:g});if(!isTeam()){s.name=n;s.goal=g}s.teamGoal=tg});toast("Gespeichert")}
+function rulesHTML(){
+ const types=allTypes(),ex=Math.round(30*rpeMult(6)*1.3);
+ return `<div class="card"><h3>Die Formel</h3>
+  <div style="line-height:2"><span class="chip">Minuten</span> × <span class="chip">Sport-Faktor</span> × <span class="chip">Anstrengung</span> + <span class="chip">Bonus</span></div>
+  <div style="font-size:14px;color:var(--mut);margin-top:8px">Beispiel: 30 Min Laufen, Anstrengung 6<br>30 × 1,3 × ${String(rpeMult(6)).replace(".",",")} = <b style="color:var(--txt)">${ex} Punkte</b> + Tagesbonus</div></div>
+ <div class="card"><h3>Sport-Faktoren</h3><table class="rt">${types.map(t=>`<tr><td>${esc(t.n)}</td><td><span class="pill">${fmtF(t.f||1)}</span></td></tr>`).join("")}</table>
+  <div style="font-size:12px;color:var(--mut);margin-top:8px">Anstrengendere Sportarten bringen mehr Punkte pro Minute. Eigene Sportarten: Faktor unter „Sportarten“ einstellen.</div></div>
+ <div class="card"><h3>Anstrengung</h3><table class="rt">${[[1,2],[3,4],[5,6],[7,8],[9,9],[10,10]].map(([a,b])=>`<tr><td>${a===b?a:a+"–"+b} · ${rpeLabel(a)}</td><td>${fmtF(rpeMult(a))}${a!==b?" – "+fmtF(rpeMult(b)):""}</td></tr>`).join("")}</table></div>
+ <div class="card"><h3>Boni</h3><table class="rt">
+  <tr><td>Erstes Training des Tages</td><td>+10</td></tr>
+  <tr><td>Serien-Bonus (je Tag in Folge)</td><td>+2 bis +20</td></tr>
+  <tr><td>Team-Ziel der Woche erreicht</td><td>+${TEAM_BONUS} für jeden</td></tr></table>
+  <div style="font-size:12px;color:var(--mut);margin-top:8px">Pausentage (${PAUSES_PER_MONTH} pro Monat) halten die Serie, z. B. bei Krankheit.</div></div>
+ <div class="card"><h3>Fair-Play-Regeln</h3><table class="rt">
+  <tr><td>Max. Dauer pro Training</td><td>${MAX_MIN} Min</td></tr>
+  <tr><td>Max. Trainings pro Tag</td><td>${MAX_PER_DAY}</td></tr>
+  <tr><td>Nachtragen bis</td><td>${BACKDATE_DAYS} Tage zurück</td></tr>
+  <tr><td>Anzweifeln durch Partner</td><td>${DISPUTE_HOURS} Std.</td></tr></table>
+  <div style="font-size:12px;color:var(--mut);margin-top:8px">Nachträge und Änderungen sieht dein Partner. Angezweifelte Trainings sind eingefroren, abgelehnte zählen nicht. Neue Belohnungen und das Löschen von Belohnungen muss der Partner bestätigen.</div></div>`}
+function saveSettings(){const g=goalSel,tg=teamGoalSel;
+ mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{goal:g});if(!isTeam())s.goal=g;s.teamGoal=tg});toast("Gespeichert")}
 
 /* ---------- Sheet / Toast ---------- */
 function sheet(t,b,btns){$("shT").textContent=t;$("shB").innerHTML=b;const box=$("shA");box.innerHTML="";
@@ -848,12 +941,13 @@ function saveOnb(){const n=$("obName").value.trim().slice(0,20);if(!n)return $("
  mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:ob.gender,age,aim:ob.aim,goal:ob.goal,onb:true});if(Object.keys(s.people).filter(u=>u!=="local").length<2){s.name=n;s.goal=ob.goal}});
  goalSel=ob.goal;$("stOnb").style.display="none";document.querySelector("#setup .in").style.display="block";$("setup").classList.remove("on");toast("Willkommen, "+n)}
 let ab={gender:null,aim:null};
-function saveAbout(){const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender,aim=ab.aim;mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{gender:g,age,aim})});toast("Gespeichert")}
+function saveAbout(){const n=$("setName").value.trim().slice(0,20);if(!n)return sheet("Name fehlt","Bitte gib deinen Namen ein.",[["OK",null]]);const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender,aim=ab.aim;
+ mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:g,age,aim});if(!isTeam())s.name=n});toast("Gespeichert")}
 
 /* ---------- Benachrichtigungen ---------- */
 const pushSupported=()=>"Notification" in window&&"serviceWorker" in navigator&&"PushManager" in window;
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent),isStandalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-function renderPush(){const card=$("pushCard");if(ME.uid==="local"){card.style.display="none";return}card.style.display="block";
+function renderPush(){const card=$("pushCard");$("pushGuest").style.display=ME.uid==="local"?"block":"none";if(ME.uid==="local"){card.style.display="none";return}card.style.display="block";
  const st=$("pushState"),btn=$("pushBtn"),on=pushSupported()&&Notification.permission==="granted"&&lsGet("fp_push")==="1";
  if(!pushSupported()){st.innerHTML=isIOS&&!isStandalone?"Auf dem iPhone: App über <b>Teilen → Zum Home-Bildschirm</b> hinzufügen und von dort öffnen, dann hier aktivieren.":"Dieser Browser unterstützt keine Benachrichtigungen.";btn.style.display="none"}
  else if(Notification.permission==="denied"){st.textContent="Benachrichtigungen sind blockiert. Erlaube sie in den Einstellungen des Handys bzw. Browsers für diese App.";btn.style.display="none"}
