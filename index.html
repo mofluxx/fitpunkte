@@ -567,8 +567,9 @@ function render(){
  $("planList").innerHTML=todayPlans.map(x=>`<div class="rw"><div class="ic acc">${ico(x.i||"star")}</div><div class="tx"><b>${esc(x.t)}${x.m?" · "+x.m+" Min":""}</b><span>Heute geplant</span></div><button class="btn small" onclick="logFromPlan('${x.id}')">Eintragen</button></div>`).join("");
  // Wünsche zum Freigeben
  const wishFor=(S.wishes||[]).filter(x=>isTeam()&&x.uid&&x.uid!==u);
- $("wishCard").style.display=wishFor.length?"block":"none";
- $("wishHome").innerHTML=wishFor.map(x=>`<div class="rw"><div class="ic acc">${ico("heart")}</div><div class="tx"><b>${esc(x.n)}</b><span>${esc(pName(x.uid))} ${x.c?"schlägt vor · "+x.c+" P":"wünscht sich das"}</span></div><button class="btn small" onclick="go('shop')">${x.c?"Prüfen":"Punkte festlegen"}</button></div>`).join("");
+ const delFor=S.rewards.filter(r=>isTeam()&&r.del&&r.del.by!==u);
+ $("wishCard").style.display=(wishFor.length||delFor.length)?"block":"none";
+ $("wishHome").innerHTML=wishFor.map(x=>`<div class="rw"><div class="ic acc">${ico("heart")}</div><div class="tx"><b>${esc(x.n)}</b><span>${esc(pName(x.uid))} ${x.c?"schlägt vor · "+x.c+" P":"wünscht sich das"}</span></div><button class="btn small" onclick="go('shop')">${x.c?"Prüfen":"Punkte festlegen"}</button></div>`).join("")+delFor.map(r=>`<div class="rw"><div class="ic">${ico("trash")}</div><div class="tx"><b>${esc(r.n)}</b><span>${esc(pName(r.del.by))} möchte die Belohnung löschen</span></div><button class="btn small" onclick="go('shop')">Prüfen</button></div>`).join("");
  // Team
  if(isTeam()){$("teamCard").style.display="block";const wk=dkey(ws),cnt=S.workouts.filter(w=>w.uid&&dkey(weekStart(new Date(w.d)))===wk),tg=S.teamGoal||5;
   $("teamTxt").textContent=Math.min(cnt.length,tg)+" / "+tg;$("teamBar").style.width=Math.min(cnt.length/tg*100,100)+"%";
@@ -681,7 +682,7 @@ function delType(id){const c=(S.customTypes||[]).find(x=>x.id===id);if(!c)return
 
 /* ---------- Belohnungen ---------- */
 function renderShop(){const b=balance(ME.uid);
- $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>{const can=r.c<=b;return `<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${r.c} Punkte${can?"":" · noch "+(r.c-b)}</span>${can?"":`<div class="prog" style="margin-top:6px;height:4px"><i style="width:${Math.max(0,b)/r.c*100}%"></i></div>`}</div><button class="btn small ${can?"":"ghost"}" ${can?"":"disabled style='opacity:.45'"} onclick="askRedeem('${r.id}')">Einlösen</button><button class="iconbtn" onclick="askDel('${r.id}')">${ico("trash")}</button></div>`}).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
+ $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>{const can=r.c<=b;return `<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${r.c} Punkte${can?"":" · noch "+(r.c-b)}</span>${can?"":`<div class="prog" style="margin-top:6px;height:4px"><i style="width:${Math.max(0,b)/r.c*100}%"></i></div>`}</div><button class="btn small ${can?"":"ghost"}" ${can?"":"disabled style='opacity:.45'"} onclick="askRedeem('${r.id}')">Einlösen</button><button class="iconbtn" onclick="askDel('${r.id}')">${ico("trash")}</button></div>${delRow(r)}`}).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
  $("redeemed").innerHTML=[...S.redeemed].sort((a,c)=>c.d-a.d).slice(0,30).map(r=>`<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${isTeam()&&r.uid?esc(pName(r.uid))+" · ":""}${new Date(r.d).toLocaleDateString("de-DE")} · ${r.c} P</span></div>${r.done===false?`<button class="pill open" onclick="markDone('${r.id}')">Offen</button>`:`<span class="pill done">Erledigt</span>`}</div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
 }
 function renderWishes(){const team=isTeam(),pn=team?esc(pName(partnerId())):"";
@@ -698,7 +699,14 @@ function askRedeem(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;const b
  sheet(r.n,`Kostet <b style="color:var(--txt)">${r.c} Punkte</b>. Danach hast du noch ${b-r.c}.${isTeam()?"<br>"+esc(pName(partnerId()))+" sieht die Belohnung als offen und hakt sie ab, wenn sie erledigt ist.":""}`,[["Abbrechen",null,1],["Einlösen",()=>{const x={id:"x"+Date.now(),uid:ME.uid==="local"?undefined:ME.uid,n:r.n,c:r.c,d:Date.now(),done:false};mutate(s=>{if(!s.redeemed.some(y=>y.id===x.id))s.redeemed.push(x)});confetti();toast("Eingelöst: "+r.n)}]])}
 function markDone(id){const r=S.redeemed.find(x=>x.id===id);if(!r)return;if(isTeam()&&r.uid===ME.uid)return sheet("Noch offen",esc(pName(partnerId()))+" hakt die Belohnung ab, sobald sie erledigt ist.",[["OK",null]]);
  sheet("Erledigt?",esc(r.n)+" als erledigt markieren.",[["Abbrechen",null,1],["Erledigt",()=>mutate(s=>{const y=s.redeemed.find(z=>z.id===id);if(y){y.done=true;y.doneAt=Date.now()}})]])}
-function askDel(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;sheet("Belohnung löschen?",esc(r.n),[["Abbrechen",null,1],["Löschen",()=>mutate(s=>{s.rewards=s.rewards.filter(x=>x.id!==id)}),"danger"]])}
+function delRow(r){if(!r.del)return "";const mine=r.del.by===ME.uid;
+ return `<div class="reacts" style="margin:-4px 0 10px">${mine?`<span class="pill open">Löschen beantragt · wartet auf ${esc(pName(partnerId()))}</span><button class="rb" onclick="cancelDel('${r.id}')">Zurücknehmen</button>`:`<span class="pill open">${esc(pName(r.del.by))} möchte das löschen</span><button class="rb" onclick="confirmDel('${r.id}')">Löschen ✓</button><button class="rb" onclick="cancelDel('${r.id}')">Behalten</button>`}</div>`}
+function askDel(id){const r=S.rewards.find(x=>x.id===id);if(!r)return;
+ if(isTeam()){if(r.del)return sheet("Schon beantragt",r.del.by===ME.uid?"Wartet auf "+esc(pName(partnerId()))+".":esc(pName(r.del.by))+" möchte das löschen – bestätige es unter der Belohnung.",[["OK",null]]);
+  return sheet("Löschen beantragen?",esc(r.n)+"<br>"+esc(pName(partnerId()))+" muss das Löschen bestätigen.",[["Abbrechen",null,1],["Beantragen",()=>{mutate(s=>{const x=s.rewards.find(y=>y.id===id);if(x&&!x.del)x.del={by:ME.uid,at:Date.now()}});toast("Löschen beantragt")}]])}
+ sheet("Belohnung löschen?",esc(r.n),[["Abbrechen",null,1],["Löschen",()=>mutate(s=>{s.rewards=s.rewards.filter(x=>x.id!==id)}),"danger"]])}
+function confirmDel(id){const r=S.rewards.find(x=>x.id===id);if(!r||!r.del||r.del.by===ME.uid)return;sheet("Belohnung löschen?",esc(r.n)+" wird für euch beide entfernt.",[["Abbrechen",null,1],["Löschen",()=>{mutate(s=>{s.rewards=s.rewards.filter(x=>x.id!==id)});toast("Gelöscht")},"danger"]])}
+function cancelDel(id){mutate(s=>{const x=s.rewards.find(y=>y.id===id);if(x)delete x.del});toast("Bleibt erhalten")}
 
 /* ---------- Fortschritt ---------- */
 function renderProgress(){
