@@ -227,6 +227,9 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .qty{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.qty button{background:var(--s2);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:13px;color:var(--txt)}
 .qty button.on{border-color:var(--acc);background:var(--acc-soft)}
 .nt{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}.nt td{padding:6px 0;border-top:1px solid var(--line)}.nt td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.pbig{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;border-radius:16px;background:var(--s2);border:1px solid var(--line)}
+.pbig b{font-size:16px}.pbig small{font-size:12px;color:var(--mut)}
+.pbig:active{transform:scale(.97)}
 .avatar{width:54px;height:54px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex:none}
 .mgrp{font-size:12px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:18px 4px 8px}
 .card.menu{padding:4px 14px}
@@ -355,17 +358,15 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <!-- FORTSCHRITT -->
 <section class="view" id="v-progress">
-  <div class="top"><h1>Fortschritt</h1></div>
+  <div class="top"><h1>Sport</h1><button class="iconbtn" onclick="startLog()" title="Training eintragen"><svg class="i"><use href="#i-plus"/></svg></button></div>
   <div class="seg" id="personSeg" style="margin-bottom:12px;display:none"></div>
-  <div class="stats" id="stats"></div>
+  <div class="card" id="sportWeek"></div>
   <div class="card">
     <div class="calhead"><button class="iconbtn" onclick="calMove(-1)"><svg class="i"><use href="#i-chevL"/></svg></button><b id="calTitle"></b><button class="iconbtn" onclick="calMove(1)"><svg class="i"><use href="#i-chevR"/></svg></button></div>
     <div class="cal" id="cal"></div>
     <div class="list" id="dayList" style="margin-top:12px"></div>
   </div>
-  <div class="card"><h3>Minuten pro Woche</h3><div id="chart"></div></div>
-  <div class="card"><h3><span>Abzeichen</span><span id="bdCount" style="text-transform:none;letter-spacing:0"></span></h3><div class="badges" id="badges"></div></div>
-  <div class="card"><h3>Alle Einträge</h3><div class="list" id="allList"></div></div>
+  <div class="card"><h3>Alle Trainings</h3><div class="list" id="allList"></div></div>
 </section>
 
 <!-- ESSEN -->
@@ -388,6 +389,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     </div>
     <div class="mgrp">Persönlich</div>
     <div class="card menu">
+      <button class="mi" onclick="openSub('progress')"><span class="ic"><svg class="i"><use href="#i-chart"/></svg></span><span class="mt"><b>Fortschritt</b><small id="mProg">Statistik, Diagramm, Abzeichen</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('about')"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><span class="mt"><b>Mein Profil</b><small>Name, Geschlecht, Alter, Ziel</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('goals')"><span class="ic"><svg class="i"><use href="#i-target"/></svg></span><span class="mt"><b>Ziele</b><small id="mGoals">Wochenziel</small></span><span class="chev"></span></button>
     </div>
@@ -407,7 +409,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.0</div>
+    <div class="status">FitPunkte 6.1</div>
   </div>
 
   <!-- Unterseiten -->
@@ -438,6 +440,12 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div id="pushGuest" class="card" style="display:none;font-size:14px;color:var(--mut)">Benachrichtigungen gibt es nur mit Konto. Melde dich unter <b style="color:var(--txt)">Konto & Partner</b> an.</div>
   </div>
   <div class="psub" id="ps-look"><div class="card"><div class="seg" id="themeSeg"></div><div style="font-size:12px;color:var(--mut);margin-top:8px">Automatisch richtet sich nach der Einstellung deines Handys.</div></div></div>
+  <div class="psub" id="ps-progress">
+    <div class="seg" id="personSeg2" style="margin-bottom:12px;display:none"></div>
+    <div class="stats" id="stats"></div>
+    <div class="card"><h3>Minuten pro Woche</h3><div id="chart"></div></div>
+    <div class="card"><h3><span>Abzeichen</span><span id="bdCount" style="text-transform:none;letter-spacing:0"></span></h3><div class="badges" id="badges"></div></div>
+  </div>
   <div class="psub" id="ps-nutri">
     <div class="card">
       <h3>Tagesziel (optional)</h3>
@@ -483,10 +491,10 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <nav class="tabs">
   <button class="on" data-v="home" onclick="go('home')"><svg class="i"><use href="#i-home"/></svg>Start</button>
+  <button data-v="progress" onclick="go('progress')"><svg class="i"><use href="#i-activity"/></svg>Sport</button>
+  <button class="plus" data-v="log" onclick="plusMenu()"><svg class="i"><use href="#i-plus"/></svg>Eintragen</button>
   <button data-v="food" onclick="go('food')"><svg class="i"><use href="#i-food"/></svg>Essen</button>
-  <button class="plus" data-v="log" onclick="startLog()"><svg class="i"><use href="#i-plus"/></svg>Sport</button>
   <button data-v="shop" onclick="go('shop')"><svg class="i"><use href="#i-gift"/></svg>Belohnungen</button>
-  <button data-v="progress" onclick="go('progress')"><svg class="i"><use href="#i-chart"/></svg>Fortschritt</button>
   <button data-v="profile" onclick="go('profile')"><svg class="i"><use href="#i-user"/></svg>Profil</button>
 </nav>
 
@@ -674,7 +682,7 @@ function checkBadges(celebrate){
 
 /* ================= Navigation ================= */
 let profSub=null;
-const SUBS={nutri:"Ernährung",about:"Mein Profil",goals:"Ziele",notify:"Benachrichtigungen",look:"Darstellung",types:"Sportarten",rules:"So funktionieren die Punkte",account:"Konto & Partner",data:"Daten & Backup"};
+const SUBS={progress:"Fortschritt",nutri:"Ernährung",about:"Mein Profil",goals:"Ziele",notify:"Benachrichtigungen",look:"Darstellung",types:"Sportarten",rules:"So funktionieren die Punkte",account:"Konto & Partner",data:"Daten & Backup"};
 function openSub(k){profSub=k;scrollTo(0,0);renderProfile()}
 function closeSub(){profSub=null;scrollTo(0,0);renderProfile()}
 function go(v){if(v==="profile"&&$("v-profile").classList.contains("on"))profSub=null;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
@@ -850,6 +858,10 @@ function cancelDel(id){mutate(s=>{const x=s.rewards.find(y=>y.id===id);if(x)dele
 /* ---------- Fortschritt ---------- */
 function renderProgress(){
  if(!viewUid||!(viewUid===ME.uid||S.people[viewUid]))viewUid=ME.uid;const u=viewUid;
+ ["personSeg2"].forEach(id=>{if(isTeam()){$(id).style.display="flex";$(id).innerHTML=[ME.uid,partnerId()].map(p=>`<button class="${u===p?"on":""}" onclick="viewUid='${p}';calSel=null;renderProgress()">${esc(pName(p))}</button>`).join("")}else $(id).style.display="none"});
+ {const ds=daysSet(u),wsd=weekStart(),wd=[...ds].filter(k=>fromKey(k)>=wsd).length,g=goalOf(u),st=curStreak(u),mins=vOf(u).filter(w=>w.d>=wsd.getTime()).reduce((a,w)=>a+w.m,0);
+  const pl=(S.plans||[]).filter(x=>x.day>=dkey(new Date())&&(x.uid||ME.uid)===u).sort((a,b)=>a.day<b.day?-1:1)[0];
+  $("sportWeek").innerHTML=`<div class="stats" style="margin:0;grid-template-columns:repeat(3,1fr)"><div class="stat" style="background:var(--s2);border:none"><b>${wd}/${g}</b><span>Tage diese Woche</span></div><div class="stat" style="background:var(--s2);border:none"><b>${mins}</b><span>Minuten</span></div><div class="stat" style="background:var(--s2);border:none"><b>${st}</b><span>Tage-Serie</span></div></div>${pl?`<div class="hint" style="margin-top:12px">Nächstes geplant: <b>${esc(pl.t)}</b> · ${pl.day===dkey(new Date())?"heute":fromKey(pl.day).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"short"})}</div>`:(u===ME.uid?`<div style="font-size:13px;color:var(--mut);margin-top:10px">Tipp: Tag im Kalender antippen, um ein Training zu planen.</div>`:"")}`}
  if(isTeam()){$("personSeg").style.display="flex";$("personSeg").innerHTML=[ME.uid,partnerId()].map(p=>`<button class="${u===p?"on":""}" onclick="viewUid='${p}';calSel=null;renderProgress()">${esc(pName(p))}</button>`).join("")}else $("personSeg").style.display="none";
  const ws=wOf(u),s=statsOf(u);
  const fav=Object.entries(ws.reduce((a,w)=>(a[w.t]=(a[w.t]||0)+1,a),{})).sort((a,b)=>b[1]-a[1])[0];
@@ -911,6 +923,7 @@ function renderProfile(){
  document.querySelectorAll(".psub").forEach(x=>{const on=x.id==="ps-"+profSub;x.classList.toggle("on",on);if(on&&!x.querySelector(".back"))x.insertAdjacentHTML("afterbegin",`<button class="back" onclick="closeSub()"><svg class="i"><use href="#i-chevL"/></svg>Profil</button><div class="top" style="margin-top:0"><h1>${SUBS[profSub]}</h1></div>`)});
  const nm=pName(ME.uid);$("pAvatar").textContent=(nm&&nm!=="Du"?nm[0]:"?").toUpperCase();$("pName").textContent=nm&&nm!=="Du"?nm:"Profil";
  $("pSub").textContent=ME.uid==="local"?"Gast · nur auf diesem Gerät":(isTeam()?"Team mit "+pName(partnerId()):"Noch kein Partner verbunden");
+ $("mProg").textContent=statsOf(ME.uid).n+" Trainings · "+earnedBadges(ME.uid).length+" Abzeichen";
  $("mGoals").textContent=goalOf(ME.uid)+" Trainingstage pro Woche"+(isTeam()?" · Team "+(S.teamGoal||5):"");
  $("mLook").textContent={system:"Automatisch",light:"Hell",dark:"Dunkel"}[getTheme()];
  $("mTypes").textContent=(S.customTypes||[]).length?(S.customTypes.length+" eigene"):"Eigene Sportarten anlegen";
@@ -957,7 +970,7 @@ function saveSettings(){const g=goalSel,tg=teamGoalSel;
  mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{goal:g});if(!isTeam())s.goal=g;s.teamGoal=tg});toast("Gespeichert")}
 
 /* ---------- Sheet / Toast ---------- */
-function sheet(t,b,btns){$("shT").textContent=t;$("shB").innerHTML=b;const box=$("shA");box.innerHTML="";
+function sheet(t,b,btns){$("shT").textContent=t;$("shB").innerHTML=b;const box=$("shA");box.innerHTML="";box.style.display=btns&&btns.length?"flex":"none";
  btns.forEach(([l,fn,style,keep])=>{const x=document.createElement("button");x.className="btn "+(style===1?"ghost":style==="danger"?"danger":"");x.textContent=l;
   x.onclick=()=>{const r=fn?fn():undefined;if(r===false)return;closeSheet()};box.appendChild(x)});$("sheet").classList.add("on")}
 function closeSheet(){$("sheet").classList.remove("on")}
@@ -1064,6 +1077,13 @@ function exportBackup(){const data=JSON.parse(JSON.stringify(S));delete data.mem
  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fitpunkte-backup-"+dkey(new Date())+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 function importBackup(inp){const f=inp.files[0];inp.value="";if(!f)return;f.text().then(t=>{const j=JSON.parse(t),d=j.data||j;if(!Array.isArray(d.workouts))throw 0;
  sheet("Backup wiederherstellen?",`${d.workouts.length} Trainings, ${(d.redeemed||[]).length} eingelöste Belohnungen.<br>Der aktuelle Stand wird ersetzt.`,[["Abbrechen",null,1],["Wiederherstellen",()=>{const x=JSON.parse(JSON.stringify(d));const team=isTeam();mutate(s=>{["workouts","redeemed","rewards","customTypes","people","name","goal","teamGoal"].forEach(k=>{if(team&&k==="rewards")return;if(x[k]!==undefined)s[k]=x[k]})});toast("Wiederhergestellt")}]])}).catch(()=>sheet("Ungültige Datei","Das ist keine FitPunkte-Backup-Datei.",[["OK",null]]))}
+
+/* ---------- Plus-Menü ---------- */
+function plusMenu(){sheet("Was möchtest du eintragen?",`<div class="two" style="margin-top:10px">
+  <button class="pbig" onclick="closeSheet();startLog()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-activity"/></svg></span><b>Sport</b><small>Training eintragen</small></button>
+  <button class="pbig" onclick="closeSheet();addFoodNow()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-food"/></svg></span><b>Essen</b><small>Mahlzeit eintragen</small></button></div>
+  <button class="btn ghost" onclick="closeSheet();foodDay=dkey(new Date());go('food');openScanner(null)" style="margin-top:10px"><svg class="i"><use href="#i-scan"/></svg>Barcode scannen</button>`,[])}
+function addFoodNow(){foodDay=dkey(new Date());go("food");openPick(mealNow())}
 
 /* ================= ESSEN ================= */
 const MEALS=[["b","Frühstück"],["l","Mittagessen"],["d","Abendessen"],["s","Snacks"]];
