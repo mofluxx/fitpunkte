@@ -395,7 +395,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div class="mgrp">Persönlich</div>
     <div class="card menu">
       <button class="mi" onclick="openSub('progress')"><span class="ic"><svg class="i"><use href="#i-chart"/></svg></span><span class="mt"><b>Fortschritt</b><small id="mProg">Statistik, Diagramm, Abzeichen</small></span><span class="chev"></span></button>
-      <button class="mi" onclick="openSub('about')"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><span class="mt"><b>Mein Profil</b><small>Name, Geschlecht, Alter, Ziel</small></span><span class="chev"></span></button>
+      <button class="mi" onclick="openSub('about')"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><span class="mt"><b>Mein Profil</b><small>Name, Geschlecht, Alter</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('goals')"><span class="ic"><svg class="i"><use href="#i-target"/></svg></span><span class="mt"><b>Ziele</b><small id="mGoals">Wochenziel</small></span><span class="chev"></span></button>
     </div>
     <div class="mgrp">App</div>
@@ -414,7 +414,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.3</div>
+    <div class="status">FitPunkte 6.4</div>
   </div>
 
   <!-- Unterseiten -->
@@ -423,14 +423,14 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <div class="lbl" style="margin-top:0">Name</div><input class="field" id="setName" maxlength="20">
       <div class="lbl">Geschlecht</div><div class="opt" id="pfGender"></div>
       <div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99" style="max-width:140px">
-      <div class="lbl">Was ist dein Ziel?</div><div class="opt" id="pfAim"></div>
       <button class="btn" onclick="saveAbout()" style="margin-top:18px">Speichern</button>
     </div>
-    <div style="font-size:12px;color:var(--mut2);padding:0 4px">Name, Alter, Geschlecht und Ziel kann auch dein Partner sehen.</div>
+    <div style="font-size:12px;color:var(--mut2);padding:0 4px">Name, Alter und Geschlecht kann auch dein Partner sehen.</div>
   </div>
   <div class="psub" id="ps-goals">
     <div class="card">
-      <div class="lbl" style="margin-top:0">Dein Wochenziel (Trainingstage)</div><div class="seg" id="goalSeg"></div>
+      <div class="lbl" style="margin-top:0">Was ist dein Ziel?</div><div class="opt" id="pfAim"></div>
+      <div class="lbl">Dein Wochenziel (Trainingstage)</div><div class="seg" id="goalSeg"></div>
       <div id="teamGoalBox"><div class="lbl">Team-Ziel pro Woche (Trainings zusammen)</div><div class="seg" id="teamGoalSeg"></div>
       <div style="font-size:12px;color:var(--mut);margin-top:6px">Schafft ihr es zusammen, bekommt jeder +30 Punkte.</div></div>
       <button class="btn" onclick="saveSettings()" style="margin-top:18px">Speichern</button>
@@ -940,7 +940,7 @@ function renderProfile(){
  const nm=pName(ME.uid);$("pAvatar").textContent=(nm&&nm!=="Du"?nm[0]:"?").toUpperCase();$("pName").textContent=nm&&nm!=="Du"?nm:"Profil";
  $("pSub").textContent=ME.uid==="local"?"Gast · nur auf diesem Gerät":(isTeam()?"Team mit "+pName(partnerId()):"Noch kein Partner verbunden");
  $("mProg").textContent=statsOf(ME.uid).n+" Trainings · "+earnedBadges(ME.uid).length+" Abzeichen";
- $("mGoals").textContent=goalOf(ME.uid)+" Trainingstage pro Woche"+(isTeam()?" · Team "+(S.teamGoal||5):"");
+ $("mGoals").textContent=((myProfile().aim?myProfile().aim+" · ":"")+goalOf(ME.uid)+" Tage pro Woche")+(isTeam()?" · Team "+(S.teamGoal||5):"");
  $("mLook").textContent={system:"Automatisch",light:"Hell",dark:"Dunkel"}[getTheme()];
  $("mTypes").textContent=(S.customTypes||[]).length?(S.customTypes.length+" eigene"):"Eigene Sportarten anlegen";
  $("mAcct").textContent=$("acct").textContent||"–";
@@ -982,8 +982,8 @@ function rulesHTML(){
   <tr><td>Nachtragen bis</td><td>${BACKDATE_DAYS} Tage zurück</td></tr>
   <tr><td>Anzweifeln durch Partner</td><td>${DISPUTE_HOURS} Std.</td></tr></table>
   <div style="font-size:12px;color:var(--mut);margin-top:8px">Nachträge und Änderungen sieht dein Partner. Angezweifelte Trainings sind eingefroren, abgelehnte zählen nicht. Neue Belohnungen, Preisänderungen und das Löschen von Belohnungen muss der Partner bestätigen.</div></div>`}
-function saveSettings(){const g=goalSel,tg=teamGoalSel;
- mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{goal:g});if(!isTeam())s.goal=g;s.teamGoal=tg});toast("Gespeichert")}
+function saveSettings(){const g=goalSel,tg=teamGoalSel,aim=ab.aim;
+ mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{goal:g,aim});if(!isTeam())s.goal=g;s.teamGoal=tg});toast("Gespeichert")}
 
 /* ---------- Sheet / Toast ---------- */
 function sheet(t,b,btns){$("shT").textContent=t;$("shB").innerHTML=b;const box=$("shA");box.innerHTML="";box.style.display=btns&&btns.length?"flex":"none";
@@ -1049,8 +1049,8 @@ function saveOnb(){const n=$("obName").value.trim().slice(0,20);if(!n)return $("
  mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:ob.gender,age,aim:ob.aim,goal:ob.goal,onb:true});if(Object.keys(s.people).filter(u=>u!=="local").length<2){s.name=n;s.goal=ob.goal}});
  goalSel=ob.goal;$("stOnb").style.display="none";document.querySelector("#setup .in").style.display="block";$("setup").classList.remove("on");toast("Willkommen, "+n)}
 let ab={gender:null,aim:null};
-function saveAbout(){const n=$("setName").value.trim().slice(0,20);if(!n)return sheet("Name fehlt","Bitte gib deinen Namen ein.",[["OK",null]]);const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender,aim=ab.aim;
- mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:g,age,aim});if(!isTeam())s.name=n});toast("Gespeichert")}
+function saveAbout(){const n=$("setName").value.trim().slice(0,20);if(!n)return sheet("Name fehlt","Bitte gib deinen Namen ein.",[["OK",null]]);const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender;
+ mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:g,age});if(!isTeam())s.name=n});toast("Gespeichert")}
 
 /* ---------- Benachrichtigungen ---------- */
 const pushSupported=()=>"Notification" in window&&"serviceWorker" in navigator&&"PushManager" in window;
@@ -1097,8 +1097,7 @@ function importBackup(inp){const f=inp.files[0];inp.value="";if(!f)return;f.text
 /* ---------- Plus-Menü ---------- */
 function plusMenu(){sheet("Was möchtest du eintragen?",`<div class="two" style="margin-top:10px">
   <button class="pbig" onclick="closeSheet();startLog()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-activity"/></svg></span><b>Sport</b><small>Training eintragen</small></button>
-  <button class="pbig" onclick="closeSheet();addFoodNow()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-food"/></svg></span><b>Essen</b><small>Mahlzeit eintragen</small></button></div>
-  <button class="btn ghost" onclick="closeSheet();foodDay=dkey(new Date());go('food');openScanner(null)" style="margin-top:10px"><svg class="i"><use href="#i-scan"/></svg>Barcode scannen</button>`,[])}
+  <button class="pbig" onclick="closeSheet();addFoodNow()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-food"/></svg></span><b>Essen</b><small>Mahlzeit eintragen</small></button></div>`,[])}
 function addFoodNow(){foodDay=dkey(new Date());go("food");openPick(mealNow())}
 
 /* ================= ESSEN ================= */
