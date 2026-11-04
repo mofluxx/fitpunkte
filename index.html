@@ -162,6 +162,10 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(14,15,19,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20}
 .tabs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:10.5px;letter-spacing:-.01em;color:var(--mut2);font-weight:500}
 .tabs button.on{color:var(--txt)}
+.avbtn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex:none}
+.avbtn .dot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border:2px solid var(--bg);box-sizing:content-box}
+.tabs button.plus{justify-content:center}
+.tabs button.plus svg.i{width:28px!important;height:28px!important;padding:8px!important;border-radius:16px!important;margin-top:0!important;}
 .tabs button.plus svg.i{width:26px;height:26px;background:var(--acc);color:#fff;border-radius:12px;padding:5px;box-sizing:content-box;margin-top:-4px}
 /* Sheet / Toast */
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
@@ -295,7 +299,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <!-- START -->
 <section class="view on" id="v-home">
-  <div class="top"><div><div class="sm" id="dateTxt"></div><h1 id="hello">Hallo</h1></div><span class="dot" id="syncDot" title=""></span></div>
+  <div class="top"><div><div class="sm" id="dateTxt"></div><h1 id="hello">Hallo</h1></div><button class="avbtn" onclick="go('profile')" title="Profil"><span class="avl">?</span><span class="dot" id="syncDot"></span></button></div>
   <div class="card points">
     <div class="n" id="pts">0</div>
     <div class="l">Punkte verfügbar</div>
@@ -344,7 +348,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <!-- BELOHNUNGEN -->
 <section class="view" id="v-shop">
-  <div class="top"><h1>Belohnungen</h1><div class="sm"><b id="pts2" style="color:var(--txt);font-size:15px">0</b> Punkte</div></div>
+  <div class="top"><div><h1>Belohnungen</h1><div class="sm"><b id="pts2" style="color:var(--txt);font-size:15px">0</b> Punkte verfügbar</div></div><button class="avbtn" onclick="go('profile')" title="Profil"><span class="avl">?</span><span class="dot" data-sync></span></button></div>
   <div class="card"><div id="rewards"></div></div>
   <div class="card">
     <h3>Wunschliste</h3>
@@ -358,7 +362,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <!-- FORTSCHRITT -->
 <section class="view" id="v-progress">
-  <div class="top"><h1>Sport</h1><button class="iconbtn" onclick="startLog()" title="Training eintragen"><svg class="i"><use href="#i-plus"/></svg></button></div>
+  <div class="top"><h1>Sport</h1><button class="avbtn" onclick="go('profile')" title="Profil"><span class="avl">?</span><span class="dot" data-sync></span></button></div>
   <div class="seg" id="personSeg" style="margin-bottom:12px;display:none"></div>
   <div class="card" id="sportWeek"></div>
   <div class="card">
@@ -371,7 +375,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 
 <!-- ESSEN -->
 <section class="view" id="v-food">
-  <div class="top"><h1>Essen</h1><button class="iconbtn" onclick="openScanner(null)" title="Barcode scannen"><svg class="i"><use href="#i-scan"/></svg></button></div>
+  <div class="top"><h1>Essen</h1><div style="display:flex;gap:6px;align-items:center"><button class="iconbtn" onclick="openScanner(null)" title="Barcode scannen"><svg class="i"><use href="#i-scan"/></svg></button><button class="avbtn" onclick="go('profile')" title="Profil"><span class="avl">?</span><span class="dot" data-sync></span></button></div></div>
   <div class="seg" id="foodPerson" style="margin-bottom:12px;display:none"></div>
   <div class="dnav"><button class="iconbtn" onclick="foodMove(-1)"><svg class="i"><use href="#i-chevL"/></svg></button><b id="foodDay"></b><button class="iconbtn" id="foodNext" onclick="foodMove(1)"><svg class="i"><use href="#i-chevR"/></svg></button></div>
   <div id="foodBody"></div>
@@ -382,7 +386,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 <section class="view" id="v-profile">
   <!-- Menü -->
   <div id="pMenu">
-    <div class="top"><h1>Profil</h1></div>
+    <button class="back" onclick="go(lastTab||'home')"><svg class="i"><use href="#i-chevL"/></svg>Zurück</button>
+    <div class="top" style="margin-top:0"><h1>Profil</h1></div>
     <div class="card" style="display:flex;align-items:center;gap:14px">
       <div class="avatar" id="pAvatar">?</div>
       <div style="min-width:0"><div style="font-weight:700;font-size:18px" id="pName">–</div><div style="font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="pSub">–</div></div>
@@ -409,7 +414,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.1</div>
+    <div class="status">FitPunkte 6.2</div>
   </div>
 
   <!-- Unterseiten -->
@@ -492,10 +497,9 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 <nav class="tabs">
   <button class="on" data-v="home" onclick="go('home')"><svg class="i"><use href="#i-home"/></svg>Start</button>
   <button data-v="progress" onclick="go('progress')"><svg class="i"><use href="#i-activity"/></svg>Sport</button>
-  <button class="plus" data-v="log" onclick="plusMenu()"><svg class="i"><use href="#i-plus"/></svg>Eintragen</button>
+  <button class="plus" data-v="log" onclick="plusMenu()" aria-label="Eintragen"><svg class="i"><use href="#i-plus"/></svg></button>
   <button data-v="food" onclick="go('food')"><svg class="i"><use href="#i-food"/></svg>Essen</button>
   <button data-v="shop" onclick="go('shop')"><svg class="i"><use href="#i-gift"/></svg>Belohnungen</button>
-  <button data-v="profile" onclick="go('profile')"><svg class="i"><use href="#i-user"/></svg>Profil</button>
 </nav>
 
 <div class="overlay" id="foodPick">
@@ -595,7 +599,7 @@ const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
 function loadLocal(){const x=lsGet(LS);if(x)try{S=norm(JSON.parse(x))}catch(e){}}
 function saveLocal(){lsSet(LS,JSON.stringify(S))}
-function setStatus(t,state){$("status").textContent=t;const d=$("syncDot");d.className="dot"+(state?" "+state:"");d.title=t}
+function setStatus(t,state){$("status").textContent=t;document.querySelectorAll(".avbtn .dot").forEach(d=>{d.className="dot"+(state?" "+state:"");d.title=t})}
 function mutate(fn){fn(S);S.rev++;saveLocal();render();if(window.REMOTE&&window.REMOTE.mutate)window.REMOTE.mutate(fn)}
 window.applyRemote=function(d){if(!d||!Array.isArray(d.workouts))return;S=norm(d);saveLocal();render();afterSync()};
 window.setMe=function(u){ME={uid:u.uid,name:(u.displayName||"").split(" ")[0]};render()};
@@ -685,12 +689,14 @@ let profSub=null;
 const SUBS={progress:"Fortschritt",nutri:"Ernährung",about:"Mein Profil",goals:"Ziele",notify:"Benachrichtigungen",look:"Darstellung",types:"Sportarten",rules:"So funktionieren die Punkte",account:"Konto & Partner",data:"Daten & Backup"};
 function openSub(k){profSub=k;scrollTo(0,0);renderProfile()}
 function closeSub(){profSub=null;scrollTo(0,0);renderProfile()}
-function go(v){if(v==="profile"&&$("v-profile").classList.contains("on"))profSub=null;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
+let lastTab="home";
+function go(v){if(["home","progress","food","shop"].includes(v))lastTab=v;if(v==="profile"&&$("v-profile").classList.contains("on"))profSub=null;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
 
 /* ================= Rendering ================= */
 let lastBal=null;
 function render(){
  const u=ME.uid,b=balance(u),e=earned(u);
+ {const n0=pName(u);document.querySelectorAll(".avl").forEach(e=>e.textContent=(n0&&n0!=="Du"?n0[0]:"?").toUpperCase())}
  const nm=pName(u);$("hello").textContent=nm&&nm!=="Du"?"Hallo "+nm:"Hallo";
  $("dateTxt").textContent=new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
  const pe=$("pts");pe.textContent=b;$("pts2").textContent=b;
