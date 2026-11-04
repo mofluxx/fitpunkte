@@ -807,7 +807,7 @@ function logout(){sheet("Abmelden?","Deine Daten bleiben in deinem Konto gespeic
 let migAsked=false,badgeInit=false;
 function afterSync(){
  if(ME.uid==="local")return;
- if(!S.people[ME.uid]){mutate(s=>{if(!s.people[ME.uid])s.people[ME.uid]={name:ME.name||s.name||"",goal:s.goal||3,badges:null}});return}
+ if(!S.people[ME.uid]){mutate(s=>{if(!s.people[ME.uid])s.people[ME.uid]={name:ME.name||"",goal:3,badges:null}});return}
  const untagged=S.workouts.filter(w=>!w.uid).length+S.redeemed.filter(r=>!r.uid).length;
  if(untagged&&!migAsked&&!lsGet("fp_mig_"+ME.uid)){migAsked=true;
   sheet("Bisherige Einträge",`Es gibt ${S.workouts.filter(w=>!w.uid).length} Trainings von vor dem Update. Gehören die dir?`,[["Nein",()=>{lsSet("fp_mig_"+ME.uid,"1");setTimeout(maybeOnboard,300)},1],["Ja, meine",()=>{lsSet("fp_mig_"+ME.uid,"1");setTimeout(maybeOnboard,300);mutate(s=>{s.workouts.forEach(w=>{if(!w.uid)w.uid=ME.uid});s.redeemed.forEach(r=>{if(!r.uid){r.uid=ME.uid;if(r.done===undefined)r.done=true}})})}]])}
@@ -838,7 +838,7 @@ let ob={gender:null,aim:null,goal:3};
 const meKey=()=>ME.uid;
 function myProfile(){return S.people[meKey()]||{}}
 function maybeOnboard(){const p=myProfile();if(p.onb)return;if(ME.uid!=="local"&&!S.people[ME.uid])return;
- ob={gender:p.gender||null,aim:p.aim||null,goal:p.goal||S.goal||3};$("obName").value=p.name||ME.name||S.name||"";$("obAge").value=p.age||"";drawOnb();
+ ob={gender:p.gender||null,aim:p.aim||null,goal:p.goal||S.goal||3};$("obName").value=p.name||ME.name||(ME.uid==="local"?S.name:"")||"";$("obAge").value=p.age||"";drawOnb();
  $("setup").classList.add("on");["stLogin","stTeam","stEmail"].forEach(i=>$(i).style.display="none");$("setupMsg").textContent="";document.querySelector("#setup .in").style.display="none";$("stOnb").style.display="block"}
 function drawOnb(){$("obGender").innerHTML=GENDERS.map(g=>`<button class="${ob.gender===g?"on":""}" onclick="ob.gender='${g}';drawOnb()">${g}</button>`).join("");
  $("obAim").innerHTML=AIMS.map(a=>`<button class="${ob.aim===a?"on":""}" onclick="ob.aim='${a}';drawOnb()">${a}</button>`).join("");
