@@ -260,6 +260,10 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .palo.on{border-color:var(--acc);background:var(--acc-soft)}
 .wzr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
 .wzr b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.wzr span{font-size:12px;color:var(--mut)}
+#cropStage{position:relative;width:280px;height:280px;touch-action:none;cursor:grab;user-select:none}
+#cropStage canvas{width:280px;height:280px;display:block}
+.cropMask{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 400px rgba(11,12,16,.72);outline:2px solid rgba(255,255,255,.85);pointer-events:none}
+#cropper .hd{justify-content:space-between}
 .pbig{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;border-radius:16px;background:var(--s2);border:1px solid var(--line)}
 .pbig b{font-size:16px}.pbig small{font-size:12px;color:var(--mut)}
 .pbig:active{transform:scale(.97)}
@@ -445,7 +449,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 7.0</div>
+    <div class="status">FitPunkte 7.1</div>
   </div>
 
   <!-- Unterseiten -->
@@ -563,6 +567,14 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <div class="card" id="wzRes" style="margin-top:12px"></div>
     <button class="btn" id="wzSave" onclick="wzSave()">Als Tagesziel übernehmen</button>
     <div style="font-size:12px;color:var(--mut);margin-top:10px;line-height:1.5">Richtwert nach der Mifflin-St.-Jeor-Formel – keine medizinische Beratung. Das Ziel geht nie unter deinen Grundumsatz, das Defizit ist auf 500 kcal/Tag begrenzt. Bei Vorerkrankungen, in Schwangerschaft/Stillzeit oder unter 18 bitte mit Ärztin/Arzt abstimmen. 🔒 Größe und Gewicht bleiben privat.</div>
+  </div>
+</div>
+<div class="overlay" id="cropper" style="background:#0b0c10;color:#fff;z-index:60">
+  <div class="hd"><button class="btn ghost small" onclick="closeCrop()" style="background:transparent;border:none;color:#fff">Abbrechen</button><b>Bild anpassen</b><button class="btn small" onclick="saveCrop()">Fertig</button></div>
+  <div class="bd" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px">
+    <div id="cropStage"><canvas id="cropCv" width="560" height="560"></canvas><div class="cropMask"></div></div>
+    <div style="font-size:13px;color:#aab">Verschieben mit dem Finger · Zoomen mit zwei Fingern oder Regler</div>
+    <div style="display:flex;align-items:center;gap:12px;width:280px"><svg class="i" style="width:16px;height:16px"><use href="#i-search"/></svg><input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1" style="flex:1;accent-color:var(--acc)"><svg class="i" style="width:24px;height:24px"><use href="#i-search"/></svg></div>
   </div>
 </div>
 <div class="overlay" id="scanner">
@@ -1169,14 +1181,34 @@ function whoHTML(u){const p=picOf(u);return `<span class="who ${u===ME.uid?"me":
 function picMenu(){const has=!!picOf(ME.uid);
  if(!has)return $("picIn").click();
  sheet("Profilbild","",[["Entfernen",()=>{mutate(s=>{const p=s.people[ME.uid];if(p)delete p.pic});toast("Profilbild entfernt")},"danger"],["Neues Bild",()=>{setTimeout(()=>$("picIn").click(),100)}]])}
-function picChosen(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;if(!/^image\//.test(f.type)&&!/\.(heic|heif)$/i.test(f.name))return sheet("Kein Bild","Bitte wähle ein Foto aus.",[["OK",null]]);
+function picChosen(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;
  const url=URL.createObjectURL(f),img=new Image();
- img.onload=()=>{const S0=160,c=document.createElement("canvas");c.width=c.height=S0;const x=c.getContext("2d");
-  const m=Math.min(img.naturalWidth,img.naturalHeight),sx=(img.naturalWidth-m)/2,sy=(img.naturalHeight-m)/2;
-  x.drawImage(img,sx,sy,m,m,0,0,S0,S0);URL.revokeObjectURL(url);
-  let q=.82,d=c.toDataURL("image/jpeg",q);while(d.length>22000&&q>.4){q-=.1;d=c.toDataURL("image/jpeg",q)}
-  mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{pic:d})});toast(isTeam()?"Profilbild gespeichert – "+pName(partnerId())+" sieht es auch":"Profilbild gespeichert")};
+ img.onload=()=>{URL.revokeObjectURL(url);openCrop(img)};
  img.onerror=()=>{URL.revokeObjectURL(url);sheet("Bild nicht lesbar","Dieses Format kann der Browser nicht öffnen. Probier ein JPG oder PNG.",[["OK",null]])};img.src=url}
+
+/* ---------- Bild-Editor: verschieben & zoomen ---------- */
+const CS=280;let cr=null;
+function openCrop(img){const w=img.naturalWidth,h=img.naturalHeight,min=CS/Math.min(w,h);
+ cr={img,w,h,min,z:1,x:(CS-w*min)/2,y:(CS-h*min)/2,ptr:new Map(),pinch:null};$("cropZoom").value=1;$("cropper").classList.add("on");drawCrop()}
+function closeCrop(){$("cropper").classList.remove("on");cr=null}
+function cropClamp(){const sc=cr.min*cr.z,W=cr.w*sc,H=cr.h*sc;cr.x=Math.min(0,Math.max(CS-W,cr.x));cr.y=Math.min(0,Math.max(CS-H,cr.y))}
+function drawCrop(){if(!cr)return;cropClamp();const c=$("cropCv"),x=c.getContext("2d"),k=c.width/CS,sc=cr.min*cr.z;
+ x.fillStyle="#000";x.fillRect(0,0,c.width,c.height);x.imageSmoothingQuality="high";x.drawImage(cr.img,cr.x*k,cr.y*k,cr.w*sc*k,cr.h*sc*k)}
+function zoomAt(nz,cx,cy){nz=Math.max(1,Math.min(4,nz));const sc0=cr.min*cr.z,sc1=cr.min*nz;
+ cr.x=cx-(cx-cr.x)*sc1/sc0;cr.y=cy-(cy-cr.y)*sc1/sc0;cr.z=nz;$("cropZoom").value=nz;drawCrop()}
+(function(){const st=$("cropStage"),pos=e=>{const r=st.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}};
+ st.addEventListener("pointerdown",e=>{if(!cr)return;st.setPointerCapture(e.pointerId);cr.ptr.set(e.pointerId,pos(e));if(cr.ptr.size===2){const [a,b]=[...cr.ptr.values()];cr.pinch={d:Math.hypot(a.x-b.x,a.y-b.y),z:cr.z}}});
+ st.addEventListener("pointermove",e=>{if(!cr||!cr.ptr.has(e.pointerId))return;const p=pos(e),prev=cr.ptr.get(e.pointerId);cr.ptr.set(e.pointerId,p);
+  if(cr.ptr.size===1){cr.x+=p.x-prev.x;cr.y+=p.y-prev.y;drawCrop()}
+  else if(cr.ptr.size===2&&cr.pinch){const [a,b]=[...cr.ptr.values()],d=Math.hypot(a.x-b.x,a.y-b.y);zoomAt(cr.pinch.z*d/cr.pinch.d,(a.x+b.x)/2,(a.y+b.y)/2)}});
+ const up=e=>{if(!cr)return;cr.ptr.delete(e.pointerId);if(cr.ptr.size<2)cr.pinch=null};
+ st.addEventListener("pointerup",up);st.addEventListener("pointercancel",up);
+ st.addEventListener("wheel",e=>{if(!cr)return;e.preventDefault();const p=pos(e);zoomAt(cr.z*(e.deltaY<0?1.08:1/1.08),p.x,p.y)},{passive:false});
+ $("cropZoom").addEventListener("input",e=>{if(cr)zoomAt(parseFloat(e.target.value),CS/2,CS/2)});})();
+function saveCrop(){if(!cr)return;const O=200,c=document.createElement("canvas");c.width=c.height=O;const x=c.getContext("2d"),k=O/CS,sc=cr.min*cr.z;
+ x.imageSmoothingQuality="high";x.drawImage(cr.img,cr.x*k,cr.y*k,cr.w*sc*k,cr.h*sc*k);
+ let q=.85,d=c.toDataURL("image/jpeg",q);while(d.length>26000&&q>.4){q-=.1;d=c.toDataURL("image/jpeg",q)}
+ closeCrop();mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{pic:d})});toast(isTeam()?"Profilbild gespeichert – "+pName(partnerId())+" sieht es auch":"Profilbild gespeichert")}
 
 /* ---------- Gast-Modus ---------- */
 const isGuest=()=>lsGet("fp_guest")==="1";
