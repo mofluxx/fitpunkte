@@ -450,7 +450,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 7.2</div>
+    <div class="status">FitPunkte 7.3</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1287,7 +1287,8 @@ function importBackup(inp){const f=inp.files[0];inp.value="";if(!f)return;f.text
 /* ---------- Plus-Menü ---------- */
 function plusMenu(){sheet("Was möchtest du eintragen?",`<div class="two" style="margin-top:10px">
   <button class="pbig" onclick="closeSheet();startLog()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-activity"/></svg></span><b>Sport</b><small>Training eintragen</small></button>
-  <button class="pbig" onclick="closeSheet();addFoodNow()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-food"/></svg></span><b>Essen</b><small>Mahlzeit eintragen</small></button></div>`,[])}
+  <button class="pbig" onclick="closeSheet();addFoodNow()"><span class="ic acc" style="width:52px;height:52px;border-radius:16px"><svg class="i" style="width:26px;height:26px"><use href="#i-food"/></svg></span><b>Essen</b><small>Mahlzeit eintragen</small></button></div>
+  <button class="btn ghost" onclick="closeSheet();foodDay=dkey(new Date());go('food');openScanner(null)" style="margin-top:10px"><svg class="i"><use href="#i-scan"/></svg>Barcode scannen</button>`,[])}
 function addFoodNow(){foodDay=dkey(new Date());go("food");openPick(mealNow())}
 
 /* ================= ESSEN ================= */
@@ -1392,10 +1393,11 @@ async function doSearch(){const q=$("fpQ").value.trim();if(q.length<2||searching
  finally{searching=false}}
 async function lookupCode(code){if(!$("foodPick").classList.contains("on")){fp={meal:fp.meal||mealNow()}}
  sheet("Suche Produkt …",`Barcode ${esc(code)}`,[["Abbrechen",null,1]]);
- try{const r=await fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+"?fields="+OFF_FIELDS);const j=await r.json();
+ try{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),12000);let r;try{r=await fetch("https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(code)+"?fields="+OFF_FIELDS,{signal:ac.signal})}finally{clearTimeout(to)}
+  if(r.status===404){r={json:async()=>({status:0})}}else if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();
   if(j.status===1&&j.product){closeSheet();const p=fromOFF(Object.assign({code},j.product));setTimeout(()=>productSheet(p),150)}
-  else{closeSheet();setTimeout(()=>sheet("Produkt nicht gefunden",`Den Barcode ${esc(code)} kennt die Datenbank noch nicht. Du kannst die Werte von der Packung abtippen.`,[["Abbrechen",null,1],["Manuell eingeben",()=>{setTimeout(()=>manualFood({code}),150)}]]),150)}}
- catch(e){closeSheet();setTimeout(()=>sheet("Keine Verbindung","Für den Barcode-Abgleich braucht die App Internet.",[["OK",null]]),150)}}
+  else{closeSheet();setTimeout(()=>sheet("Produkt nicht gefunden",`Den Barcode ${esc(code)} kennt die Datenbank noch nicht. Du kannst die Werte von der Packung abtippen oder nochmal scannen.`,[["Nochmal scannen",()=>{setTimeout(()=>openScanner(fp.meal),150)},1],["Manuell eingeben",()=>{setTimeout(()=>manualFood({code}),150)}]]),150)}}
+ catch(e){closeSheet();setTimeout(()=>sheet(navigator.onLine?"Datenbank antwortet nicht":"Keine Verbindung",(navigator.onLine?"Open Food Facts ist gerade nicht erreichbar.":"Für den Barcode-Abgleich braucht die App Internet.")+` Barcode: <b style="color:var(--txt)">${esc(code)}</b>`,[["Abbrechen",null,1],["Nochmal versuchen",()=>{setTimeout(()=>lookupCode(code),150)}]]),150)}}
 
 /* ---------- Menge wählen ---------- */
 let ps=null;
@@ -1437,21 +1439,40 @@ const _pickFrom=pickFrom;pickFrom=function(src,i){const p=src==="recent"?recent(
 /* ---------- Scanner ---------- */
 let scan={on:false,stream:null,reader:null,raf:0};
 async function openScanner(meal){if(meal)fp.meal=meal;else if(!$("foodPick").classList.contains("on"))fp.meal=mealNow();
- $("scanner").classList.add("on");$("scMsg").textContent="Kamera wird gestartet …";$("scCode").value="";scan.on=true;
+ $("scanner").classList.add("on");$("scMsg").textContent="Kamera wird gestartet …";$("scCode").value="";scan.on=true;scan.t0=Date.now();
  const v=$("scVideo");
  try{
-  if("BarcodeDetector" in window&&(await BarcodeDetector.getSupportedFormats()).includes("ean_13")){
-   scan.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:{ideal:1280}},audio:false});v.srcObject=scan.stream;await v.play();
-   const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});$("scMsg").textContent="Barcode in den Rahmen halten";
-   const loop=async()=>{if(!scan.on)return;try{const r=await det.detect(v);if(r&&r.length)return found(r[0].rawValue)}catch(e){}scan.raf=setTimeout(loop,180)};loop();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw Object.assign(new Error("nocam"),{name:"NotFoundError"});
+  scan.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}}});
+  if(!scan.on){stopScan();return}
+  v.srcObject=scan.stream;v.setAttribute("playsinline","");v.muted=true;await v.play().catch(()=>{});
+  // Autofokus, falls das Handy es anbietet
+  try{const tr=scan.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};if(cap.focusMode&&cap.focusMode.includes("continuous"))await tr.applyConstraints({advanced:[{focusMode:"continuous"}]})}catch(e){}
+  let decode;
+  if("BarcodeDetector" in window&&(await BarcodeDetector.getSupportedFormats().catch(()=>[])).includes("ean_13")){
+   const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});
+   decode=async()=>{const r=await det.detect(v);return r&&r.length?r[0].rawValue:null};
   }else{
    if(!window.ZXing)await new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="zxing.min.js";sc.onload=ok;sc.onerror=()=>no(new Error("Scanner konnte nicht geladen werden"));document.head.appendChild(sc)});
-   const hints=new Map();hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);
-   scan.reader=new ZXing.BrowserMultiFormatReader(hints,250);$("scMsg").textContent="Barcode in den Rahmen halten";
-   await scan.reader.decodeFromConstraints({video:{facingMode:"environment"}},v,(res)=>{if(res&&scan.on)found(res.getText())});
+   const hints=new Map();hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+   const rd=new ZXing.MultiFormatReader();rd.setHints(hints);
+   const cv=document.createElement("canvas"),cx=cv.getContext("2d",{willReadFrequently:true});
+   decode=async()=>{const vw=v.videoWidth,vh=v.videoHeight;if(!vw||!vh)return null;
+    // nur den Bereich um den Rahmen auswerten: mittlere 86 % Breite, 46 % Höhe
+    const sw=Math.round(vw*.86),sh=Math.round(vh*.46),sx=Math.round((vw-sw)/2),sy=Math.round((vh-sh)/2),sc=Math.min(1,1280/sw);
+    cv.width=Math.round(sw*sc);cv.height=Math.round(sh*sc);cx.drawImage(v,sx,sy,sw,sh,0,0,cv.width,cv.height);
+    try{const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(cv)));return rd.decode(bmp).getText()}catch(e){return null}finally{try{rd.reset()}catch(e){}}};
   }
- }catch(e){$("scMsg").textContent=(e&&e.name==="NotAllowedError")?"Kein Kamera-Zugriff. Erlaube die Kamera in den Einstellungen – oder tippe die Nummer ein.":(e&&e.name==="NotFoundError")?"Keine Kamera gefunden – tippe die Nummer unter dem Barcode ein.":"Kamera nicht verfügbar – tippe die Nummer ein."}}
-function stopScan(){scan.on=false;clearTimeout(scan.raf);try{scan.reader&&scan.reader.reset()}catch(e){}scan.reader=null;if(scan.stream){scan.stream.getTracks().forEach(t=>t.stop());scan.stream=null}const v=$("scVideo");v.srcObject=null}
+  $("scMsg").textContent="Barcode waagerecht in den Rahmen halten";
+  const loop=async()=>{if(!scan.on)return;let code=null;try{code=await decode()}catch(e){}
+   if(code&&/^\d{8,14}$/.test(code)){
+    // zweimal gleich gelesen = sicher (verhindert Fehllesungen)
+    if(scan.last===code)return found(code);scan.last=code}
+   if(Date.now()-scan.t0>9000)$("scMsg").textContent="Tipp: etwas Abstand (15–25 cm), gutes Licht, Barcode flach halten – oder Nummer eintippen";
+   scan.raf=setTimeout(loop,120)};
+  loop();
+ }catch(e){$("scMsg").textContent=(e&&e.name==="NotAllowedError")?"Kein Kamera-Zugriff. Erlaube die Kamera für die App (iPhone: Einstellungen → Safari → Kamera) – oder tippe die Nummer ein.":(e&&e.name==="NotFoundError")?"Keine Kamera gefunden – tippe die Nummer unter dem Barcode ein.":"Kamera nicht verfügbar – tippe die Nummer ein."}}
+function stopScan(){scan.on=false;scan.last=null;clearTimeout(scan.raf);try{scan.reader&&scan.reader.reset()}catch(e){}scan.reader=null;if(scan.stream){scan.stream.getTracks().forEach(t=>t.stop());scan.stream=null}const v=$("scVideo");v.srcObject=null}
 function closeScanner(){stopScan();$("scanner").classList.remove("on")}
 function found(code){if(!scan.on)return;try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}closeScanner();lookupCode(String(code).replace(/\D/g,""))}
 
