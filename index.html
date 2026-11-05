@@ -439,7 +439,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.8</div>
+    <div class="status">FitPunkte 6.9</div>
   </div>
 
   <!-- Unterseiten -->
@@ -701,8 +701,10 @@ function pausesLeft(u,monthKey){const mk=monthKey||dkey(new Date()).slice(0,7);r
 function togglePause(k){const u=ME.uid;if(daysSet(u).has(k))return;const has=pauseSet(u).has(k);
  if(!has&&pausesLeft(u,k.slice(0,7))<=0)return sheet("Keine Pausentage mehr","Pro Monat gibt es "+PAUSES_PER_MONTH+" Pausentage. Ab nächstem Monat wieder.",[["OK",null]]);
  mutate(s=>{const p=s.people[u]=s.people[u]||{};p.pauses=(p.pauses||[]).filter(x=>x!==k);if(!has)p.pauses.push(k)});toast(has?"Pausentag entfernt":"Pausentag genommen – Serie bleibt")}
+/* Lange Einheiten: Minuten über 60 zählen halb */
+const FULL_MIN=60;const effMin=m=>m<=FULL_MIN?m:FULL_MIN+(m-FULL_MIN)/2;
 function calcPts(u,m,inten,dayK,excludeId,factor){
- const base=Math.round(m*inten*(factor||1));
+ const base=Math.round(effMin(m)*inten*(factor||1));
  const sameDay=vOf(u).some(w=>w.id!==excludeId&&dkey(w.d)===dayK);
  const before=streakAt(u,dkey(addDays(fromKey(dayK),-1)));
  const bonus=sameDay?0:10+Math.min((before+1)*2,20);
@@ -1029,8 +1031,10 @@ function renderProfile(){
 function rulesHTML(){
  const types=allTypes(),ex=Math.round(30*rpeMult(6)*1.3);
  return `<div class="card"><h3>Die Formel</h3>
-  <div style="line-height:2"><span class="chip">Minuten</span> × <span class="chip">Sport-Faktor</span> × <span class="chip">Anstrengung</span> + <span class="chip">Bonus</span></div>
+  <div style="line-height:2"><span class="chip">Minuten*</span> × <span class="chip">Sport-Faktor</span> × <span class="chip">Anstrengung</span> + <span class="chip">Bonus</span></div>
   <div style="font-size:14px;color:var(--mut);margin-top:8px">Beispiel: 30 Min Laufen, Anstrengung 6<br>30 × 1,3 × ${String(rpeMult(6)).replace(".",",")} = <b style="color:var(--txt)">${ex} Punkte</b> + Tagesbonus</div></div>
+ <div class="card"><h3>* Lange Trainings</h3><div style="font-size:14px;color:var(--mut)">Die ersten ${FULL_MIN} Minuten zählen voll, jede Minute darüber zur Hälfte – lange Einheiten haben meist mehr Pausen.</div>
+  <table class="rt" style="margin-top:8px">${[30,60,90,120].map(m=>`<tr><td>${m} Min Training</td><td>zählt wie ${String(effMin(m)).replace(".",",")} Min</td></tr>`).join("")}</table></div>
  <div class="card"><h3>Sport-Faktoren</h3><table class="rt">${types.map(t=>`<tr><td>${esc(t.n)}</td><td><span class="pill">${fmtF(t.f||1)}</span></td></tr>`).join("")}</table>
   <div style="font-size:12px;color:var(--mut);margin-top:8px">Anstrengendere Sportarten bringen mehr Punkte pro Minute. Eigene Sportarten: Faktor unter „Sportarten“ einstellen.</div></div>
  <div class="card"><h3>Anstrengung</h3><table class="rt">${[[1,2],[3,4],[5,6],[7,8],[9,9],[10,10]].map(([a,b])=>`<tr><td>${a===b?a:a+"–"+b} · ${rpeLabel(a)}</td><td>${fmtF(rpeMult(a))}${a!==b?" – "+fmtF(rpeMult(b)):""}</td></tr>`).join("")}</table></div>
