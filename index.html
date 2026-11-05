@@ -197,6 +197,25 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .chart text{fill:var(--mut);font-size:10px;font-family:Inter,sans-serif}
 .list .it{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
 .list .it:first-child{border-top:none}
+.fhero{background:linear-gradient(180deg,var(--acc-soft) 0%,var(--s1) 75%);padding:18px 14px 16px}
+.gauge{display:grid;grid-template-columns:1fr 200px 1fr;align-items:center}
+.gauge .side{text-align:center}.gauge .side span{display:block;font-size:13px;color:var(--mut)}.gauge .side b{display:block;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.gwrap{position:relative;width:200px;height:170px}
+.gwrap svg{position:absolute;inset:0}
+.gmid{position:absolute;left:0;right:0;top:52px;text-align:center}
+.gmid span{font-size:13px;color:var(--mut);display:block}
+.gmid b{display:block;font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums}
+.gmid small{font-size:12px;color:var(--mut)}
+.garc{transition:stroke-dasharray .6s ease}
+.mtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.mtile{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:12px}
+.mtile b{display:block;font-size:13px;font-weight:600}
+.mtile span{display:block;font-size:14px;color:var(--mut);margin-top:2px;font-variant-numeric:tabular-nums}
+.mtile .prog{height:6px;margin-top:8px}
+.mtile.c .prog{background:rgba(91,110,255,.15)}.mtile.c .prog i{background:#5b6eff}
+.mtile.p .prog{background:rgba(232,67,127,.15)}.mtile.p .prog i{background:#e8437f}
+.mtile.f .prog{background:rgba(176,124,255,.18)}.mtile.f .prog i{background:#b07cff}
+@media (max-width:370px){.gauge{grid-template-columns:1fr 170px 1fr}.gwrap{width:170px;height:150px}.gwrap svg{width:170px;height:150px}.gmid{top:44px}.gmid b{font-size:36px}}
 .fsum{display:flex;align-items:flex-end;justify-content:space-between}
 .fsum .n{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
 .fsum .g{color:var(--mut);font-size:14px;text-align:right}
@@ -414,7 +433,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.4</div>
+    <div class="status">FitPunkte 6.5</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1135,9 +1154,16 @@ function renderFood(){
  if(!sharesFood(u)){$("foodBody").innerHTML=`<div class="card empty">${esc(pName(u))} teilt das Essen nicht.</div>`;return}
  watchFood(u,foodDay);const items=FOODC[fkey(u,foodDay)]||[],t=sumItems(items),g=nutOf(u);
  const bar=(v,goal)=>goal?`<div class="prog ${v>goal*1.05?"over":""}"><i style="width:${Math.min(100,v/goal*100)}%"></i></div>`:"";
- let h=`<div class="card"><div class="fsum"><div><div class="n">${fmt0(t.k)}</div><div style="color:var(--mut);font-size:14px;margin-top:4px">kcal gegessen</div></div><div class="g">${g.kcal?`Ziel ${fmt0(g.kcal)}<br><b style="color:${t.k>g.kcal?"#ff6b6b":"var(--ok)"}">${t.k>g.kcal?fmt0(t.k-g.kcal)+" drüber":"noch "+fmt0(g.kcal-t.k)}</b>`:(own?`<a onclick="openSub('nutri');go('profile')" style="color:var(--acc)">Ziel festlegen</a>`:"")}</div></div>
-  ${g.kcal?`<div class="prog ${t.k>g.kcal?"over":""}" style="margin-top:12px"><i style="width:${Math.min(100,t.k/g.kcal*100)}%"></i></div>`:""}
-  <div class="macros"><div class="macro p"><b>${fmt0(t.p)}${g.p?" / "+g.p:""} g</b><span>Eiweiß</span>${bar(t.p,g.p)}</div><div class="macro c"><b>${fmt0(t.c)}${g.c?" / "+g.c:""} g</b><span>Kohlenhydrate</span>${bar(t.c,g.c)}</div><div class="macro f"><b>${fmt0(t.f)}${g.f?" / "+g.f:""} g</b><span>Fett</span>${bar(t.f,g.f)}</div></div></div>`;
+ const sportMin=vOf(u).filter(w=>dkey(w.d)===foodDay).reduce((a,w)=>a+w.m,0);
+ const goal=g.kcal||0,left=goal-t.k,over=goal&&left<0,pct=goal?Math.min(100,t.k/goal*100):(t.k>0?100:0);
+ const L=75; /* 270°-Bogen = 75 % des Kreisumfangs */
+ const gauge=`<svg width="200" height="170" viewBox="0 0 200 170"><defs><linearGradient id="gGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0" style="stop-color:var(--acc)"/><stop offset="1" style="stop-color:${over?"#ff6b6b":"#b07cff"}"/></linearGradient></defs>
+  <circle cx="100" cy="95" r="80" fill="none" style="stroke:var(--s3)" stroke-width="14" stroke-linecap="round" pathLength="100" stroke-dasharray="${L} 100" transform="rotate(135 100 95)"/>
+  <circle class="garc" cx="100" cy="95" r="80" fill="none" stroke="${over?"#ff6b6b":"url(#gGrad)"}" stroke-width="14" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(pct>0?0.5:0,pct/100*L)} 100" transform="rotate(135 100 95)"/></svg>`;
+ const mid=goal?`<span>${over?"Drüber":"Übrig heute"}</span><b style="${over?"color:#ff6b6b":""}">${fmt0(Math.abs(left))}</b><small>Ziel ${fmt0(goal)} kcal</small>`:`<span>Gegessen</span><b>${fmt0(t.k)}</b><small>${own?`<a onclick="openSub('nutri');go('profile')" style="color:var(--acc)">Ziel festlegen</a>`:"kcal"}</small>`;
+ const tile=(cls,l,v,gg)=>`<div class="mtile ${cls}"><b>${l}</b><span>${fmt0(v)}${gg?"/"+gg:""} g</span><div class="prog ${gg&&v>gg*1.05?"over":""}"><i style="width:${gg?Math.min(100,v/gg*100):(v>0?100:0)}%"></i></div></div>`;
+ let h=`<div class="card fhero"><div class="gauge"><div class="side"><span>Gegessen</span><b>${fmt0(t.k)}</b></div><div class="gwrap">${gauge}<div class="gmid">${mid}</div></div><div class="side"><span>Sport</span><b>${sportMin}</b><span style="font-size:11px">Min</span></div></div>
+  <div class="mtiles">${tile("c","Kohlenhydrate",t.c,g.c)}${tile("p","Eiweiß",t.p,g.p)}${tile("f","Fett",t.f,g.f)}</div></div>`;
  MEALS.forEach(([m,l])=>{const mi=items.filter(x=>(x.meal||"s")===m);const mk=sumItems(mi).k;
   h+=`<div class="card"><h3><span>${l}</span><span style="text-transform:none;letter-spacing:0">${mi.length?fmt0(mk)+" kcal":""}</span></h3>
   ${mi.map(x=>`<div class="fi" ${own?`onclick="editFood('${x.id}')"`:""}>${x.img?`<img src="${esc(x.img)}" alt="" loading="lazy">`:`<div class="ph">${ico("food")}</div>`}<div class="tx"><b>${esc(x.n)}</b><span>${x.g?fmt0(x.g)+" g":(x.por?x.por+" Portion":"")}${x.b?" · "+esc(x.b):""}</span></div><div class="kc">${fmt0(x.kcal)} kcal</div></div>`).join("")}
