@@ -162,6 +162,11 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(14,15,19,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20}
 .tabs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:10.5px;letter-spacing:-.01em;color:var(--mut2);font-weight:500}
 .tabs button.on{color:var(--txt)}
+.avbtn,.avatar,.who{background-size:cover;background-position:center}
+.avbtn.pic .avl,.avatar.pic>span:first-child,.who.pic,.who.me.pic{color:transparent!important;-webkit-text-fill-color:transparent!important}
+.avatar{position:relative;cursor:pointer}
+.avatar .cam{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:var(--s1);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--txt)}
+.avatar .cam svg.i{width:13px;height:13px}
 .avbtn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex:none}
 .avbtn .dot{position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border:2px solid var(--bg);box-sizing:content-box}
 .tabs button.plus{justify-content:center}
@@ -192,7 +197,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .iconpick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
 .iconpick button{aspect-ratio:1;border-radius:10px;background:var(--s2);display:flex;align-items:center;justify-content:center;border:1px solid transparent}
 .iconpick button.on{border-color:var(--acc);color:var(--acc);background:var(--acc-soft)}
-.who{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--s3);font-size:10px;font-weight:700;color:var(--txt);margin-right:4px;vertical-align:1px}
+.who{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--s3);font-size:10px;font-weight:700;color:var(--txt);margin-right:4px;vertical-align:1px}
 .who.me{background:var(--acc);color:#fff!important;-webkit-text-fill-color:#fff}
 .chart text{fill:var(--mut);font-size:10px;font-family:Inter,sans-serif}
 .list .it{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
@@ -414,7 +419,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <button class="back" onclick="go(lastTab||'home')"><svg class="i"><use href="#i-chevL"/></svg>Zurück</button>
     <div class="top" style="margin-top:0"><h1>Profil</h1></div>
     <div class="card" style="display:flex;align-items:center;gap:14px">
-      <div class="avatar" id="pAvatar">?</div>
+      <div class="avatar" id="pAvatar" onclick="picMenu()"><span>?</span><span class="cam"><svg class="i"><use href="#i-camera"/></svg></span></div>
+      <input type="file" id="picIn" accept="image/*" style="display:none" onchange="picChosen(this)">
       <div style="min-width:0"><div style="font-weight:700;font-size:18px" id="pName">–</div><div style="font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="pSub">–</div></div>
     </div>
     <div class="mgrp">Persönlich</div>
@@ -439,7 +445,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.9</div>
+    <div class="status">FitPunkte 7.0</div>
   </div>
 
   <!-- Unterseiten -->
@@ -450,7 +456,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <div class="two"><div><div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99"></div><div><div class="lbl">Gewicht (kg) 🔒</div><input class="field" id="pfKg" type="number" inputmode="decimal"></div></div>
       <button class="btn" onclick="saveAbout()" style="margin-top:18px">Speichern</button>
     </div>
-    <div style="font-size:12px;color:var(--mut2);padding:0 4px">Name, Alter und Geschlecht kann auch dein Partner sehen. Das Gewicht bleibt privat und wird nur für verbrannte Kalorien genutzt.</div>
+    <button class="btn ghost" onclick="picMenu()" style="margin-bottom:10px"><svg class="i"><use href="#i-camera"/></svg>Profilbild ändern</button>
+    <div style="font-size:12px;color:var(--mut2);padding:0 4px">Profilbild, Name, Alter und Geschlecht kann auch dein Partner sehen. Das Gewicht bleibt privat und wird nur für verbrannte Kalorien genutzt.</div>
   </div>
   <div class="psub" id="ps-goals">
     <div class="card">
@@ -613,6 +620,7 @@ const ICONS={
  info:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01",
  food:"M7 2v9M4 2v5a3 3 0 0 0 6 0V2M7 11v11M17 2c-2 0-3 2.5-3 6s1.2 5 3 5v9",
  scan:"M3 7V4h3M21 7V4h-3M3 17v3h3M21 17v3h-3M7 8v8M10 8v8M13 8v8M17 8v8",
+ camera:"M4 8h3l2-3h6l2 3h3v11H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
  search:"M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5",
  edit:"M4 20h4L19 9l-4-4L4 16zM14 6l4 4",
  key:"M15.5 7.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0zM12 11v10M12 17h3M12 14h2"
@@ -759,7 +767,7 @@ function go(v){if(["home","progress","food","shop"].includes(v))lastTab=v;if(v==
 let lastBal=null;
 function render(){
  const u=ME.uid,b=balance(u),e=earned(u);
- {const n0=pName(u);document.querySelectorAll(".avl").forEach(e=>e.textContent=(n0&&n0!=="Du"?n0[0]:"?").toUpperCase())}
+ {const n0=pName(u);document.querySelectorAll(".avl").forEach(e=>e.textContent=(n0&&n0!=="Du"?n0[0]:"?").toUpperCase());document.querySelectorAll(".avbtn").forEach(e=>paintAv(e,u))}
  const nm=pName(u);$("hello").textContent=nm&&nm!=="Du"?"Hallo "+nm:"Hallo";
  $("dateTxt").textContent=new Date().toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
  const pe=$("pts");pe.textContent=b;$("pts2").textContent=b;
@@ -790,7 +798,7 @@ function render(){
  // Team
  if(isTeam()){$("teamCard").style.display="block";const wk=dkey(ws),cnt=S.workouts.filter(w=>w.uid&&dkey(weekStart(new Date(w.d)))===wk),tg=S.teamGoal||5;
   $("teamTxt").textContent=Math.min(cnt.length,tg)+" / "+tg;$("teamBar").style.width=Math.min(cnt.length/tg*100,100)+"%";
-  const by=peopleIds().map(p=>`<span><span class="who ${p===u?"me":""}">${esc(initial(p))}</span>${cnt.filter(w=>w.uid===p).length}</span>`).join(" ");
+  const by=peopleIds().map(p=>`<span>${whoHTML(p)}${cnt.filter(w=>w.uid===p).length}</span>`).join(" ");
   $("teamMeta").innerHTML=`<span>${by}</span><span>${cnt.length>=tg?"Bonus +"+TEAM_BONUS+" für jeden ✓":"Bei Ziel: +"+TEAM_BONUS+" für jeden"}</span>`}
  else $("teamCard").style.display="none";
  // Offene Belohnungen
@@ -824,7 +832,7 @@ function reactBar(w){
  return got.length?`<div class="reacts">${got.map(([k,e])=>`<span class="rb">${e} ${esc(pName(k))}</span>`).join("")}</div>`:"";
 }
 function feedItem(w){const team=isTeam(),owner=w.uid||ME.uid;
- return `<div class="it"><div class="ic">${ico(typeIcon(w))}</div><div class="tx"><b>${team?`<span class="who ${owner===ME.uid?"me":""}">${esc(initial(owner))}</span>`:""}${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span>${relDay(w.d)}${burned(w)!=null?" · "+burned(w)+" kcal":""}${w.note?" · "+esc(w.note):""}</span>${trustInfo(w)}${w.rejected?"":reactBar(w)}${disputeBar(w)}</div><div class="pt" style="${counts(w)?"":"color:var(--mut2);text-decoration:line-through"}">+${w.p}</div></div>`}
+ return `<div class="it"><div class="ic">${ico(typeIcon(w))}</div><div class="tx"><b>${team?`${whoHTML(owner)}`:""}${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span>${relDay(w.d)}${burned(w)!=null?" · "+burned(w)+" kcal":""}${w.note?" · "+esc(w.note):""}</span>${trustInfo(w)}${w.rejected?"":reactBar(w)}${disputeBar(w)}</div><div class="pt" style="${counts(w)?"":"color:var(--mut2);text-decoration:line-through"}">+${w.p}</div></div>`}
 function react(id,e){mutate(s=>{const w=s.workouts.find(x=>x.id===id);if(!w)return;w.react=w.react||{};if(w.react[ME.uid]===e)delete w.react[ME.uid];else w.react[ME.uid]=e})}
 
 /* ---------- Eintragen ---------- */
@@ -942,7 +950,7 @@ function renderProgress(){
  {const ds=daysSet(u),wsd=weekStart(),wd=[...ds].filter(k=>fromKey(k)>=wsd).length,g=goalOf(u),st=curStreak(u),mins=vOf(u).filter(w=>w.d>=wsd.getTime()).reduce((a,w)=>a+w.m,0);
   const pl=(S.plans||[]).filter(x=>x.day>=dkey(new Date())&&(x.uid||ME.uid)===u).sort((a,b)=>a.day<b.day?-1:1)[0];
   $("sportWeek").innerHTML=`<div class="stats" style="margin:0;grid-template-columns:repeat(3,1fr)"><div class="stat" style="background:var(--s2);border:none"><b>${wd}/${g}</b><span>Tage diese Woche</span></div><div class="stat" style="background:var(--s2);border:none"><b>${mins}</b><span>Minuten</span></div><div class="stat" style="background:var(--s2);border:none"><b>${st}</b><span>Tage-Serie</span></div></div>${pl?`<div class="hint" style="margin-top:12px">Nächstes geplant: <b>${esc(pl.t)}</b> · ${pl.day===dkey(new Date())?"heute":fromKey(pl.day).toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"short"})}</div>`:(u===ME.uid?`<div style="font-size:13px;color:var(--mut);margin-top:10px">Tipp: Tag im Kalender antippen, um ein Training zu planen.</div>`:"")}`}
- if(isTeam()){$("personSeg").style.display="flex";$("personSeg").innerHTML=[ME.uid,partnerId()].map(p=>`<button class="${u===p?"on":""}" onclick="viewUid='${p}';calSel=null;renderProgress()">${esc(pName(p))}</button>`).join("")}else $("personSeg").style.display="none";
+ if(isTeam()){$("personSeg").style.display="flex";$("personSeg").innerHTML=[ME.uid,partnerId()].map(p=>`<button class="${u===p?"on":""}" onclick="viewUid='${p}';calSel=null;renderProgress()">${whoHTML(p)} ${esc(pName(p))}</button>`).join("")}else $("personSeg").style.display="none";
  const ws=wOf(u),s=statsOf(u);
  const fav=Object.entries(ws.reduce((a,w)=>(a[w.t]=(a[w.t]||0)+1,a),{})).sort((a,b)=>b[1]-a[1])[0];
  $("stats").innerHTML=[[s.n,"Trainings"],[s.min>=600?Math.round(s.min/60)+" h":s.min+" min","Gesamtzeit"],[curStreak(u)+" / "+s.ls,"Serie jetzt / Rekord"],[fav?esc(fav[0]):"–","Lieblingssport"]].map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
@@ -1001,7 +1009,7 @@ function renderProfile(){
  // Menü / Unterseite
  $("pMenu").style.display=profSub?"none":"block";
  document.querySelectorAll(".psub").forEach(x=>{const on=x.id==="ps-"+profSub;x.classList.toggle("on",on);if(on&&!x.querySelector(".back"))x.insertAdjacentHTML("afterbegin",`<button class="back" onclick="closeSub()"><svg class="i"><use href="#i-chevL"/></svg>Profil</button><div class="top" style="margin-top:0"><h1>${SUBS[profSub]}</h1></div>`)});
- const nm=pName(ME.uid);$("pAvatar").textContent=(nm&&nm!=="Du"?nm[0]:"?").toUpperCase();$("pName").textContent=nm&&nm!=="Du"?nm:"Profil";
+ const nm=pName(ME.uid);$("pAvatar").firstElementChild.textContent=(nm&&nm!=="Du"?nm[0]:"?").toUpperCase();paintAv($("pAvatar"),ME.uid);$("pName").textContent=nm&&nm!=="Du"?nm:"Profil";
  $("pSub").textContent=ME.uid==="local"?"Gast · nur auf diesem Gerät":(isTeam()?"Team mit "+pName(partnerId()):"Noch kein Partner verbunden");
  $("mProg").textContent=statsOf(ME.uid).n+" Trainings · "+earnedBadges(ME.uid).length+" Abzeichen";
  $("mGoals").textContent=((aimsOf(myProfile()).length?aimsOf(myProfile()).join(", ")+" · ":"")+goalOf(ME.uid)+" Tage pro Woche")+(isTeam()?" · Team "+(S.teamGoal||5):"");
@@ -1154,6 +1162,22 @@ function askWeight(manual){sheet("Verbrannte Kalorien",`Damit die App berechnen 
   [["Später",()=>{if(!manual)lsSet("fp_kg_skip",String(Date.now()))},1],["Speichern",()=>{const v=parseFloat(String($("kgIn").value).replace(",","."));if(!(v>=30&&v<=250)){$("kgIn").focus();return false}savePriv({kg:Math.round(v*10)/10});toast("Gespeichert – verbrannte Kalorien werden jetzt berechnet")}]]);
  setTimeout(()=>{const i=$("kgIn");i&&i.focus()},80)}
 
+/* ---------- Profilbild ---------- */
+const picOf=u=>(S.people[u]||{}).pic||"";
+function paintAv(el,u){const p=picOf(u);el.classList.toggle("pic",!!p);el.style.backgroundImage=p?`url("${p}")`:""}
+function whoHTML(u){const p=picOf(u);return `<span class="who ${u===ME.uid?"me":""} ${p?"pic":""}" ${p?`style="background-image:url('${p}')"`:""}>${esc(initial(u))}</span>`}
+function picMenu(){const has=!!picOf(ME.uid);
+ if(!has)return $("picIn").click();
+ sheet("Profilbild","",[["Entfernen",()=>{mutate(s=>{const p=s.people[ME.uid];if(p)delete p.pic});toast("Profilbild entfernt")},"danger"],["Neues Bild",()=>{setTimeout(()=>$("picIn").click(),100)}]])}
+function picChosen(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;if(!/^image\//.test(f.type)&&!/\.(heic|heif)$/i.test(f.name))return sheet("Kein Bild","Bitte wähle ein Foto aus.",[["OK",null]]);
+ const url=URL.createObjectURL(f),img=new Image();
+ img.onload=()=>{const S0=160,c=document.createElement("canvas");c.width=c.height=S0;const x=c.getContext("2d");
+  const m=Math.min(img.naturalWidth,img.naturalHeight),sx=(img.naturalWidth-m)/2,sy=(img.naturalHeight-m)/2;
+  x.drawImage(img,sx,sy,m,m,0,0,S0,S0);URL.revokeObjectURL(url);
+  let q=.82,d=c.toDataURL("image/jpeg",q);while(d.length>22000&&q>.4){q-=.1;d=c.toDataURL("image/jpeg",q)}
+  mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{pic:d})});toast(isTeam()?"Profilbild gespeichert – "+pName(partnerId())+" sieht es auch":"Profilbild gespeichert")};
+ img.onerror=()=>{URL.revokeObjectURL(url);sheet("Bild nicht lesbar","Dieses Format kann der Browser nicht öffnen. Probier ein JPG oder PNG.",[["OK",null]])};img.src=url}
+
 /* ---------- Gast-Modus ---------- */
 const isGuest=()=>lsGet("fp_guest")==="1";
 function startGuest(){lsSet("fp_guest","1");hideSetup();ME={uid:"local",name:""};setAccount("Gast – Daten nur auf diesem Gerät");setStatus("Gast-Modus · nur auf diesem Gerät","");render();maybeOnboard()}
@@ -1262,7 +1286,7 @@ function renderFood(){
  if(!foodUid||!(foodUid===ME.uid||S.people[foodUid]))foodUid=ME.uid;const u=foodUid,own=u===ME.uid;
  const part=isTeam()?partnerId():null;
  $("foodPerson").style.display=part?"flex":"none";
- if(part)$("foodPerson").innerHTML=[ME.uid,part].map(p=>`<button class="${u===p?"on":""}" onclick="foodUid='${p}';renderFood()">${esc(pName(p))}</button>`).join("");
+ if(part)$("foodPerson").innerHTML=[ME.uid,part].map(p=>`<button class="${u===p?"on":""}" onclick="foodUid='${p}';renderFood()">${whoHTML(p)} ${esc(pName(p))}</button>`).join("");
  const today=dkey(new Date());$("foodDay").textContent=foodDay===today?"Heute":foodDay===dkey(addDays(new Date(),-1))?"Gestern":fromKey(foodDay).toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"long"});
  $("foodNext").style.visibility=foodDay>=today?"hidden":"visible";
  if(!sharesFood(u)){$("foodBody").innerHTML=`<div class="card empty">${esc(pName(u))} teilt das Essen nicht.</div>`;return}
