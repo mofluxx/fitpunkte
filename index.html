@@ -260,7 +260,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .palo.on{border-color:var(--acc);background:var(--acc-soft)}
 .wzr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
 .wzr b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.wzr span{font-size:12px;color:var(--mut)}
-#cropStage{position:relative;width:280px;height:280px;touch-action:none;cursor:grab;user-select:none}
+#cropStage{position:relative;width:280px;height:280px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#cropper .bd{overflow:hidden;touch-action:none}
 #cropStage canvas{width:280px;height:280px;display:block}
 .cropMask{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 400px rgba(11,12,16,.72);outline:2px solid rgba(255,255,255,.85);pointer-events:none}
 #cropper .hd{justify-content:space-between}
@@ -1180,7 +1181,7 @@ function paintAv(el,u){const p=picOf(u);el.classList.toggle("pic",!!p);el.style.
 function whoHTML(u){const p=picOf(u);return `<span class="who ${u===ME.uid?"me":""} ${p?"pic":""}" ${p?`style="background-image:url('${p}')"`:""}>${esc(initial(u))}</span>`}
 function picMenu(){const has=!!picOf(ME.uid);
  if(!has)return $("picIn").click();
- sheet("Profilbild","",[["Entfernen",()=>{mutate(s=>{const p=s.people[ME.uid];if(p)delete p.pic});toast("Profilbild entfernt")},"danger"],["Neues Bild",()=>{setTimeout(()=>$("picIn").click(),100)}]])}
+ sheet("Profilbild","",[["Entfernen",()=>{mutate(s=>{const p=s.people[ME.uid];if(p)delete p.pic});toast("Profilbild entfernt")},"danger"],["Neues Bild",()=>{$("picIn").click()}]])}
 function picChosen(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;
  const url=URL.createObjectURL(f),img=new Image();
  img.onload=()=>{URL.revokeObjectURL(url);openCrop(img)};
