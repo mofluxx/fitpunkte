@@ -450,7 +450,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 7.3</div>
+    <div class="status">FitPunkte 7.5</div>
   </div>
 
   <!-- Unterseiten -->
@@ -581,8 +581,9 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 <div class="overlay" id="scanner">
   <video id="scVideo" playsinline muted autoplay></video>
   <div class="frame"></div><div class="line"></div>
-  <div class="sct"><b>Barcode scannen</b><button class="iconbtn" style="color:#fff" onclick="closeScanner()"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="sct"><button class="iconbtn" id="scTorch" style="color:#fff;display:none" onclick="toggleTorch()" title="Licht"><svg class="i"><use href="#i-zap"/></svg></button><b>Barcode scannen</b><button class="iconbtn" style="color:#fff" onclick="closeScanner()"><svg class="i"><use href="#i-x"/></svg></button></div>
   <div class="scb"><div class="msg2" id="scMsg">Barcode in den Rahmen halten</div>
+    <label class="btn ghost" style="margin-bottom:8px;background:rgba(30,33,41,.92);color:#fff;border-color:rgba(255,255,255,.2)"><svg class="i"><use href="#i-camera"/></svg>Foto vom Barcode machen<input type="file" accept="image/*" capture="environment" style="display:none" onchange="scanPhoto(this)"></label>
     <form class="row" onsubmit="event.preventDefault();const v=$('scCode').value.replace(/\D/g,'');if(v.length>=8){closeScanner();lookupCode(v)}"><input class="field" id="scCode" inputmode="numeric" placeholder="oder Nummer eintippen" style="flex:3;background:rgba(30,33,41,.92)"><button class="btn small" style="flex:1">OK</button></form>
   </div>
 </div>
@@ -1447,12 +1448,32 @@ async function openScanner(meal){if(meal)fp.meal=meal;else if(!$("foodPick").cla
   if(!scan.on){stopScan();return}
   v.srcObject=scan.stream;v.setAttribute("playsinline","");v.muted=true;await v.play().catch(()=>{});
   // Autofokus, falls das Handy es anbietet
-  try{const tr=scan.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};if(cap.focusMode&&cap.focusMode.includes("continuous"))await tr.applyConstraints({advanced:[{focusMode:"continuous"}]})}catch(e){}
+  scan.torch=false;$("scTorch").style.display="none";
+  try{const tr=scan.stream.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};const adv={};
+   if(cap.focusMode&&cap.focusMode.includes("continuous"))adv.focusMode="continuous";
+   // etwas Zoom: man kann weiter weg bleiben, wo die Kamera scharf stellt
+   if(cap.zoom&&cap.zoom.max>=1.5)adv.zoom=Math.min(2,cap.zoom.max);
+   if(Object.keys(adv).length)await tr.applyConstraints({advanced:[adv]}).catch(()=>{});
+   if(cap.torch)$("scTorch").style.display="flex";}catch(e){}
   let decode;
-  if("BarcodeDetector" in window&&(await BarcodeDetector.getSupportedFormats().catch(()=>[])).includes("ean_13")){
+  const cropCv=document.createElement("canvas"),cropCx=cropCv.getContext("2d",{willReadFrequently:true});let nTry=0;
+  const grab=()=>{const vw=v.videoWidth,vh=v.videoHeight;if(!vw||!vh)return null;const n=++nTry,full=(n%4===0);
+   const sw=full?vw:Math.round(vw*.86),sh=full?vh:Math.round(vh*.46),sx=Math.round((vw-sw)/2),sy=Math.round((vh-sh)/2),sc=Math.min(1,[1400,960,700][n%3]/sw);
+   cropCv.width=Math.round(sw*sc);cropCv.height=Math.round(sh*sc);cropCx.drawImage(v,sx,sy,sw,sh,0,0,cropCv.width,cropCv.height);return cropCv};
+  let wasmOk=false;
+  if(!("BarcodeDetector" in window)){try{
+   if(!window.ZXingWASM)await new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="zxingwasm.js";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+   if(!scan.wasmPrep){ZXingWASM.prepareZXingModule({overrides:{locateFile:(p,pre)=>p.endsWith(".wasm")?new URL("zxing_reader.wasm",location.href).href:pre+p},fireImmediately:true});scan.wasmPrep=1}
+   const opts={formats:["EAN13","EAN8","UPCA","UPCE"],tryHarder:true,tryRotate:true,tryInvert:false,maxNumberOfSymbols:1};
+   decode=async()=>{const c=grab();if(!c)return null;const r=await ZXingWASM.readBarcodes(cropCx.getImageData(0,0,c.width,c.height),opts);const ok=r.find(x=>x.isValid&&x.text);return ok?ok.text:null};
+   await decode();wasmOk=true;scan.engine="wasm";
+  }catch(e){console.warn("zxing-wasm nicht verfügbar",e)}}
+  if(wasmOk){}
+  else if("BarcodeDetector" in window&&(await BarcodeDetector.getSupportedFormats().catch(()=>[])).includes("ean_13")){scan.engine="native";
    const det=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e"]});
    decode=async()=>{const r=await det.detect(v);return r&&r.length?r[0].rawValue:null};
   }else{
+   scan.engine="js";
    if(!window.ZXing)await new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="zxing.min.js";sc.onload=ok;sc.onerror=()=>no(new Error("Scanner konnte nicht geladen werden"));document.head.appendChild(sc)});
    const hints=new Map();hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E]);hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
    const rd=new ZXing.MultiFormatReader();rd.setHints(hints);
@@ -1464,14 +1485,27 @@ async function openScanner(meal){if(meal)fp.meal=meal;else if(!$("foodPick").cla
     try{const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(cv)));return rd.decode(bmp).getText()}catch(e){return null}finally{try{rd.reset()}catch(e){}}};
   }
   $("scMsg").textContent="Barcode waagerecht in den Rahmen halten";
-  const loop=async()=>{if(!scan.on)return;let code=null;try{code=await decode()}catch(e){}
+  const loop=async()=>{if(!scan.on)return;if(scan.paused){scan.raf=setTimeout(loop,300);return}let code=null;try{code=await decode()}catch(e){}
    if(code&&/^\d{8,14}$/.test(code)){
     // zweimal gleich gelesen = sicher (verhindert Fehllesungen)
     if(scan.last===code)return found(code);scan.last=code}
-   if(Date.now()-scan.t0>9000)$("scMsg").textContent="Tipp: etwas Abstand (15–25 cm), gutes Licht, Barcode flach halten – oder Nummer eintippen";
+   if(Date.now()-scan.t0>8000)$("scMsg").textContent="Tipp: 15–25 cm Abstand, Handy leicht kippen gegen Spiegelungen, mehr Licht – oder Foto machen";
    scan.raf=setTimeout(loop,120)};
   loop();
  }catch(e){$("scMsg").textContent=(e&&e.name==="NotAllowedError")?"Kein Kamera-Zugriff. Erlaube die Kamera für die App (iPhone: Einstellungen → Safari → Kamera) – oder tippe die Nummer ein.":(e&&e.name==="NotFoundError")?"Keine Kamera gefunden – tippe die Nummer unter dem Barcode ein.":"Kamera nicht verfügbar – tippe die Nummer ein."}}
+/* Barcode aus Foto lesen (iPhone-Kamera-App stellt schärfer, Makro) */
+async function ensureWasm(){if(!window.ZXingWASM)await new Promise((ok,no)=>{const sc=document.createElement("script");sc.src="zxingwasm.js";sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)});
+ if(!scan.wasmPrep){ZXingWASM.prepareZXingModule({overrides:{locateFile:(p,pre)=>p.endsWith(".wasm")?new URL("zxing_reader.wasm",location.href).href:pre+p},fireImmediately:true});scan.wasmPrep=1}}
+async function scanPhoto(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;scan.paused=true;$("scMsg").textContent="Foto wird gelesen …";
+ try{await ensureWasm();const opts={formats:["EAN13","EAN8","UPCA","UPCE"],tryHarder:true,tryRotate:true,tryDownscale:true,maxNumberOfSymbols:1};
+  let code=null;let r=await ZXingWASM.readBarcodes(f,opts).catch(()=>[]);let ok=r.find(x=>x.isValid&&x.text);if(ok)code=ok.text;
+  if(!code){// verkleinerte Versionen probieren (hilft bei leichter Unschärfe)
+   const bmp=await createImageBitmap(f);for(const w of [2000,1600,1280,1000,800,700,560,420]){const sc=Math.min(1,w/bmp.width),c=document.createElement("canvas");c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);const x=c.getContext("2d");x.drawImage(bmp,0,0,c.width,c.height);
+    r=await ZXingWASM.readBarcodes(x.getImageData(0,0,c.width,c.height),opts).catch(()=>[]);ok=r.find(y=>y.isValid&&y.text);if(ok){code=ok.text;break}}}
+  scan.paused=false;scan.t0=Date.now();
+  if(code){scan.on=true;found(code)}else $("scMsg").textContent="Auf dem Foto wurde kein Barcode erkannt. Nochmal mit etwas Abstand fotografieren – oder Nummer eintippen."}
+ catch(e){scan.paused=false;$("scMsg").textContent="Foto konnte nicht gelesen werden – bitte Nummer eintippen."}}
+function toggleTorch(){try{const tr=scan.stream&&scan.stream.getVideoTracks()[0];if(!tr)return;scan.torch=!scan.torch;tr.applyConstraints({advanced:[{torch:scan.torch}]})}catch(e){}}
 function stopScan(){scan.on=false;scan.last=null;clearTimeout(scan.raf);try{scan.reader&&scan.reader.reset()}catch(e){}scan.reader=null;if(scan.stream){scan.stream.getTracks().forEach(t=>t.stop());scan.stream=null}const v=$("scVideo");v.srcObject=null}
 function closeScanner(){stopScan();$("scanner").classList.remove("on")}
 function found(code){if(!scan.on)return;try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}closeScanner();lookupCode(String(code).replace(/\D/g,""))}
