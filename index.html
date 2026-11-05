@@ -433,7 +433,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.5</div>
+    <div class="status">FitPunkte 6.6</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1024,6 +1024,11 @@ function copyCode(){const c=lsGet(LC)||"";(navigator.clipboard?navigator.clipboa
 function logout(){sheet("Abmelden?","Deine Daten bleiben in deinem Konto gespeichert.",[["Abbrechen",null,1],["Abmelden",()=>{lsSet(LC,null);lsSet(LS,null);(window.REMOTE&&window.REMOTE.logout?window.REMOTE.logout():Promise.resolve()).finally(()=>location.reload())},"danger"]])}
 // nach jedem Sync: eigenes Profil anlegen, alte Einträge zuordnen
 let migAsked=false,badgeInit=false;
+/* Einmalige Preis-Anpassung der Standard-Belohnungen (v6.3-Empfehlung) */
+const PRICE_MIG={r1:[50,80],r2:[120,150],r3:[150,200],r4:[200,300],r5:[400,700],r6:[800,1500]};
+function migratePrices(){if(S.priceMig2)return;const need=S.rewards.some(r=>PRICE_MIG[r.id]&&r.c===PRICE_MIG[r.id][0]);
+ mutate(s=>{if(s.priceMig2)return;s.rewards.forEach(r=>{const m=PRICE_MIG[r.id];if(m&&r.c===m[0]){r.c=m[1];delete r.price}});s.priceMig2=1});
+ if(need)setTimeout(()=>toast("Belohnungs-Preise wurden an die neue Punkte-Formel angepasst"),800)}
 function afterSync(){
  if(useRemoteFood()!==foodRemote){foodRemote=useRemoteFood();resetFoodWatchers();renderFoodAll()}
  if(ME.uid==="local")return;
@@ -1032,6 +1037,7 @@ function afterSync(){
  if(untagged&&!migAsked&&!lsGet("fp_mig_"+ME.uid)){migAsked=true;
   sheet("Bisherige Einträge",`Es gibt ${S.workouts.filter(w=>!w.uid).length} Trainings von vor dem Update. Gehören die dir?`,[["Nein",()=>{lsSet("fp_mig_"+ME.uid,"1");setTimeout(maybeOnboard,300)},1],["Ja, meine",()=>{lsSet("fp_mig_"+ME.uid,"1");setTimeout(maybeOnboard,300);mutate(s=>{s.workouts.forEach(w=>{if(!w.uid)w.uid=ME.uid});s.redeemed.forEach(r=>{if(!r.uid){r.uid=ME.uid;if(r.done===undefined)r.done=true}})})}]])}
  if(!badgeInit){badgeInit=true;checkBadges(false)}
+ if(!S.priceMig2)migratePrices();
  if(!migAsked||lsGet("fp_mig_"+ME.uid))maybeOnboard();
 }
 
@@ -1276,8 +1282,8 @@ function confetti(){const c=$("confetti"),x=c.getContext("2d");c.width=innerWidt
 /* ---------- Start ---------- */
 sel=blankSel();render();
 const CFG=window.FIREBASE_CONFIG;
-if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Gerät gespeichert","");setAccount("Nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
-else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
+if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Gerät gespeichert","");setAccount("Nur auf diesem Gerät");migratePrices();if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
+else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 
