@@ -250,6 +250,11 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .qty{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.qty button{background:var(--s2);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:13px;color:var(--txt)}
 .qty button.on{border-color:var(--acc);background:var(--acc-soft)}
 .nt{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}.nt td{padding:6px 0;border-top:1px solid var(--line)}.nt td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.palo{display:block;width:100%;text-align:left;background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px}
+.palo b{display:block;font-size:14px}.palo small{font-size:12px;color:var(--mut)}
+.palo.on{border-color:var(--acc);background:var(--acc-soft)}
+.wzr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.wzr b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.wzr span{font-size:12px;color:var(--mut)}
 .pbig{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;border-radius:16px;background:var(--s2);border:1px solid var(--line)}
 .pbig b{font-size:16px}.pbig small{font-size:12px;color:var(--mut)}
 .pbig:active{transform:scale(.97)}
@@ -309,7 +314,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
   <div class="lbl">Geschlecht</div><div class="opt" id="obGender"></div>
   <div class="two"><div><div class="lbl">Alter</div><input class="field" id="obAge" type="number" inputmode="numeric" min="10" max="99" placeholder="z. B. 24"></div><div><div class="lbl">Gewicht (kg)</div><input class="field" id="obKg" type="number" inputmode="decimal" placeholder="z. B. 65"></div></div>
   <div style="font-size:12px;color:var(--mut);margin-top:6px">Gewicht nur für verbrannte Kalorien · bleibt privat</div>
-  <div class="lbl">Was ist dein Ziel?</div><div class="opt" id="obAim"></div>
+  <div class="lbl">Was sind deine Ziele? <span style="color:var(--mut2)">(mehrere möglich)</span></div><div class="opt" id="obAim"></div>
   <div class="lbl">Wie oft pro Woche willst du trainieren?</div><div class="seg" id="obGoal"></div>
   <button class="btn" onclick="saveOnb()" style="margin-top:22px">Los geht's</button>
   <div class="msg" id="obMsg"></div>
@@ -434,7 +439,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 6.7</div>
+    <div class="status">FitPunkte 6.8</div>
   </div>
 
   <!-- Unterseiten -->
@@ -449,7 +454,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
   </div>
   <div class="psub" id="ps-goals">
     <div class="card">
-      <div class="lbl" style="margin-top:0">Was ist dein Ziel?</div><div class="opt" id="pfAim"></div>
+      <div class="lbl" style="margin-top:0">Was sind deine Ziele? <span style="color:var(--mut2)">(mehrere möglich)</span></div><div class="opt" id="pfAim"></div>
       <div class="lbl">Dein Wochenziel (Trainingstage)</div><div class="seg" id="goalSeg"></div>
       <div id="teamGoalBox"><div class="lbl">Team-Ziel pro Woche (Trainings zusammen)</div><div class="seg" id="teamGoalSeg"></div>
       <div style="font-size:12px;color:var(--mut);margin-top:6px">Schafft ihr es zusammen, bekommt jeder +30 Punkte.</div></div>
@@ -479,6 +484,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <div style="font-size:12px;color:var(--mut);margin-top:8px">Leer lassen = kein Ziel, dann zeigt die App nur, was du gegessen hast. Für ein persönliches Ziel frag am besten eine Ernährungsberatung.</div>
       <button class="btn" onclick="saveNutri()" style="margin-top:14px">Speichern</button>
     </div>
+    <button class="btn" onclick="openWiz()" style="margin-bottom:12px"><svg class="i"><use href="#i-target"/></svg>Tagesziel berechnen lassen</button>
+    <div class="card"><div class="sw"><span>Sport-Kalorien zum Tagesziel dazurechnen</span><button class="tg" id="addSportTg" onclick="toggleAddSport()"></button></div></div>
     <div class="card" id="shareCard"><div class="sw"><span>Partner darf mein Essen sehen</span><button class="tg" id="shareTg" onclick="toggleShare()"></button></div></div>
   </div>
   <div class="psub" id="ps-types">
@@ -530,6 +537,25 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
     <form class="row" style="margin-top:10px" onsubmit="event.preventDefault();doSearch()"><input class="field" id="fpQ" placeholder="Lebensmittel suchen, z. B. Haferflocken" enterkeyhint="search" style="flex:3"><button class="btn ghost small" style="flex:none;width:52px"><svg class="i"><use href="#i-search"/></svg></button></form>
     <div id="fpRes" style="margin-top:12px"></div>
     <button class="btn ghost" onclick="manualFood()" style="margin-top:12px"><svg class="i"><use href="#i-edit"/></svg>Manuell eingeben</button>
+  </div>
+</div>
+<div class="overlay" id="goalWiz">
+  <div class="hd"><b>Tagesziel berechnen</b><button class="iconbtn" onclick="closeWiz()"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="bd">
+    <div style="color:var(--mut);font-size:14px;margin-bottom:6px">Ein paar Angaben – daraus berechnet die App deinen Kalorien- und Nährwertbedarf.</div>
+    <div class="lbl">Geschlecht</div><div class="seg" id="wzSex"></div>
+    <div class="two" style="margin-top:4px">
+      <div><div class="lbl">Alter</div><input class="field" id="wzAge" type="number" inputmode="numeric" oninput="wzCalc()"></div>
+      <div><div class="lbl">Größe (cm) 🔒</div><input class="field" id="wzCm" type="number" inputmode="numeric" placeholder="z. B. 168" oninput="wzCalc()"></div>
+    </div>
+    <div class="two"><div><div class="lbl">Gewicht (kg) 🔒</div><input class="field" id="wzKg" type="number" inputmode="decimal" placeholder="z. B. 62" oninput="wzCalc()"></div><div></div></div>
+    <div class="lbl">Wie aktiv ist dein Alltag? <span style="color:var(--mut2)">(ohne Sport)</span></div><div id="wzPal"></div>
+    <div class="lbl">Deine Ziele <span style="color:var(--mut2)">(mehrere möglich)</span></div><div class="opt" id="wzAims"></div>
+    <div id="wzPaceBox"><div class="lbl">Wie schnell abnehmen?</div><div class="seg" id="wzPace"></div></div>
+    <div class="sw" style="margin-top:14px;border-top:none"><span>Sport-Kalorien zum Tagesziel dazurechnen</span><button class="tg" id="wzSport" onclick="wz.addSport=!wz.addSport;wzDraw()"></button></div>
+    <div class="card" id="wzRes" style="margin-top:12px"></div>
+    <button class="btn" id="wzSave" onclick="wzSave()">Als Tagesziel übernehmen</button>
+    <div style="font-size:12px;color:var(--mut);margin-top:10px;line-height:1.5">Richtwert nach der Mifflin-St.-Jeor-Formel – keine medizinische Beratung. Das Ziel geht nie unter deinen Grundumsatz, das Defizit ist auf 500 kcal/Tag begrenzt. Bei Vorerkrankungen, in Schwangerschaft/Stillzeit oder unter 18 bitte mit Ärztin/Arzt abstimmen. 🔒 Größe und Gewicht bleiben privat.</div>
   </div>
 </div>
 <div class="overlay" id="scanner">
@@ -640,7 +666,7 @@ const fmtKm=v=>String(v).replace(".",",")+" km";
 let PRIV={};
 const privKey=()=>"fp_priv_"+ME.uid;
 function loadPriv(){try{PRIV=JSON.parse(lsGet(privKey())||"{}")}catch(e){PRIV={}}}
-window.setPriv=function(d){if(!d)return;PRIV=Object.assign({},PRIV,d.kg?{kg:d.kg}:{});lsSet(privKey(),JSON.stringify(PRIV));render()};
+window.setPriv=function(d){if(!d)return;PRIV=Object.assign({},PRIV,d.kg?{kg:d.kg}:{},d.cm?{cm:d.cm}:{});lsSet(privKey(),JSON.stringify(PRIV));render()};
 function savePriv(o){PRIV=Object.assign({},PRIV,o);lsSet(privKey(),JSON.stringify(PRIV));if(window.REMOTE&&window.REMOTE.setPriv&&ME.uid!=="local")window.REMOTE.setPriv(o).catch(()=>{});
  // eigene Trainings ohne kcal nachrechnen, damit auch der Partner sie sieht
  const kg=PRIV.kg;if(kg)mutate(s=>{s.workouts.forEach(w=>{const mine=w.uid?w.uid===ME.uid:!isTeam();if(mine&&w.kcal==null)w.kcal=burnOf(w,kg)})})}
@@ -976,7 +1002,7 @@ function renderProfile(){
  const nm=pName(ME.uid);$("pAvatar").textContent=(nm&&nm!=="Du"?nm[0]:"?").toUpperCase();$("pName").textContent=nm&&nm!=="Du"?nm:"Profil";
  $("pSub").textContent=ME.uid==="local"?"Gast · nur auf diesem Gerät":(isTeam()?"Team mit "+pName(partnerId()):"Noch kein Partner verbunden");
  $("mProg").textContent=statsOf(ME.uid).n+" Trainings · "+earnedBadges(ME.uid).length+" Abzeichen";
- $("mGoals").textContent=((myProfile().aim?myProfile().aim+" · ":"")+goalOf(ME.uid)+" Tage pro Woche")+(isTeam()?" · Team "+(S.teamGoal||5):"");
+ $("mGoals").textContent=((aimsOf(myProfile()).length?aimsOf(myProfile()).join(", ")+" · ":"")+goalOf(ME.uid)+" Tage pro Woche")+(isTeam()?" · Team "+(S.teamGoal||5):"");
  $("mLook").textContent={system:"Automatisch",light:"Hell",dark:"Dunkel"}[getTheme()];
  $("mTypes").textContent=(S.customTypes||[]).length?(S.customTypes.length+" eigene"):"Eigene Sportarten anlegen";
  $("mAcct").textContent=$("acct").textContent||"–";
@@ -992,10 +1018,10 @@ function renderProfile(){
  $("ownTypes").innerHTML=(S.customTypes||[]).map(c=>`<div class="rw"><div class="ic">${ico(c.i||"star")}</div><div class="tx"><b>${esc(c.n)}</b><span>Punkte-Faktor – antippen zum Ändern</span></div><button class="pill" onclick="cycleFactor('${c.id}')">${fmtF(c.f||1.0)}</button><button class="iconbtn" onclick="delType('${c.id}')">${ico("trash")}</button></div>`).join("")||`<div class="empty" style="text-align:left;padding:0">Keine – füge z. B. Bouldern oder Tennis hinzu.</div>`;
  $("codeShow").value=lsGet(LC)||"–";
  const guest=ME.uid==="local";$("guestBox").style.display=guest&&window.REMOTE?"block":"none";$("codeBox").style.display=guest?"none":"block";$("logoutBtn").style.display=guest?"none":"flex";$("delAccBtn").textContent=guest?"Alle Daten löschen":"Konto löschen";
- const p=myProfile();if(ab._k!==meKey()+(p.onb?1:0)){ab={gender:p.gender||null,aim:p.aim||null,_k:meKey()+(p.onb?1:0)};if(document.activeElement!==$("pfAge"))$("pfAge").value=p.age||""}
+ const p=myProfile();if(ab._k!==meKey()+(p.onb?1:0)){ab={gender:p.gender||null,aims:aimsOf(p),_k:meKey()+(p.onb?1:0)};if(document.activeElement!==$("pfAge"))$("pfAge").value=p.age||""}
  if(document.activeElement!==$("pfKg"))$("pfKg").value=PRIV.kg||"";
  $("pfGender").innerHTML=GENDERS.map(g=>`<button class="${ab.gender===g?"on":""}" onclick="ab.gender='${g}';renderProfile()">${g}</button>`).join("");
- $("pfAim").innerHTML=AIMS.map(a=>`<button class="${ab.aim===a?"on":""}" onclick="ab.aim='${a}';renderProfile()">${a}</button>`).join("");
+ $("pfAim").innerHTML=AIMS.map(a=>`<button class="${ab.aims.includes(a)?"on":""}" onclick="ab.aims=toggleAim(ab.aims,'${a}');renderProfile()">${a}</button>`).join("");
  $("rulesBox").innerHTML=rulesHTML();
  renderPush();
  const t=getTheme();$("themeSeg").innerHTML=[["system","Automatisch"],["light","Hell"],["dark","Dunkel"]].map(([k,l])=>`<button class="${t===k?"on":""}" onclick="setTheme('${k}')">${l}</button>`).join("");
@@ -1020,8 +1046,8 @@ function rulesHTML(){
   <tr><td>Nachtragen bis</td><td>${BACKDATE_DAYS} Tage zurück</td></tr>
   <tr><td>Anzweifeln durch Partner</td><td>${DISPUTE_HOURS} Std.</td></tr></table>
   <div style="font-size:12px;color:var(--mut);margin-top:8px">Nachträge und Änderungen sieht dein Partner. Angezweifelte Trainings sind eingefroren, abgelehnte zählen nicht. Neue Belohnungen, Preisänderungen und das Löschen von Belohnungen muss der Partner bestätigen.</div></div>`}
-function saveSettings(){const g=goalSel,tg=teamGoalSel,aim=ab.aim;
- mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{goal:g,aim});if(!isTeam())s.goal=g;s.teamGoal=tg});toast("Gespeichert")}
+function saveSettings(){const g=goalSel,tg=teamGoalSel,aims=ab.aims.slice();
+ mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{goal:g,aims,aim:aims[0]||null});if(!isTeam())s.goal=g;s.teamGoal=tg});toast("Gespeichert")}
 
 /* ---------- Sheet / Toast ---------- */
 function sheet(t,b,btns){$("shT").textContent=t;$("shB").innerHTML=b;const box=$("shA");box.innerHTML="";box.style.display=btns&&btns.length?"flex":"none";
@@ -1071,10 +1097,53 @@ function emailSubmit(){const m=$("emMail").value.trim(),p=$("emPw").value;if(!m|
 function emailForgot(){const m=$("emMail").value.trim();if(!m)return $("setupMsg").textContent="Gib zuerst deine E-Mail ein.";window.REMOTE&&window.REMOTE.reset(m)}
 $("emPw").addEventListener("keydown",e=>{if(e.key==="Enter")emailSubmit()});
 
+/* ---------- Ziel-Assistent ---------- */
+const PALS=[[1.2,"Wenig Bewegung","Bürojob, viel Sitzen"],[1.375,"Leicht aktiv","Schule, Verkauf, viel Stehen"],[1.55,"Aktiv","Viel auf den Beinen, z. B. Handwerk, Pflege"],[1.725,"Sehr aktiv","Körperlich schwere Arbeit"]];
+let wz={};
+function calcNeeds(o){const sexAdj=o.sex==="Männlich"?5:o.sex==="Weiblich"?-161:-78;
+ const bmr=Math.round(10*o.kg+6.25*o.cm-5*o.age+sexAdj),tdee=Math.round(bmr*o.pal),notes=[];
+ const lose=o.aims.includes("Abnehmen"),muscle=o.aims.includes("Muskeln aufbauen"),endu=o.aims.includes("Ausdauer");
+ const keep=o.aims.includes("Gewicht halten");let delta=lose?(o.pace==="slow"?-250:-500):(muscle&&!keep?250:0);
+ if(lose&&muscle){delta=-250;notes.push("Abnehmen + Muskeln: kleines Defizit, viel Eiweiß.")}
+ if(o.age<18&&delta<0){delta=0;notes.push("Unter 18 rechnet die App kein Defizit.")}
+ const floor=Math.max(bmr,o.sex==="Weiblich"?1200:o.sex==="Männlich"?1500:1350);
+ let kcal=Math.round((tdee+delta)/10)*10;if(kcal<floor){kcal=Math.ceil(floor/10)*10;notes.push("Auf das sichere Minimum angehoben.")}
+ const pk=lose&&muscle?2.0:muscle?1.8:lose?1.6:endu?1.4:1.2;let p=Math.round(o.kg*pk);if(p*4>kcal*0.35)p=Math.round(kcal*0.35/4);
+ const f=Math.round(kcal*0.3/9),c=Math.max(0,Math.round((kcal-p*4-f*9)/4));
+ return {bmr,tdee,delta:kcal-tdee,kcal,p,c,f,notes}}
+function openWiz(){const p=myProfile(),n=nutOf(ME.uid);
+ wz={sex:p.gender||null,pal:n.pal||null,aims:aimsOf(p).slice(),pace:n.pace||"mid",addSport:n.addSport!==false};
+ $("wzAge").value=p.age||"";$("wzCm").value=PRIV.cm||"";$("wzKg").value=PRIV.kg||"";wzDraw();$("goalWiz").classList.add("on");$("goalWiz").querySelector(".bd").scrollTop=0}
+function closeWiz(){$("goalWiz").classList.remove("on")}
+function wzDraw(){
+ $("wzSex").innerHTML=["Weiblich","Männlich","Divers"].map(g=>`<button class="${wz.sex===g?"on":""}" onclick="wz.sex='${g}';wzDraw()">${g}</button>`).join("");
+ $("wzPal").innerHTML=PALS.map(([v,t,d])=>`<button class="palo ${wz.pal===v?"on":""}" onclick="wz.pal=${v};wzDraw()"><b>${t}</b><small>${d}</small></button>`).join("");
+ $("wzAims").innerHTML=AIMS.map(a=>`<button class="${wz.aims.includes(a)?"on":""}" onclick="wz.aims=toggleAim(wz.aims,'${a}');wzDraw()">${a}</button>`).join("");
+ $("wzPaceBox").style.display=wz.aims.includes("Abnehmen")?"block":"none";
+ $("wzPace").innerHTML=[["slow","Langsam","−250 kcal"],["mid","Normal","−500 kcal"]].map(([k,l,d])=>`<button class="${wz.pace===k?"on":""}" onclick="wz.pace='${k}';wzDraw()">${l} <small style="color:var(--mut)">${d}</small></button>`).join("");
+ $("wzSport").classList.toggle("on",wz.addSport);wzCalc()}
+function wzInput(){const age=parseInt($("wzAge").value),cm=parseFloat($("wzCm").value),kg=parseFloat(String($("wzKg").value).replace(",","."));
+ const miss=[];if(!wz.sex)miss.push("Geschlecht");if(!(age>=10&&age<=99))miss.push("Alter");if(!(cm>=120&&cm<=230))miss.push("Größe");if(!(kg>=30&&kg<=250))miss.push("Gewicht");if(!wz.pal)miss.push("Alltag");
+ return {miss,o:{sex:wz.sex,age,cm,kg,pal:wz.pal,aims:wz.aims,pace:wz.pace}}}
+function wzCalc(){const {miss,o}=wzInput();
+ if(miss.length){$("wzRes").innerHTML=`<div style="color:var(--mut);font-size:14px">Noch offen: ${miss.join(", ")}</div>`;$("wzSave").style.opacity=.45;return}
+ const r=calcNeeds(o);$("wzSave").style.opacity=1;
+ $("wzRes").innerHTML=`<div style="text-align:center;margin-bottom:12px"><div style="font-size:13px;color:var(--mut)">Dein Tagesziel</div><div style="font-size:40px;font-weight:800;letter-spacing:-.03em">${fmt0(r.kcal)} <span style="font-size:16px;font-weight:600">kcal</span></div>
+  <div style="font-size:13px;color:var(--mut)">Grundumsatz ${fmt0(r.bmr)} · Bedarf ${fmt0(r.tdee)}${Math.abs(r.delta)>=20?` · ${r.delta>0?"+":"−"}${fmt0(Math.abs(r.delta))}`:""}${wz.addSport?" · + Sport":""}</div></div>
+  <div class="wzr"><div><b>${r.c} g</b><span>Kohlenhydrate</span></div><div><b>${r.p} g</b><span>Eiweiß</span></div><div><b>${r.f} g</b><span>Fett</span></div></div>
+  ${r.notes.length?`<div style="font-size:12px;color:var(--warn);margin-top:10px">${r.notes.join(" ")}</div>`:""}`}
+function wzSave(){const {miss,o}=wzInput();if(miss.length){wzCalc();return}const r=calcNeeds(o);
+ savePriv({kg:Math.round(o.kg*10)/10,cm:Math.round(o.cm)});
+ const nut={kcal:r.kcal,p:r.p,c:r.c,f:r.f,auto:1,pal:o.pal,pace:o.pace,addSport:wz.addSport};
+ mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{gender:o.sex,age:o.age,aims:o.aims,aim:o.aims[0]||null,nut})});
+ weightAsked=true;closeWiz();toast("Tagesziel: "+fmt0(r.kcal)+" kcal");if(!$("v-food").classList.contains("on")&&!$("v-profile").classList.contains("on"))go("food")}
+function promptWiz(){sheet("Dein Tagesziel",`Soll die App deinen täglichen Kalorien- und Nährwertbedarf berechnen? Dafür fragt sie kurz Größe, Gewicht, Alltag und deine Ziele ab (ca. 1 Minute).`,
+ [["Später",()=>lsSet("fp_kg_skip",String(Date.now())),1],["Los geht's",()=>setTimeout(openWiz,150)]])}
+
 /* ---------- Gewicht abfragen (für verbrannte Kalorien) ---------- */
 let weightAsked=false;
-function maybeAskWeight(){if(weightAsked||PRIV.kg)return;const p=myProfile();if(!p.onb)return;if($("setup").classList.contains("on")||$("sheet").classList.contains("on"))return;
- const skip=parseInt(lsGet("fp_kg_skip")||"0");if(Date.now()-skip<3*864e5)return;weightAsked=true;setTimeout(()=>askWeight(false),700)}
+function maybeAskWeight(){if(weightAsked||(PRIV.kg&&nutOf(ME.uid).kcal))return;const p=myProfile();if(!p.onb)return;if($("setup").classList.contains("on")||$("sheet").classList.contains("on"))return;
+ const skip=parseInt(lsGet("fp_kg_skip")||"0");if(Date.now()-skip<3*864e5)return;weightAsked=true;setTimeout(()=>{if($("sheet").classList.contains("on")||$("setup").classList.contains("on"))return;nutOf(ME.uid).kcal?askWeight(false):promptWiz()},700)}
 function askWeight(manual){sheet("Verbrannte Kalorien",`Damit die App berechnen kann, wie viele Kalorien du beim Sport verbrennst, braucht sie dein Körpergewicht.
   <div class="row" style="margin-top:14px;align-items:center"><input class="field" id="kgIn" type="number" inputmode="decimal" placeholder="z. B. 65" value="${PRIV.kg||""}" style="flex:2"><span style="flex:1;color:var(--txt);font-weight:600">kg</span></div>
   <div style="font-size:12px;margin-top:10px">🔒 Wird nur in deinem Konto gespeichert – dein Partner sieht es nicht. Ändern unter Profil → Mein Profil.</div>`,
@@ -1089,22 +1158,25 @@ window.isGuestMode=isGuest;
 
 /* ---------- Onboarding ---------- */
 const GENDERS=["Weiblich","Männlich","Divers","Keine Angabe"];
-const AIMS=["Fitter werden","Abnehmen","Muskeln aufbauen","Ausdauer","Stress abbauen","Gesund bleiben"];
-let ob={gender:null,aim:null,goal:3};
+const AIMS=["Abnehmen","Gewicht halten","Muskeln aufbauen","Fitter werden","Ausdauer","Gesund ernähren","Beweglicher werden","Stress abbauen"];
+const aimsOf=p=>Array.isArray(p.aims)?p.aims:(p.aim?[p.aim==="Gesund bleiben"?"Gesund ernähren":p.aim]:[]);
+function toggleAim(arr,a){const x=arr.includes(a)?arr.filter(y=>y!==a):arr.concat([a]);
+ if(a==="Abnehmen"&&x.includes(a))return x.filter(y=>y!=="Gewicht halten");if(a==="Gewicht halten"&&x.includes(a))return x.filter(y=>y!=="Abnehmen");return x}
+let ob={gender:null,aims:[],goal:3};
 const meKey=()=>ME.uid;
 function myProfile(){return S.people[meKey()]||{}}
 function maybeOnboard(){const p=myProfile();if(p.onb)return;if(ME.uid!=="local"&&!S.people[ME.uid])return;
- ob={gender:p.gender||null,aim:p.aim||null,goal:p.goal||S.goal||3};$("obName").value=p.name||ME.name||(ME.uid==="local"?S.name:"")||"";$("obAge").value=p.age||"";$("obKg").value=PRIV.kg||"";drawOnb();
+ ob={gender:p.gender||null,aims:aimsOf(p),goal:p.goal||S.goal||3};$("obName").value=p.name||ME.name||(ME.uid==="local"?S.name:"")||"";$("obAge").value=p.age||"";$("obKg").value=PRIV.kg||"";drawOnb();
  $("setup").classList.add("on");["stLogin","stTeam","stEmail"].forEach(i=>$(i).style.display="none");$("setupMsg").textContent="";document.querySelector("#setup .in").style.display="none";$("stOnb").style.display="block"}
 function drawOnb(){$("obGender").innerHTML=GENDERS.map(g=>`<button class="${ob.gender===g?"on":""}" onclick="ob.gender='${g}';drawOnb()">${g}</button>`).join("");
- $("obAim").innerHTML=AIMS.map(a=>`<button class="${ob.aim===a?"on":""}" onclick="ob.aim='${a}';drawOnb()">${a}</button>`).join("");
+ $("obAim").innerHTML=AIMS.map(a=>`<button class="${ob.aims.includes(a)?"on":""}" onclick="ob.aims=toggleAim(ob.aims,'${a}');drawOnb()">${a}</button>`).join("");
  $("obGoal").innerHTML=[1,2,3,4,5,6,7].map(n=>`<button class="${ob.goal===n?"on":""}" onclick="ob.goal=${n};drawOnb()">${n}</button>`).join("")}
 function saveOnb(){const n=$("obName").value.trim().slice(0,20);if(!n)return $("obMsg").textContent="Bitte gib deinen Namen ein.";
  const a=parseInt($("obAge").value);const age=a>=10&&a<=99?a:null;const k=meKey();
  {const kg=parseFloat(String($("obKg").value).replace(",","."));if(kg>=30&&kg<=250)setTimeout(()=>savePriv({kg:Math.round(kg*10)/10}),50)}weightAsked=true;
- mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:ob.gender,age,aim:ob.aim,goal:ob.goal,onb:true});if(Object.keys(s.people).filter(u=>u!=="local").length<2){s.name=n;s.goal=ob.goal}});
- goalSel=ob.goal;$("stOnb").style.display="none";document.querySelector("#setup .in").style.display="block";$("setup").classList.remove("on");toast("Willkommen, "+n)}
-let ab={gender:null,aim:null};
+ mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:ob.gender,age,aims:ob.aims,aim:ob.aims[0]||null,goal:ob.goal,onb:true});if(Object.keys(s.people).filter(u=>u!=="local").length<2){s.name=n;s.goal=ob.goal}});
+ goalSel=ob.goal;$("stOnb").style.display="none";document.querySelector("#setup .in").style.display="block";$("setup").classList.remove("on");toast("Willkommen, "+n);setTimeout(promptWiz,900)}
+let ab={gender:null,aims:[]};
 function saveAbout(){const n=$("setName").value.trim().slice(0,20);if(!n)return sheet("Name fehlt","Bitte gib deinen Namen ein.",[["OK",null]]);
  {const kg=parseFloat(String($("pfKg").value).replace(",","."));if(kg>=30&&kg<=250&&kg!==PRIV.kg)savePriv({kg:Math.round(kg*10)/10})}const a=parseInt($("pfAge").value);const age=a>=10&&a<=99?a:null;const k=meKey(),g=ab.gender;
  mutate(s=>{s.people[k]=Object.assign({},s.people[k]||{},{name:n,gender:g,age});if(!isTeam())s.name=n});toast("Gespeichert")}
@@ -1194,12 +1266,13 @@ function renderFood(){
  const bar=(v,goal)=>goal?`<div class="prog ${v>goal*1.05?"over":""}"><i style="width:${Math.min(100,v/goal*100)}%"></i></div>`:"";
  const dayW=vOf(u).filter(w=>dkey(w.d)===foodDay),burnVals=dayW.map(burned),burnKnown=burnVals.every(v=>v!=null),burnSum=burnVals.reduce((a,v)=>a+(v||0),0);
  const noKg=own&&!PRIV.kg;
- const goal=g.kcal||0,left=goal-t.k,over=goal&&left<0,pct=goal?Math.min(100,t.k/goal*100):(t.k>0?100:0);
+ const sportAdd=g.kcal&&g.addSport!==false?burnSum:0;
+ const goal=(g.kcal||0)+sportAdd,left=goal-t.k,over=goal&&left<0,pct=goal?Math.min(100,t.k/goal*100):(t.k>0?100:0);
  const L=75; /* 270°-Bogen = 75 % des Kreisumfangs */
  const gauge=`<svg width="200" height="170" viewBox="0 0 200 170"><defs><linearGradient id="gGrad" x1="0" y1="1" x2="1" y2="0"><stop offset="0" style="stop-color:var(--acc)"/><stop offset="1" style="stop-color:${over?"#ff6b6b":"#b07cff"}"/></linearGradient></defs>
   <circle cx="100" cy="95" r="80" fill="none" style="stroke:var(--s3)" stroke-width="14" stroke-linecap="round" pathLength="100" stroke-dasharray="${L} 100" transform="rotate(135 100 95)"/>
   <circle class="garc" cx="100" cy="95" r="80" fill="none" stroke="${over?"#ff6b6b":"url(#gGrad)"}" stroke-width="14" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.max(pct>0?0.5:0,pct/100*L)} 100" transform="rotate(135 100 95)" style="opacity:${pct>0?1:0}"/></svg>`;
- const mid=goal?`<span>${over?"Drüber":"Übrig heute"}</span><b style="${over?"color:#ff6b6b":""}">${fmt0(Math.abs(left))}</b><small>Ziel ${fmt0(goal)} kcal</small>`:`<span>Gegessen</span><b>${fmt0(t.k)}</b><small>${own?`<a onclick="openSub('nutri');go('profile')" style="color:var(--acc)">Ziel festlegen</a>`:"kcal"}</small>`;
+ const mid=goal?`<span>${over?"Drüber":"Übrig heute"}</span><b style="${over?"color:#ff6b6b":""}">${fmt0(Math.abs(left))}</b><small>Ziel ${fmt0(g.kcal)}${sportAdd?" + "+fmt0(sportAdd)+" Sport":" kcal"}</small>`:`<span>Gegessen</span><b>${fmt0(t.k)}</b><small>${own?`<a onclick="openSub('nutri');go('profile')" style="color:var(--acc)">Ziel festlegen</a>`:"kcal"}</small>`;
  const tile=(cls,l,v,gg)=>`<div class="mtile ${cls}"><b>${l}</b><span>${fmt0(v)}${gg?"/"+gg:""} g</span><div class="prog ${gg&&v>gg*1.05?"over":""}"><i style="width:${gg?Math.min(100,v/gg*100):(v>0?100:0)}%"></i></div></div>`;
  let h=`<div class="card fhero"><div class="gauge"><div class="side">${goal?`<span>Gegessen</span><b>${fmt0(t.k)}</b>`:`<span>Einträge</span><b>${items.length}</b>`}</div><div class="gwrap">${gauge}<div class="gmid">${mid}</div></div><div class="side"><span>Verbrannt</span>${noKg?`<b style="font-size:16px"><a onclick="askWeight(true)" style="color:var(--acc)">Gewicht<br>eintragen</a></b>`:`<b>${dayW.length&&!burnKnown&&!burnSum?"–":fmt0(burnSum)}</b><span style="font-size:11px">kcal</span>`}</div></div>
   <div class="mtiles">${tile("c","Kohlenhydrate",t.c,g.c)}${tile("p","Eiweiß",t.p,g.p)}${tile("f","Fett",t.f,g.f)}</div></div>`;
@@ -1303,10 +1376,11 @@ function found(code){if(!scan.on)return;try{navigator.vibrate&&navigator.vibrate
 
 /* ---------- Ernährung (Profil) ---------- */
 function renderNutri(){const n=nutOf(ME.uid);["kcal","p","c","f"].forEach(k=>{const el=$({kcal:"nKcal",p:"nP",c:"nC",f:"nF"}[k]);if(document.activeElement!==el)el.value=n[k]||""});
- $("shareCard").style.display=ME.uid==="local"?"none":"block";$("shareTg").classList.toggle("on",(S.people[ME.uid]||{}).foodShare!==false);
+ $("shareCard").style.display=ME.uid==="local"?"none":"block";$("shareTg").classList.toggle("on",(S.people[ME.uid]||{}).foodShare!==false);$("addSportTg").classList.toggle("on",n.addSport!==false);
  $("mNutri").textContent=(n.kcal?"Ziel "+fmt0(n.kcal)+" kcal":"Kein Tagesziel")+(ME.uid!=="local"&&isTeam()?" · "+((S.people[ME.uid]||{}).foodShare!==false?"für Partner sichtbar":"privat"):"")}
 function saveNutri(){const g=id=>{const v=parseInt($(id).value);return v>0&&v<20000?v:null};const nut={kcal:g("nKcal"),p:g("nP"),c:g("nC"),f:g("nF")};
- mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{nut})});toast("Gespeichert")}
+ mutate(s=>{const pp=s.people[ME.uid]=s.people[ME.uid]||{};pp.nut=Object.assign({},pp.nut||{},nut,{auto:0})});toast("Gespeichert")}
+function toggleAddSport(){const n=nutOf(ME.uid),cur=n.addSport!==false;mutate(s=>{const p=s.people[ME.uid]=s.people[ME.uid]||{};p.nut=Object.assign({},p.nut||{},{addSport:!cur})})}
 function toggleShare(){const cur=(S.people[ME.uid]||{}).foodShare!==false;mutate(s=>{s.people[ME.uid]=Object.assign({},s.people[ME.uid]||{},{foodShare:!cur})});toast(cur?"Dein Essen ist jetzt privat":"Dein Partner sieht dein Essen")}
 
 /* ---------- Konfetti (nur Meilensteine) ---------- */
