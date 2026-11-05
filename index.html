@@ -414,7 +414,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
   <div class="seg" id="foodPerson" style="margin-bottom:12px;display:none"></div>
   <div class="dnav"><button class="iconbtn" onclick="foodMove(-1)"><svg class="i"><use href="#i-chevL"/></svg></button><b id="foodDay"></b><button class="iconbtn" id="foodNext" onclick="foodMove(1)"><svg class="i"><use href="#i-chevR"/></svg></button></div>
   <div id="foodBody"></div>
-  <div class="status">Nährwerte: <a href="https://world.openfoodfacts.org" style="color:inherit">Open Food Facts</a> (ODbL) · Angaben ohne Gewähr</div>
+  <div class="status">Nährwerte: <a href="https://world.openfoodfacts.org" style="color:inherit">Open Food Facts</a> (ODbL) · <a href="https://www.blsdb.de" style="color:inherit">Bundeslebensmittelschlüssel 4.0</a>, Max Rubner-Institut (CC BY 4.0) · Angaben ohne Gewähr</div>
 </section>
 
 <!-- PROFIL -->
@@ -450,7 +450,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 7.1</div>
+    <div class="status">FitPunkte 7.2</div>
   </div>
 
   <!-- Unterseiten -->
@@ -546,7 +546,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
   <div class="bd">
     <div class="seg" id="fpMeal" style="margin-bottom:12px"></div>
     <button class="btn" onclick="openScanner(fp.meal)"><svg class="i"><use href="#i-scan"/></svg>Barcode scannen</button>
-    <form class="row" style="margin-top:10px" onsubmit="event.preventDefault();doSearch()"><input class="field" id="fpQ" placeholder="Lebensmittel suchen, z. B. Haferflocken" enterkeyhint="search" style="flex:3"><button class="btn ghost small" style="flex:none;width:52px"><svg class="i"><use href="#i-search"/></svg></button></form>
+    <form class="row" style="margin-top:10px" onsubmit="event.preventDefault();doSearch()"><input class="field" id="fpQ" placeholder="Suchen, z. B. Apfel, Hähnchen, Müsli" enterkeyhint="search" style="flex:3"><button class="btn ghost small" style="flex:none;width:52px"><svg class="i"><use href="#i-search"/></svg></button></form>
     <div id="fpRes" style="margin-top:12px"></div>
     <button class="btn ghost" onclick="manualFood()" style="margin-top:12px"><svg class="i"><use href="#i-edit"/></svg>Manuell eingeben</button>
   </div>
@@ -1347,7 +1347,7 @@ function renderFood(){
 /* ---------- Hinzufügen: Suche / Zuletzt / Manuell ---------- */
 let fp={meal:"s"};
 function mealNow(){const h=new Date().getHours();return h<11?"b":h<15?"l":h<21?"d":"s"}
-function openPick(m){fp={meal:m||mealNow()};$("fpQ").value="";drawPickMeals();showRecent();$("foodPick").classList.add("on")}
+function openPick(m){loadBLS().catch(()=>{});blsRes=[];offRes=[];offState="";fp={meal:m||mealNow()};$("fpQ").value="";drawPickMeals();showRecent();$("foodPick").classList.add("on")}
 function closePick(){$("foodPick").classList.remove("on")}
 function drawPickMeals(){$("fpMeal").innerHTML=MEALS.map(([m,l])=>`<button class="${fp.meal===m?"on":""}" onclick="fp.meal='${m}';drawPickMeals()">${l}</button>`).join("");$("fpTitle").textContent="Zu "+MEALS.find(x=>x[0]===fp.meal)[1]}
 function recent(){try{return JSON.parse(lsGet("fp_recent")||"[]")}catch(e){return []}}
@@ -1362,13 +1362,33 @@ function fromOFF(x){const n=x.nutriments||{};let k=num(n["energy-kcal_100g"]);if
  return {code:x.code||x._id,n:(x.product_name_de||x.product_name||x.generic_name_de||"").trim()||"Unbekanntes Produkt",b:(x.brands||"").split(",")[0].trim(),img:x.image_front_small_url||"",ns:(x.nutriscore_grade||"").toLowerCase(),
   k100:k,p100:num(n.proteins_100g),c100:num(n.carbohydrates_100g),f100:num(n.fat_100g),srv:num(x.serving_quantity)||null,srvTxt:x.serving_size||"",qty:x.quantity||""}}
 const OFF_FIELDS="code,product_name,product_name_de,generic_name_de,brands,nutriments,serving_quantity,serving_size,quantity,image_front_small_url,nutriscore_grade";
+/* ---------- BLS 4.0 (Max Rubner-Institut, CC BY 4.0) – lokal, offline ---------- */
+let BLS=null,blsLoading=null;
+const normTxt=t=>String(t).toLowerCase().replace(/ß/g,"ss").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9 ]/g," ");
+function loadBLS(){if(BLS)return Promise.resolve(BLS);if(blsLoading)return blsLoading;
+ blsLoading=fetch("bls.json").then(r=>r.json()).then(a=>{BLS=a.map(x=>({code:x[0],n:x[1],k100:x[2],p100:x[3],c100:x[4],f100:x[5],src:"bls",_n:" "+normTxt(x[1]),_c:normTxt(x[1]).replace(/ /g,"")}));return BLS}).catch(e=>{blsLoading=null;throw e});return blsLoading}
+function searchBLS(q){if(!BLS)return [];const qn=normTxt(q).trim();if(qn.length<2)return [];const toks=qn.split(/\s+/).filter(Boolean);
+ const qc=qn.replace(/ /g,"");const res=[];for(const it of BLS){if(!toks.every(t=>it._n.includes(t)||it._c.includes(t)))continue;
+  let sc=0;if(it._n.startsWith(" "+qn)||it._c.startsWith(qc))sc+=100;if(toks.every(t=>it._n.includes(" "+t)))sc+=40;if(/ roh\b/.test(it._n))sc+=8;if(it._c===qc||it._c===qc+"roh")sc+=80;sc-=it.n.length*0.6;res.push([sc,it])}
+ return res.sort((a,b)=>b[0]-a[0]).slice(0,12).map(x=>x[1])}
+let blsRes=[],offRes=[],offState="";
+function renderResults(){const q=$("fpQ").value.trim();
+ if(q.length<2){showRecent();return}
+ lastRes=blsRes.concat(offRes);let h="";
+ if(blsRes.length)h+=`<div class="lbl" style="margin-top:4px">Lebensmittel <span style="color:var(--mut2)">· BLS</span></div><div class="card" style="padding:12px 14px">${blsRes.map((p,i)=>prodRow(p,i,"res")).join("")}</div>`;
+ if(offRes.length)h+=`<div class="lbl">Markenprodukte <span style="color:var(--mut2)">· Open Food Facts</span></div><div class="card" style="padding:12px 14px">${offRes.map((p,i)=>prodRow(p,blsRes.length+i,"res")).join("")}</div>`;
+ if(offState)h+=`<div class="empty" style="padding:8px 0">${offState}</div>`;
+ if(!h)h=`<div class="empty">Nichts gefunden. Probier einen anderen Begriff oder gib es manuell ein.</div>`;
+ $("fpRes").innerHTML=h}
+let blsT=null;
+$("fpQ").addEventListener("input",()=>{clearTimeout(blsT);blsT=setTimeout(()=>{offRes=[];offState=$("fpQ").value.trim().length>=2?"Enter / 🔍 für Markenprodukte":"";loadBLS().then(()=>{blsRes=searchBLS($("fpQ").value);renderResults()}).catch(()=>{blsRes=[];renderResults()})},120)});
 let searching=false;
-async function doSearch(){const q=$("fpQ").value.trim();if(q.length<2||searching)return;searching=true;$("fpRes").innerHTML=`<div class="empty">Suche …</div>`;
+async function doSearch(){const q=$("fpQ").value.trim();if(q.length<2||searching)return;searching=true;
+ try{await loadBLS();blsRes=searchBLS(q)}catch(e){blsRes=[]}offRes=[];offState="Suche Markenprodukte …";renderResults();
  try{const r=await fetch("https://de.openfoodfacts.org/cgi/search.pl?search_terms="+encodeURIComponent(q)+"&search_simple=1&action=process&json=1&page_size=25&fields="+OFF_FIELDS);
   if(r.status===429)throw new Error("Zu viele Suchen – bitte kurz warten");if(!r.ok)throw new Error("Server antwortet nicht ("+r.status+")");
-  const j=await r.json();lastRes=(j.products||[]).map(fromOFF).sort((a,b)=>(b.k100!=null)-(a.k100!=null));
-  $("fpRes").innerHTML=lastRes.length?`<div class="card" style="padding:12px 14px">${lastRes.map((p,i)=>prodRow(p,i,"res")).join("")}</div>`:`<div class="empty">Nichts gefunden. Probier einen anderen Begriff oder gib es manuell ein.</div>`}
- catch(e){$("fpRes").innerHTML=`<div class="empty">${navigator.onLine?esc(e.message||"Fehler bei der Suche"):"Keine Internetverbindung – die Suche braucht Internet."}</div>`}
+  const j=await r.json();offRes=(j.products||[]).map(fromOFF).filter(p=>p.k100!=null).slice(0,20);offState=offRes.length?"":"Keine Markenprodukte gefunden.";renderResults()}
+ catch(e){offRes=[];offState=navigator.onLine?(e instanceof TypeError?"Markenprodukte gerade nicht erreichbar – Lebensmittel (BLS) gehen trotzdem.":esc(e.message||"Markenprodukte gerade nicht erreichbar")):"Offline – Markenprodukte brauchen Internet. Lebensmittel (BLS) gehen auch offline.";renderResults()}
  finally{searching=false}}
 async function lookupCode(code){if(!$("foodPick").classList.contains("on")){fp={meal:fp.meal||mealNow()}}
  sheet("Suche Produkt …",`Barcode ${esc(code)}`,[["Abbrechen",null,1]]);
@@ -1383,7 +1403,7 @@ function productSheet(p,editId){ps={p,g:editId?null:(p.lastG||p.srv||100),editId
  if(editId){const it=(FOODC[fkey(ME.uid,foodDay)]||[]).find(x=>x.id===editId);if(it){ps.g=it.g;ps.meal=it.meal}}
  if(p.k100==null&&p.kcal!=null)return manualFood(p,editId);
  const has=p.k100!=null;
- sheet(p.n,`${p.b?`<div>${esc(p.b)}${p.qty?" · "+esc(p.qty):""}</div>`:""}
+ sheet(p.n,`${p.src==="bls"?`<div>Durchschnittswerte · Bundeslebensmittelschlüssel</div>`:""}${p.b?`<div>${esc(p.b)}${p.qty?" · "+esc(p.qty):""}</div>`:""}
   ${has?`<div class="lbl">Menge in Gramm</div><input class="field" id="psG" type="number" inputmode="decimal" value="${ps.g}" oninput="ps.g=parseFloat(this.value)||0;psCalc()">
   <div class="qty">${[p.srv?[p.srv,"1 Portion ("+fmt0(p.srv)+" g)"]:null,[50,"50 g"],[100,"100 g"],[150,"150 g"],[200,"200 g"]].filter(Boolean).map(([v,l])=>`<button onclick="ps.g=${v};$('psG').value=${v};psCalc()">${l}</button>`).join("")}</div>
   <div class="lbl">Mahlzeit</div><div class="seg" id="psMeal"></div>
@@ -1394,7 +1414,7 @@ function drawPsMeal(){$("psMeal").innerHTML=MEALS.map(([m,l])=>`<button class="$
 function psVals(){const p=ps.p,f=(ps.g||0)/100;return {kcal:(p.k100||0)*f,p:(p.p100||0)*f,c:(p.c100||0)*f,f:(p.f100||0)*f}}
 function psCalc(){const v=psVals();$("psTab").innerHTML=`<tr><td><b>Kalorien</b></td><td><b>${fmt0(v.kcal)} kcal</b></td></tr><tr><td>Eiweiß</td><td>${fmt1(v.p)} g</td></tr><tr><td>Kohlenhydrate</td><td>${fmt1(v.c)} g</td></tr><tr><td>Fett</td><td>${fmt1(v.f)} g</td></tr><tr><td style="color:var(--mut);font-size:12px">pro 100 g</td><td style="color:var(--mut);font-size:12px">${fmt0(ps.p.k100)} kcal</td></tr>`}
 function addFood(){if(!(ps.g>0)||ps.g>5000){$("psG").focus();return false}const v=psVals(),p=ps.p;
- const it={id:ps.editId||"f"+Date.now()+Math.random().toString(36).slice(2,5),n:p.n,b:p.b||"",code:p.code||"",img:p.img||"",g:Math.round(ps.g*10)/10,k100:p.k100,p100:p.p100,c100:p.c100,f100:p.f100,kcal:Math.round(v.kcal),p:Math.round(v.p*10)/10,c:Math.round(v.c*10)/10,f:Math.round(v.f*10)/10,meal:ps.meal,at:Date.now()};
+ const it={id:ps.editId||"f"+Date.now()+Math.random().toString(36).slice(2,5),src:p.src||"off",n:p.n,b:p.b||"",code:p.code||"",img:p.img||"",g:Math.round(ps.g*10)/10,k100:p.k100,p100:p.p100,c100:p.c100,f100:p.f100,kcal:Math.round(v.kcal),p:Math.round(v.p*10)/10,c:Math.round(v.c*10)/10,f:Math.round(v.f*10)/10,meal:ps.meal,at:Date.now()};
  const d=foodDay;const items=(FOODC[fkey(ME.uid,d)]||[]).filter(x=>x.id!==it.id);items.push(it);saveFood(d,items);
  pushRecent(Object.assign({},p,{lastG:it.g}));closePick();toast((ps.editId?"Gespeichert: ":"+ ")+fmt0(it.kcal)+" kcal · "+p.n)}
 function editFood(id){const it=(FOODC[fkey(ME.uid,foodDay)]||[]).find(x=>x.id===id);if(!it)return;fp.meal=it.meal;
@@ -1412,7 +1432,7 @@ function manualFood(pre,editId){pre=pre||{};const v=k=>pre[k]!=null&&pre[k]!==""
    const d=foodDay;const items=(FOODC[fkey(ME.uid,d)]||[]).filter(x=>x.id!==it.id);items.push(it);saveFood(d,items);pushRecent({n:it.n,kcal:it.kcal,p:it.p,c:it.c,f:it.f,code:it.code,man:1});closePick();toast("+ "+fmt0(it.kcal)+" kcal · "+n)}]]);
  drawPsMeal();setTimeout(()=>$("mN")&&!pre.n&&$("mN").focus(),80)}
 /* manuelle "Zuletzt"-Einträge direkt übernehmen */
-const _pickFrom=pickFrom;pickFrom=function(src,i){const p=src==="recent"?recent()[i]:lastRes[i];if(p&&p.man)return manualFood(p);_pickFrom(src,i)};
+const _pickFrom=pickFrom;pickFrom=function(src,i){const p=src==="recent"?recent()[i]:lastRes[i];if(p&&p.man)return manualFood(p);if(p){const q=Object.assign({},p);delete q._n;return productSheet(q)}_pickFrom(src,i)};
 
 /* ---------- Scanner ---------- */
 let scan={on:false,stream:null,reader:null,raf:0};
