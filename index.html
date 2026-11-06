@@ -318,8 +318,6 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 #v-home{position:relative}
 .htop{display:flex;align-items:center;justify-content:space-between;margin:10px 0 22px}
 .htop h1{font-size:30px;font-weight:800;margin:0;letter-spacing:-.03em}
-.wave{display:inline-block;transform-origin:70% 70%;animation:wave 2.2s ease-in-out .6s 2}
-@keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(16deg)}20%,40%{transform:rotate(-8deg)}}
 .hsub{color:var(--mut);font-size:15px;margin-top:4px}
 .hbtns{display:flex;align-items:center;gap:10px}
 .avbtn.big{width:52px;height:52px;font-size:20px;box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--acc),0 0 22px rgba(255,79,154,.45)}
@@ -400,7 +398,7 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
 </head>
 <body>
 <canvas id="confetti"></canvas>
-<button id="updBar" onclick="doUpdate()" style="display:none;position:fixed;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:70;max-width:496px;margin:0 auto;background:var(--acc);color:#fff;border-radius:14px;padding:12px 14px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.35);text-align:left">✨ Neue Version verfügbar · Tippen zum Aktualisieren</button>
+<button id="updBar" onclick="doUpdate()" style="display:none;position:fixed;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:70;max-width:496px;margin:0 auto;background:var(--acc);color:#fff;border-radius:14px;padding:12px 14px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,.35);text-align:left">Neue Version verfügbar · Tippen zum Aktualisieren</button>
 
 <!-- Login / Team -->
 <div class="setup" id="setup"><div class="in">
@@ -468,7 +466,6 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
     <div class="card gl tile" onclick="go('food')"><h3 class="ht"><span><svg class="i"><use href="#i-flame"/></svg>Kalorien</span><svg class="i cv"><use href="#i-chevR"/></svg></h3><div class="tv" id="homeKcal">0 <small>kcal</small></div><div id="homeFood"></div></div>
     <div class="card gl tile" id="teamCard" onclick="go('progress')"><h3 class="ht"><span><svg class="i"><use href="#i-dumbbell"/></svg><em id="teamLbl">Team-Ziel</em></span><svg class="i cv"><use href="#i-chevR"/></svg></h3><div class="tv" id="teamTxt"></div><div class="prog"><i id="teamBar"></i></div><div class="tmeta" id="teamMeta"></div></div>
   </div>
-  <div class="card gl goalc" id="goalCard" onclick="startLog()"><div><div class="gt"><svg class="i"><use href="#i-trophy"/></svg><span id="goalLbl">Dein nächstes Ziel</span></div><div class="gx" id="goalTxt"></div></div><div class="tg2"><svg class="i"><use href="#i-target"/></svg></div><svg class="i cv"><use href="#i-chevR"/></svg></div>
   <div class="card" id="timerCard" style="display:none;border-color:var(--acc)"></div>
   <button class="btn cta" onclick="startLog()"><svg class="i"><use href="#i-play"/></svg>Training starten</button>
   <button class="btn ghost" id="repeatBtn" onclick="repeatLast()" style="margin-bottom:12px;display:none"></button>
@@ -570,7 +567,7 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.1</div>
+    <div class="status">FitPunkte 8.2</div>
   </div>
 
   <!-- Unterseiten -->
@@ -578,7 +575,7 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
     <div class="card">
       <div class="lbl" style="margin-top:0">Name</div><input class="field" id="setName" maxlength="20">
       <div class="lbl">Geschlecht</div><div class="opt" id="pfGender"></div>
-      <div class="two"><div><div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99"></div><div><div class="lbl">Gewicht (kg) 🔒</div><input class="field" id="pfKg" type="number" inputmode="decimal"></div></div>
+      <div class="two"><div><div class="lbl">Alter</div><input class="field" id="pfAge" type="number" inputmode="numeric" min="10" max="99"></div><div><div class="lbl">Gewicht (kg)</div><input class="field" id="pfKg" type="number" inputmode="decimal"></div></div>
       <button class="btn" onclick="saveAbout()" style="margin-top:18px">Speichern</button>
     </div>
     <button class="btn ghost" onclick="picMenu()" style="margin-bottom:10px"><svg class="i"><use href="#i-camera"/></svg>Profilbild ändern</button>
@@ -679,16 +676,16 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
     <div class="lbl">Geschlecht</div><div class="seg" id="wzSex"></div>
     <div class="two" style="margin-top:4px">
       <div><div class="lbl">Alter</div><input class="field" id="wzAge" type="number" inputmode="numeric" oninput="wzCalc()"></div>
-      <div><div class="lbl">Größe (cm) 🔒</div><input class="field" id="wzCm" type="number" inputmode="numeric" placeholder="z. B. 168" oninput="wzCalc()"></div>
+      <div><div class="lbl">Größe (cm)</div><input class="field" id="wzCm" type="number" inputmode="numeric" placeholder="z. B. 168" oninput="wzCalc()"></div>
     </div>
-    <div class="two"><div><div class="lbl">Gewicht (kg) 🔒</div><input class="field" id="wzKg" type="number" inputmode="decimal" placeholder="z. B. 62" oninput="wzCalc()"></div><div></div></div>
+    <div class="two"><div><div class="lbl">Gewicht (kg)</div><input class="field" id="wzKg" type="number" inputmode="decimal" placeholder="z. B. 62" oninput="wzCalc()"></div><div></div></div>
     <div class="lbl">Wie aktiv ist dein Alltag? <span style="color:var(--mut2)">(ohne Sport)</span></div><div id="wzPal"></div>
     <div class="lbl">Deine Ziele <span style="color:var(--mut2)">(mehrere möglich)</span></div><div class="opt" id="wzAims"></div>
     <div id="wzPaceBox"><div class="lbl">Wie schnell abnehmen?</div><div class="seg" id="wzPace"></div></div>
     <div class="sw" style="margin-top:14px;border-top:none"><span>Sport-Kalorien zum Tagesziel dazurechnen</span><button class="tg" id="wzSport" onclick="wz.addSport=!wz.addSport;wzDraw()"></button></div>
     <div class="card" id="wzRes" style="margin-top:12px"></div>
     <button class="btn" id="wzSave" onclick="wzSave()">Als Tagesziel übernehmen</button>
-    <div style="font-size:12px;color:var(--mut);margin-top:10px;line-height:1.5">Richtwert nach der Mifflin-St.-Jeor-Formel – keine medizinische Beratung. Das Ziel geht nie unter deinen Grundumsatz, das Defizit ist auf 500 kcal/Tag begrenzt. Bei Vorerkrankungen, in Schwangerschaft/Stillzeit oder unter 18 bitte mit Ärztin/Arzt abstimmen. 🔒 Größe und Gewicht bleiben privat.</div>
+    <div style="font-size:12px;color:var(--mut);margin-top:10px;line-height:1.5">Richtwert nach der Mifflin-St.-Jeor-Formel – keine medizinische Beratung. Das Ziel geht nie unter deinen Grundumsatz, das Defizit ist auf 500 kcal/Tag begrenzt. Bei Vorerkrankungen, in Schwangerschaft/Stillzeit oder unter 18 bitte mit Ärztin/Arzt abstimmen. Größe und Gewicht bleiben privat.</div>
   </div>
 </div>
 <div class="overlay" id="cropper" style="background:#0b0c10;color:#fff;z-index:60">
@@ -917,7 +914,7 @@ function countTo(el,to){const from=parseInt(el.dataset.v||el.textContent)||0;el.
 function render(){
  const u=ME.uid,b=balance(u),e=earned(u);
  {const n0=pName(u);document.querySelectorAll(".avl").forEach(e=>e.textContent=(n0&&n0!=="Du"?n0[0]:"?").toUpperCase());document.querySelectorAll(".avbtn").forEach(e=>paintAv(e,u))}
- const nm=pName(u);$("hello").innerHTML=(nm&&nm!=="Du"?"Hallo "+esc(nm):"Hallo")+' <span class="wave">👋</span>';
+ const nm=pName(u);$("hello").innerHTML=(nm&&nm!=="Du"?"Hallo "+esc(nm):"Hallo");
  const pe=$("pts");countTo(pe,b);$("pts2").textContent=b;
  if(lastBal!==null&&b>lastBal){pe.classList.add("pop");setTimeout(()=>pe.classList.remove("pop"),450)}lastBal=b;
  const nx=[...S.rewards].sort((a,c)=>a.c-c.c).find(r=>r.c>b),canN=S.rewards.filter(r=>r.c<=b).length;
@@ -935,12 +932,9 @@ function render(){
  $("streakTxt").innerHTML=st?`Serie <b>${st} ${st===1?"Tag":"Tage"}</b>`:`<b>Serie</b> starten`;
  $("nextBar").style.width=(rec?Math.min(100,st/Math.max(rec,3)*100):0)+"%";
  const wdn=new Date().getDay();
- $("dateTxt").textContent=wd>=g?"Wochenziel geschafft – stark!":wdn===1?"Starte stark in die neue Woche!":wdn===5?"Endspurt für diese Woche!":(wdn===0||wdn===6)?"Wochenende – Zeit für Bewegung!":todayDone?"Heute schon trainiert – top!":"Bleib dran, du schaffst das!";
+ $("dateTxt").textContent=wd>=g?"Wochenziel erreicht":todayDone?"Heute schon trainiert":`Noch ${g-wd} ${g-wd===1?"Tag":"Tage"} bis zum Wochenziel`;
  $("weekHint").innerHTML=todayPause&&!todayDone?`<button class="mini" onclick="togglePause('${tk}')">Heute Pausentag · zurücknehmen</button>`:(!todayDone&&st>0&&pl>0&&wd<g?`<button class="mini" onclick="togglePause('${tk}')">Pausentag nehmen · noch ${pl} diesen Monat</button>`:"");
  $("weekHint").style.display=$("weekHint").innerHTML?"block":"none";
- // Nächstes Ziel
- if(wd<g){$("goalLbl").textContent="Dein nächstes Ziel";$("goalTxt").innerHTML=`Trainiere <em>${g-wd} ${g-wd===1?"Tag":"Tage"}</em> diese Woche!`}
- else{$("goalLbl").textContent="Wochenziel geschafft 🎉";$("goalTxt").innerHTML=st>1?`Halte deine <em>${st}-Tage</em>-Serie!`:`Jedes Extra-Training <em>zählt</em>!`}
  // Heute geplant
  const todayPlans=(S.plans||[]).filter(x=>x.day===tk&&(x.uid||ME.uid)===u);
  $("planCard").style.display=todayPlans.length?"block":"none";
@@ -1360,7 +1354,7 @@ function maybeAskWeight(){if(weightAsked||(PRIV.kg&&nutOf(ME.uid).kcal))return;c
  const skip=parseInt(lsGet("fp_kg_skip")||"0");if(Date.now()-skip<3*864e5)return;weightAsked=true;setTimeout(()=>{if($("sheet").classList.contains("on")||$("setup").classList.contains("on"))return;nutOf(ME.uid).kcal?askWeight(false):promptWiz()},700)}
 function askWeight(manual){sheet(manual?"Gewicht eintragen":"Verbrannte Kalorien",`${manual?"Dein aktuelles Gewicht – daraus entsteht dein Verlauf und die verbrannten Kalorien.":"Damit die App berechnen kann, wie viele Kalorien du beim Sport verbrennst, braucht sie dein Körpergewicht."}
   <div class="row" style="margin-top:14px;align-items:center"><input class="field" id="kgIn" type="number" inputmode="decimal" placeholder="z. B. 65" value="${PRIV.kg||""}" style="flex:2"><span style="flex:1;color:var(--txt);font-weight:600">kg</span></div>
-  <div style="font-size:12px;margin-top:10px">🔒 Wird nur in deinem Konto gespeichert – dein Partner sieht es nicht. Ändern unter Profil → Mein Profil.</div>`,
+  <div style="font-size:12px;margin-top:10px">Wird nur in deinem Konto gespeichert – dein Partner sieht es nicht. Ändern unter Profil → Mein Profil.</div>`,
   [["Später",()=>{if(!manual)lsSet("fp_kg_skip",String(Date.now()))},1],["Speichern",()=>{const v=parseFloat(String($("kgIn").value).replace(",","."));if(!(v>=30&&v<=250)){$("kgIn").focus();return false}savePriv({kg:Math.round(v*10)/10});toast("Gewicht gespeichert");if($("foodStats").classList.contains("on"))setTimeout(drawFoodStats,100)}]]);
  setTimeout(()=>{const i=$("kgIn");i&&i.focus()},80)}
 
@@ -1593,7 +1587,7 @@ function renderResults(){const q=$("fpQ").value.trim();
  if(!h)h=`<div class="empty">Nichts gefunden. Probier einen anderen Begriff oder gib es manuell ein.</div>`;
  $("fpRes").innerHTML=h}
 let blsT=null;
-$("fpQ").addEventListener("input",()=>{clearTimeout(blsT);blsT=setTimeout(()=>{offRes=[];offState=$("fpQ").value.trim().length>=2?"Enter / 🔍 für Markenprodukte":"";loadBLS().then(()=>{blsRes=searchBLS($("fpQ").value);renderResults()}).catch(()=>{blsRes=[];renderResults()})},120)});
+$("fpQ").addEventListener("input",()=>{clearTimeout(blsT);blsT=setTimeout(()=>{offRes=[];offState=$("fpQ").value.trim().length>=2?"Enter drücken für Markenprodukte":"";loadBLS().then(()=>{blsRes=searchBLS($("fpQ").value);renderResults()}).catch(()=>{blsRes=[];renderResults()})},120)});
 let searching=false;
 async function doSearch(){const q=$("fpQ").value.trim();if(q.length<2||searching)return;searching=true;
  try{await loadBLS();blsRes=searchBLS(q)}catch(e){blsRes=[]}offRes=[];offState="Suche Markenprodukte …";renderResults();
@@ -1640,7 +1634,7 @@ function weightCard(){const wl=(PRIV.wlog||[]).slice(-60);let chart="";
   chart=`<svg class="chart" viewBox="0 0 ${W} ${H+16}" width="100%"><polyline points="${pts.map(p=>p.join(",")).join(" ")}" style="fill:none;stroke:var(--acc);stroke-width:2.5;stroke-linejoin:round"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" style="fill:var(--acc)"/>`).join("")}
    <text x="10" y="${H+14}">${fromKey(wl[0].d).toLocaleDateString("de-DE",{day:"numeric",month:"short"})}</text><text x="${W-10}" y="${H+14}" text-anchor="end">${fromKey(wl[wl.length-1].d).toLocaleDateString("de-DE",{day:"numeric",month:"short"})}</text></svg>`}
  const last=wl[wl.length-1],first=wl[0],diff=last&&first?Math.round((last.kg-first.kg)*10)/10:0;
- return `<div class="card"><h3><span>Gewicht 🔒</span><a onclick="askWeight(true)">Eintragen</a></h3>${last?`<div style="font-size:28px;font-weight:800">${fmt1(last.kg)} kg ${wl.length>1&&diff?`<span style="font-size:14px;font-weight:600;color:var(--mut)">${diff>0?"+":""}${String(diff).replace(".",",")} kg</span>`:""}</div>`:`<div class="empty" style="text-align:left">Noch kein Gewicht eingetragen.</div>`}
+ return `<div class="card"><h3><span>Gewicht</span><a onclick="askWeight(true)">Eintragen</a></h3>${last?`<div style="font-size:28px;font-weight:800">${fmt1(last.kg)} kg ${wl.length>1&&diff?`<span style="font-size:14px;font-weight:600;color:var(--mut)">${diff>0?"+":""}${String(diff).replace(".",",")} kg</span>`:""}</div>`:`<div class="empty" style="text-align:left">Noch kein Gewicht eingetragen.</div>`}
   ${chart||(last?`<div style="font-size:13px;color:var(--mut)">Ab dem zweiten Eintrag siehst du hier den Verlauf.</div>`:"")}<div style="font-size:12px;color:var(--mut);margin-top:8px">Nur für dich sichtbar. Tipp: einmal pro Woche, morgens, gleiche Bedingungen.</div></div>`}
 /* Kalorienziel an neues Gewicht anpassen (nur wenn per Assistent berechnet) */
 function autoAdjustGoal(kg){const n=nutOf(ME.uid),p=myProfile();if(!n.auto||!n.pal||!PRIV.cm||!p.age||!p.gender)return;if(n.kgBase&&Math.abs(kg-n.kgBase)<1)return;
@@ -1834,10 +1828,10 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.1";let updChecking=false;
+const APP_VERSION="8.2";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
-  if(m&&m[1]!==APP_VERSION){$("updBar").textContent="✨ Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
+  if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
 function doUpdate(){$("updBar").textContent="Wird aktualisiert …";const go2=()=>location.reload();
  (navigator.serviceWorker?navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{}):Promise.resolve()).finally(()=>setTimeout(go2,300))}
 setTimeout(checkUpdate,6000);setInterval(checkUpdate,30*60e3);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});
