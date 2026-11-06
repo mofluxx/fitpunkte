@@ -164,7 +164,7 @@ const SCHEMA = {
   required: ["dish", "items"],
 };
 
-exports.scanMeal = onCall({ secrets: [GEMINI_KEY], timeoutSeconds: 60, memory: "256MiB" }, async (req) => {
+exports.scanMeal = onCall({ secrets: [GEMINI_KEY], invoker: "public", timeoutSeconds: 60, memory: "256MiB" }, async (req) => {
   if (!req.auth) throw new HttpsError("unauthenticated", "Bitte anmelden.");
   const img = req.data && req.data.image;
   if (typeof img !== "string" || img.length < 1000 || img.length > 3_000_000) throw new HttpsError("invalid-argument", "Bild fehlt oder ist zu groß.");
