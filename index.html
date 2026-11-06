@@ -583,7 +583,7 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.3</div>
+    <div class="status">FitPunkte 8.3.1</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1017,7 +1017,7 @@ async function mealScanRun(hint){
  sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"><div class="mcscan"></div></div><div class="mcwait">Wird erkannt …</div>`,[]);
  try{const r=await REMOTE.scanMeal(mc.img.split(",")[1],hint);
   mc.items=(r.items||[]).map(x=>Object.assign({on:true},x));mc.dish=r.dish||"";mealScanShow()}
- catch(e){const m=String(e&&e.message||e);sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"></div><p class="mut" style="margin-top:12px">${/exhausted|Tageslimit/i.test(m)?"Tageslimit erreicht. Morgen geht es wieder.":/unauth/i.test(m)?"Bitte zuerst anmelden.":"Erkennung hat nicht geklappt. Prüf die Verbindung und versuch es nochmal."}</p>`,[["Nochmal",()=>{mealScanRun("");return false}],["Schließen",null,1]])}}
+ catch(e){const m=String(e&&e.message||e);sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"></div><p class="mut" style="margin-top:12px">${/exhausted|Tageslimit/i.test(m)?"Tageslimit erreicht. Morgen geht es wieder.":/unauth/i.test(m)?"Bitte zuerst anmelden.":"Erkennung hat nicht geklappt. Prüf die Verbindung und versuch es nochmal."}</p><p class="mut" style="font-size:12px;margin-top:6px">Fehler: ${esc((e&&e.code||"")+" "+m).slice(0,160)}</p>`,[["Nochmal",()=>{mealScanRun("");return false}],["Schließen",null,1]])}}
 function mcK(x){return Math.round(x.kcal100*x.grams/100)}
 function mealScanShow(){
  if(!mc.items.length){sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"></div><p class="mut" style="margin-top:12px">Kein Essen erkannt. Fotografier den Teller etwas näher und von schräg oben.</p>`,[["Neues Foto",()=>{$("mealCam").click()}],["Schließen",null,1]]);return}
@@ -1882,7 +1882,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.3";let updChecking=false;
+const APP_VERSION="8.3.1";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
