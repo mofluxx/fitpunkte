@@ -53,7 +53,7 @@ function diffMessages(b, a) {
   const oldW = new Set((b.workouts || []).map((w) => w.id));
   for (const w of a.workouts || []) {
     if (!oldW.has(w.id) && w.uid && Date.now() - w.d < 36 * 3600e3)
-      others(w.uid).forEach((to) => push(to, `${nameOf(a, w.uid)} hat trainiert 💪`, `${w.t} · ${w.m} Min`, "w" + w.uid));
+      others(w.uid).forEach((to) => push(to, `${nameOf(a, w.uid)} hat trainiert`, `${w.t} · ${w.m} Min`, "w" + w.uid));
   }
   // neue Reaktionen
   const oldWMap = Object.fromEntries((b.workouts || []).map((w) => [w.id, w]));
@@ -67,15 +67,15 @@ function diffMessages(b, a) {
   for (const w of a.workouts || []) {
     const o = oldWMap[w.id];
     if (!o || !w.uid) continue;
-    if (w.disputed && !o.disputed) push(w.uid, `${nameOf(a, w.disputed.by)} zweifelt dein Training an 🤨`, `${w.t} · ${w.m} Min – Punkte sind eingefroren`, "d" + w.id);
+    if (w.disputed && !o.disputed) push(w.uid, `${nameOf(a, w.disputed.by)} zweifelt dein Training an`, `${w.t} · ${w.m} Min – Punkte sind eingefroren`, "d" + w.id);
     if (w.rejected && !o.rejected) push(w.uid, `${nameOf(a, w.rejected.by)} hat dein Training abgelehnt`, `${w.t} · ${w.m} Min`, "d" + w.id);
-    if (o.disputed && !w.disputed && !w.rejected) push(w.uid, "Zweifel zurückgenommen ✓", `${w.t} zählt wieder`, "d" + w.id);
+    if (o.disputed && !w.disputed && !w.rejected) push(w.uid, "Zweifel zurückgenommen", `${w.t} zählt wieder`, "d" + w.id);
   }
   // eingelöst / erledigt
   const oldR = Object.fromEntries((b.redeemed || []).map((r) => [r.id, r]));
   for (const r of a.redeemed || []) {
-    if (!oldR[r.id] && r.uid) others(r.uid).forEach((to) => push(to, `${nameOf(a, r.uid)} hat eingelöst 🎁`, r.n, "x" + r.id));
-    else if (oldR[r.id] && oldR[r.id].done === false && r.done === true && r.uid) push(r.uid, "Belohnung erledigt ✓", r.n, "x" + r.id);
+    if (!oldR[r.id] && r.uid) others(r.uid).forEach((to) => push(to, `${nameOf(a, r.uid)} hat eine Belohnung eingelöst`, r.n, "x" + r.id));
+    else if (oldR[r.id] && oldR[r.id].done === false && r.done === true && r.uid) push(r.uid, "Belohnung erledigt", r.n, "x" + r.id);
   }
   // Wünsche
   const oldQ = new Set((b.wishes || []).map((q) => q.id));
@@ -85,7 +85,7 @@ function diffMessages(b, a) {
   const newRewards = new Set((a.rewards || []).map((r) => r.id));
   for (const r of a.rewards || []) {
     const wasThere = (b.rewards || []).some((x) => x.id === r.id);
-    if (!wasThere && r.from) push(r.from, "Wunsch freigegeben ✨", `${r.n} · ${r.c} Punkte`, "f" + r.id);
+    if (!wasThere && r.from) push(r.from, "Wunsch freigegeben", `${r.n} · ${r.c} Punkte`, "f" + r.id);
   }
   return out;
 }
@@ -104,14 +104,14 @@ function reminderFor(d, uid, now) {
   const today = dayKey(now);
   const plans = (d.plans || []).filter((p) => p.day === today && (p.uid || uid) === uid);
   const doneToday = (d.workouts || []).some((w) => w.uid === uid && dayKey(w.d) === today);
-  if (plans.length && !doneToday) return { title: "Heute geplant 📅", body: plans.map((p) => p.t + (p.m ? ` · ${p.m} Min` : "")).join(", ") };
+  if (plans.length && !doneToday) return { title: "Heute geplant", body: plans.map((p) => p.t + (p.m ? ` · ${p.m} Min` : "")).join(", ") };
   const pauses = new Set((d.people && d.people[uid] && d.people[uid].pauses) || []);
   const mine = (d.workouts || []).filter((w) => w.uid === uid);
   if (!mine.length || doneToday || pauses.has(today)) return null;
   const last = Math.max(...mine.map((w) => w.d));
   const days = Math.round((new Date(today) - new Date(dayKey(last))) / 864e5);
   if (days === 2) return { title: "Zeit für Bewegung", body: "Seit 2 Tagen kein Training – schon 15 Minuten zählen." };
-  if (days === 4) return { title: "Wir vermissen dich 👋", body: "4 Tage Pause. Ein kurzer Spaziergang bringt dich zurück in den Rhythmus." };
+  if (days === 4) return { title: "Lange nicht trainiert", body: "4 Tage Pause. Ein kurzer Spaziergang bringt dich zurück in den Rhythmus." };
   return null;
 }
 exports._reminderFor = reminderFor;
