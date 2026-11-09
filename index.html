@@ -624,7 +624,7 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.7</div>
+    <div class="status">FitPunkte 8.7.1</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1971,7 +1971,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.7";let updChecking=false;
+const APP_VERSION="8.7.1";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
@@ -2015,7 +2015,7 @@ if(CFG&&CFG.apiKey&&!CFG.apiKey.includes("HIER")){
 
   let _fnMod=null;
   window.REMOTE={
-   async scanMeal(b64,hint){if(!_fnMod)_fnMod=await import(B+"firebase-functions.js");const f=_fnMod.httpsCallable(_fnMod.getFunctions(app,"europe-west3"),"scanMeal",{timeout:70000});return (await f({image:b64,hint:hint||""})).data},
+   async scanMeal(b64,hint){if(!_fnMod)_fnMod=await import(B+"firebase-functions.js");const f=_fnMod.httpsCallable(_fnMod.getFunctions(app,"europe-west3"),"scanMeal",{timeout:125000});return (await f({image:b64,hint:hint||""})).data},
    async login(kind){
     const provider=kind==="apple"?aProv:gProv;
     $("setupMsg").textContent="Anmelden …";

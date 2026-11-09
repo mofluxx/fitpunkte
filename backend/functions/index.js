@@ -164,7 +164,16 @@ const SCHEMA = {
   required: ["dish", "items"],
 };
 
-exports.scanMeal = onCall({ secrets: [GEMINI_KEY], invoker: "public", timeoutSeconds: 60, memory: "256MiB" }, async (req) => {
+exports.scanMeal = onCall({ secrets: [GEMINI_KEY], invoker: "public", timeoutSeconds: 120, memory: "512MiB" }, async (req) => {
+  try { return await scanMealImpl(req); }
+  catch (e) {
+    if (e instanceof HttpsError) throw e;
+    console.error("scanMeal Absturz", e && e.stack || e);
+    throw new HttpsError("internal", "Absturz: " + String(e && e.message || e).slice(0, 150));
+  }
+});
+
+async function scanMealImpl(req) {
   if (!req.auth) throw new HttpsError("unauthenticated", "Bitte anmelden.");
   const img = req.data && req.data.image;
   if (typeof img !== "string" || img.length < 1000 || img.length > 3_000_000) throw new HttpsError("invalid-argument", "Bild fehlt oder ist zu groß.");
@@ -190,12 +199,14 @@ exports.scanMeal = onCall({ secrets: [GEMINI_KEY], invoker: "public", timeoutSec
   let lastErr = "";
   for (const model of MODELS) {
     try {
+      const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 55000);
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-        method: "POST",
+        method: "POST", signal: ctl.signal,
         headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY.value() },
         body: JSON.stringify(body),
       });
-      if (!r.ok) { lastErr = `${model}: ${r.status} ${(await r.text()).slice(0, 300)}`; continue; }
+      clearTimeout(tm);
+      if (!r.ok) { const t = await r.text(); lastErr = `${model}: ${r.status} ${t.slice(0, 300)}`; console.warn("Gemini-Fehler", lastErr); continue; }
       const j = await r.json();
       const txt = j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts.map((p) => p.text || "").join("");
       const out = JSON.parse(txt || "{}");
@@ -210,8 +221,8 @@ exports.scanMeal = onCall({ secrets: [GEMINI_KEY], invoker: "public", timeoutSec
         confidence: ["hoch", "mittel", "niedrig"].includes(x.confidence) ? x.confidence : "mittel",
       })).filter((x) => x.grams > 0);
       return { dish: String(out.dish || "").slice(0, 80), items, model };
-    } catch (e) { lastErr = `${model}: ${e.message}`; }
+    } catch (e) { lastErr = `${model}: ${e.name === "AbortError" ? "Zeitüberschreitung" : e.message}`; console.warn("Gemini-Fehler", lastErr); }
   }
   console.error("scanMeal fehlgeschlagen", lastErr);
-  throw new HttpsError("unavailable", "Erkennung gerade nicht möglich. Bitte später nochmal.");
-});
+  throw new HttpsError("unavailable", "Gemini: " + lastErr.slice(0, 160));
+}
