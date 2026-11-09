@@ -1,5 +1,5 @@
 // FitPunkte Service Worker: Offline-Start + Push-Nachrichten
-const CACHE = "fitpunkte-v86";
+const CACHE = "fitpunkte-v87";
 const SHELL = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png", "firebase-config.js", "zxing.min.js", "bls.json", "zxingwasm.js", "zxing_reader.wasm"];
 
 self.addEventListener("install", e => {
@@ -19,12 +19,16 @@ self.addEventListener("fetch", e => {
   const font = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
 
   if (same) {
-    // Netzwerk zuerst (damit Updates sofort ankommen), offline aus dem Cache
+    // Update-Prüfung (?v=…) immer frisch aus dem Netz
+    if (url.searchParams.has("v")) return;
+    // Sofort aus dem Cache starten, im Hintergrund aktualisieren (Update-Hinweis zeigt neue Version)
     e.respondWith(
-      fetch(req).then(res => {
-        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
-        return res;
-      }).catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || (req.mode === "navigate" ? caches.match("index.html") : undefined)))
+      caches.open(CACHE).then(c => c.match(req, { ignoreSearch: true }).then(hit => {
+        const net = fetch(req).then(res => { if (res.ok) c.put(req, res.clone()); return res; })
+          .catch(() => hit || (req.mode === "navigate" ? c.match("index.html") : undefined));
+        if (hit) { e.waitUntil(net.catch(() => {})); return hit; }
+        return net;
+      }))
     );
   } else if (lib || font) {
     // Bibliotheken & Schrift: aus dem Cache, im Hintergrund aktualisieren

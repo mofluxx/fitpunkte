@@ -14,7 +14,8 @@
 <link rel="icon" href="icon-192.png">
 <script>(function(){var t;try{t=localStorage.getItem("fp_theme")}catch(e){}t=t||"system";var l=t==="light"||(t==="system"&&matchMedia("(prefers-color-scheme: light)").matches);document.documentElement.dataset.theme=l?"light":"dark"})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{
   --bg:#0e0f13;--s1:#16181e;--s2:#1e2129;--s3:#272b35;--line:#262a33;
@@ -97,7 +98,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 /* Form */
 .lbl{font-size:13px;color:var(--mut);margin:18px 0 8px;font-weight:500}
 .types{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.type{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--mut);min-width:0}
+.type{background:var(--s1);border:1px solid var(--line);border-radius:14px;padding:12px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;letter-spacing:-.01em;color:var(--mut);min-width:0}
 .type span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
 .type svg.i{width:24px;height:24px;color:var(--txt)}
 .type.on{border-color:var(--acc);background:var(--acc-soft);color:var(--txt)}
@@ -324,7 +325,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 .gear{width:40px;height:40px;color:var(--txt)}.gear svg.i{width:24px;height:24px}
 .hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;margin-bottom:16px}
 .ring{position:relative;width:150px;height:150px;cursor:pointer}
-.ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.ring>svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
 .rtrack{fill:none;stroke:rgba(255,255,255,.07);stroke-width:13}[data-theme=light] .rtrack{stroke:var(--s3)}
 .rbar{fill:none;stroke:url(#rGrad);stroke-width:13;stroke-linecap:round;filter:drop-shadow(0 0 8px rgba(255,79,154,.55));transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)}
 .rin{position:absolute;inset:15px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#1a1a22,#0d0d12);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
@@ -381,7 +382,7 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,79,154,.35)}50%{box-shadow:0 0 0 10px rgba(255,79,154,0)}}
 .goalc .cv{color:var(--mut);width:18px;height:18px}
 .btn.cta{padding:20px;font-size:19px;margin:6px 0 12px}.btn.cta svg.i{fill:#fff;width:22px;height:22px}
-@media (max-width:380px){.ring{width:132px;height:132px}.rin{inset:13px}.rin .n{font-size:34px}.hero{gap:12px}.hpill{padding:12px 13px}.tv{font-size:24px}.gx{font-size:18px}.htop h1{font-size:26px}}
+@media (max-width:380px){.type{font-size:10.5px;letter-spacing:-.02em}.ring{width:132px;height:132px}.rin{inset:13px}.rin .n{font-size:34px}.hero{gap:12px}.hpill{padding:12px 13px}.tv{font-size:24px}.gx{font-size:18px}.htop h1{font-size:26px}}
 /* Wischen zum Löschen */
 .swp{position:relative;overflow:hidden;border-radius:14px;margin:0 -6px}
 .swbg{position:absolute;inset:0;background:linear-gradient(90deg,transparent 30%,#ff4d5e);display:flex;align-items:center;justify-content:flex-end;padding-right:22px;color:#fff;font-weight:600;font-size:14px;gap:6px;opacity:0;transition:opacity .15s}
@@ -535,7 +536,6 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
 <!-- EINTRAGEN / BEARBEITEN -->
 <section class="view" id="v-log">
   <div class="top"><h1 id="logTitle">Training eintragen</h1><button class="iconbtn" id="logCancel" onclick="cancelEdit()" style="display:none"><svg class="i"><use href="#i-x"/></svg></button></div>
-  <button class="btn ghost" id="timerStart" onclick="startTimer()" style="margin-bottom:14px"><svg class="i"><use href="#i-clock"/></svg>Live-Timer starten</button>
   <div class="lbl" style="margin-top:0">Sportart</div>
   <div class="types" id="types"></div>
   <div class="lbl">Dauer (Minuten)</div>
@@ -546,11 +546,12 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
   <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut2);margin-top:4px"><span>sehr leicht</span><span>Maximum</span></div>
   <div class="lbl">Datum</div>
   <div class="seg" id="dayBtns"></div>
-  <input class="field" type="date" id="dateIn" style="margin-top:8px">
+  <input class="field" type="date" id="dateIn" style="display:none">
   <div class="lbl">Details (optional)</div>
   <div class="two" id="detailsRow"><input class="field" id="distIn" inputmode="decimal" placeholder="Distanz in km"><input class="field" id="noteIn" placeholder="Notiz" maxlength="60"></div>
   <div class="preview" id="preview"></div>
   <button class="btn" id="saveBtn" onclick="saveWorkout()" style="margin-top:12px">Eintragen</button>
+  <button class="btn ghost" id="timerStart" onclick="startTimer()" style="margin-top:8px"><svg class="i"><use href="#i-clock"/></svg>Live-Timer starten</button>
   <button class="btn danger" id="delBtn" onclick="deleteEdit()" style="margin-top:8px;display:none">Eintrag löschen</button>
 </section>
 
@@ -623,7 +624,7 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.6</div>
+    <div class="status">FitPunkte 8.7</div>
   </div>
 
   <!-- Unterseiten -->
@@ -662,15 +663,15 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
     <div class="card"><h3><span>Abzeichen</span><span id="bdCount" style="text-transform:none;letter-spacing:0"></span></h3><div class="badges" id="badges"></div></div>
   </div>
   <div class="psub" id="ps-nutri">
+    <button class="btn" onclick="openWiz()" style="margin-bottom:12px"><svg class="i"><use href="#i-target"/></svg>Tagesziel berechnen lassen</button>
     <div class="card">
-      <h3>Tagesziel (optional)</h3>
+      <h3>Tagesziel selbst festlegen</h3>
       <div class="two"><div><div class="lbl" style="margin-top:0">Kalorien (kcal)</div><input class="field" id="nKcal" type="number" inputmode="numeric" placeholder="z. B. 2000"></div><div><div class="lbl" style="margin-top:0">Eiweiß (g)</div><input class="field" id="nP" type="number" inputmode="numeric" placeholder="optional"></div></div>
       <div class="two"><div><div class="lbl">Kohlenhydrate (g)</div><input class="field" id="nC" type="number" inputmode="numeric" placeholder="optional"></div><div><div class="lbl">Fett (g)</div><input class="field" id="nF" type="number" inputmode="numeric" placeholder="optional"></div></div>
       <div class="two"><div><div class="lbl">Wasser (ml)</div><input class="field" id="nW" type="number" inputmode="numeric" placeholder="2000"></div><div></div></div>
       <div style="font-size:12px;color:var(--mut);margin-top:8px">Leer lassen = kein Ziel, dann zeigt die App nur, was du gegessen hast. Für ein persönliches Ziel frag am besten eine Ernährungsberatung.</div>
-      <button class="btn" onclick="saveNutri()" style="margin-top:14px">Speichern</button>
+      <button class="btn ghost" onclick="saveNutri()" style="margin-top:14px">Speichern</button>
     </div>
-    <button class="btn" onclick="openWiz()" style="margin-bottom:12px"><svg class="i"><use href="#i-target"/></svg>Tagesziel berechnen lassen</button>
     <div class="card"><div class="sw"><span>Sport-Kalorien zum Tagesziel dazurechnen</span><button class="tg" id="addSportTg" onclick="toggleAddSport()"></button></div></div>
     <div class="card" id="shareCard"><div class="sw"><span>Partner darf mein Essen sehen</span><button class="tg" id="shareTg" onclick="toggleShare()"></button></div></div>
   </div>
@@ -720,8 +721,8 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
   <div class="hd"><b id="fpTitle">Hinzufügen</b><button class="iconbtn" onclick="closePick()"><svg class="i"><use href="#i-x"/></svg></button></div>
   <div class="bd">
     <div class="seg" id="fpMeal" style="margin-bottom:12px"></div>
-    <div class="two"><button class="btn" onclick="openScanner(fp.meal)"><svg class="i"><use href="#i-scan"/></svg>Barcode</button><button class="btn" onclick="mealCamOpen(fp.meal)"><svg class="i"><use href="#i-camera"/></svg>Foto</button></div>
-    <form class="row" style="margin-top:10px" onsubmit="event.preventDefault();doSearch()"><input class="field" id="fpQ" placeholder="Suchen, z. B. Apfel, Hähnchen, Müsli" enterkeyhint="search" style="flex:3"><button class="btn ghost small" style="flex:none;width:52px"><svg class="i"><use href="#i-search"/></svg></button></form>
+    <form class="row" onsubmit="event.preventDefault();doSearch()"><input class="field" id="fpQ" placeholder="Suchen, z. B. Apfel, Hähnchen, Müsli" enterkeyhint="search" style="flex:3"><button class="btn ghost small" style="flex:none;width:52px"><svg class="i"><use href="#i-search"/></svg></button></form>
+    <div class="two" style="margin-top:10px"><button class="btn ghost" onclick="openScanner(fp.meal)"><svg class="i"><use href="#i-scan"/></svg>Barcode</button><button class="btn ghost" onclick="mealCamOpen(fp.meal)"><svg class="i"><use href="#i-camera"/></svg>Foto</button></div>
     <div id="fpRes" style="margin-top:12px"></div>
     <button class="btn ghost" onclick="manualFood()" style="margin-top:12px"><svg class="i"><use href="#i-edit"/></svg>Manuell eingeben</button>
   </div>
@@ -790,7 +791,7 @@ const ICONS={
  gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z",
  play:"M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z",
  chevL:"M15 6l-6 6 6 6", chevR:"M9 6l6 6-6 6",
- flame:"M12 22c4 0 7-3 7-7 0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-4-2 2-5 5-5 8 0 4 3 7 7 7z",
+ flame:"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z",
  trophy:"M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4",
  clock:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2",
  users:"M16 21a6 6 0 0 0-12 0M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21a6 6 0 0 0-4-5.6M16 4.2a4 4 0 0 1 0 7.6",
@@ -971,12 +972,14 @@ function countTo(el,to){const from=parseInt(el.dataset.v||el.textContent)||0;el.
 function render(){
  const u=ME.uid,b=balance(u),e=earned(u);
  {const n0=pName(u);document.querySelectorAll(".avl").forEach(e=>e.textContent=(n0&&n0!=="Du"?n0[0]:"?").toUpperCase());document.querySelectorAll(".avbtn").forEach(e=>paintAv(e,u))}
+ $("pts2").textContent=b;
+ if(vis("v-home")){
  const nm=pName(u);$("hello").innerHTML=(nm&&nm!=="Du"?"Hallo "+esc(nm):"Hallo");
- const pe=$("pts");countTo(pe,b);$("pts2").textContent=b;
+ const pe=$("pts");countTo(pe,b);
  if(lastBal!==null&&b>lastBal){pe.classList.add("pop");setTimeout(()=>pe.classList.remove("pop"),450)}lastBal=b;
  const nx=[...S.rewards].sort((a,c)=>a.c-c.c).find(r=>r.c>b),canN=S.rewards.filter(r=>r.c<=b).length;
  const ringP=nx?Math.max(0,b)/nx.c*100:(S.rewards.length?100:0);
- requestAnimationFrame(()=>$("ringBar").setAttribute("stroke-dasharray",Math.max(ringP,b>0?2:0).toFixed(1)+" 100"));
+ requestAnimationFrame(()=>{const rb=$("ringBar");rb.setAttribute("stroke-dasharray",Math.max(ringP,b>0?2:0).toFixed(1)+" 100");rb.style.opacity=ringP>0||b>0?1:0});
  if(nx){$("nextTxt").innerHTML=`Noch <b>${nx.c-b}</b> Punkte`;$("nextName").textContent="bis „"+nx.n+"“"+(canN?" · "+canN+" einlösbar":"")}
  else if(S.rewards.length){$("nextTxt").innerHTML="<b>Alles freigeschaltet</b>";$("nextName").textContent=canN+" Belohnungen einlösbar"}
  else{$("nextTxt").innerHTML="<b>Belohnungen</b>";$("nextName").textContent="Wünsche anlegen"}
@@ -1006,7 +1009,7 @@ function render(){
  if(isTeam()){const wk=dkey(ws),cnt=S.workouts.filter(w=>w.uid&&dkey(weekStart(new Date(w.d)))===wk),tg=S.teamGoal||5;
   $("teamLbl").textContent="Team-Ziel";$("teamTxt").textContent=Math.min(cnt.length,tg)+" / "+tg;$("teamBar").style.width=Math.min(cnt.length/tg*100,100)+"%";
   $("teamMeta").innerHTML=peopleIds().map(p=>`<span class="tav">${whoHTML(p)}<small>${cnt.filter(w=>w.uid===p).length}</small></span>`).join("")+`<span class="tb">${cnt.length>=tg?"+"+TEAM_BONUS+" ✓":"+"+TEAM_BONUS+" Bonus"}</span>`}
- else{$("teamLbl").textContent="Serie";$("teamTxt").textContent=st+" / "+rec;$("teamBar").style.width=(rec?st/rec*100:0)+"%";$("teamMeta").innerHTML=`<span class="tb">${st&&st>=rec?"Neuer Rekord!":"Tage in Folge"}</span>`}
+ else{$("teamLbl").textContent="Serie";$("teamTxt").innerHTML=`${st} <small>${st===1?"Tag":"Tage"}</small>`;$("teamBar").style.width=(rec?st/rec*100:0)+"%";$("teamMeta").innerHTML=`<span class="tb">${!rec?"Trainiere an Tagen in Folge":st>=rec?"Dein Rekord":"Rekord: "+rec+" Tage"}</span>`}
  // Offene Belohnungen
  const open=S.redeemed.filter(r=>r.done===false);
  $("openCard").style.display=open.length?"block":"none";
@@ -1015,8 +1018,14 @@ function render(){
  const fe=[...S.workouts].sort((a,c)=>c.d-a.d).slice(0,5);
  $("feed").innerHTML=fe.map(w=>feedItem(w)).join("")||`<div class="empty">Noch keine Trainings. Leg los.</div>`;
  try{renderTimer();renderRepeat()}catch(e){}
- renderShop();renderWishes();renderProgress();renderProfile();try{renderNutri();renderHomeFood();if($("v-food").classList.contains("on"))renderFood()}catch(e){}if($("v-log").classList.contains("on"))renderLog();
+ try{renderHomeFood()}catch(e){}
+ }
+ if(vis("v-shop")){renderShop();renderWishes()}
+ if(vis("v-progress"))renderProgress();
+ if(vis("v-profile")){renderProfile();try{renderNutri()}catch(e){}}
+ try{if(vis("v-food"))renderFood()}catch(e){}if(vis("v-log"))renderLog();
 }
+const vis=id=>{const e=document.getElementById(id);return !!e&&e.classList.contains("on")};
 function typeIcon(w){return w.i||LEGACY_ICON[w.t]||"star"}
 function trustInfo(w){const out=[];
  if(w.at&&dkey(w.at)!==dkey(w.d))out.push(`<span class="pill">Nachgetragen</span>`);
@@ -1125,7 +1134,10 @@ function delWorkoutSw(id){const w=S.workouts.find(x=>x.id===id);if(!w)return;con
 /* ---------- Eintragen ---------- */
 const allTypes=()=>TYPES.concat((S.customTypes||[]).map(c=>({n:c.n,i:c.i||"star",id:c.id,f:c.f||1.0,dist:c.dist?1:0})));
 function blankSel(){return {t:null,m:null,rpe:5,day:dkey(new Date()),km:"",note:""}}
-function startLog(){editId=null;sel=blankSel();fillLogInputs();go("log")}
+function startLog(){editId=null;sel=blankSel();
+ const last=[...S.workouts].filter(w=>(!isTeam()||(w.uid||ME.uid)===ME.uid)&&!w.rejected).sort((a,c)=>(c.at||c.d)-(a.at||a.d))[0];
+ if(last){const ti=allTypes().findIndex(t=>t.n===last.t);if(ti>=0){sel.t=ti;sel.m=last.m;sel.rpe=last.rpe||5}}
+ fillLogInputs();go("log")}
 function startEdit(id){const w=S.workouts.find(x=>x.id===id);if(!w)return;if(isTeam()&&w.uid&&w.uid!==ME.uid)return sheet("Nicht deins","Nur "+esc(pName(w.uid))+" kann diesen Eintrag bearbeiten.",[["OK",null]]);
  if(w.rejected)return sheet("Abgelehnt","Dieser Eintrag wurde abgelehnt und kann nicht mehr bearbeitet werden.",[["OK",null]]);
  editId=id;const ti=allTypes().findIndex(t=>t.n===w.t);sel={t:ti>=0?ti:null,m:w.m,rpe:w.rpe||(w.int>=1.5?8:w.int>=1.25?5:3),day:dkey(w.d),km:w.km||"",note:w.note||""};fillLogInputs();go("log")}
@@ -1219,7 +1231,7 @@ function renderShop(){const b=balance(ME.uid);
  $("redeemed").innerHTML=[...S.redeemed].sort((a,c)=>c.d-a.d).slice(0,30).map(r=>`<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${isTeam()&&r.uid?esc(pName(r.uid))+" · ":""}${new Date(r.d).toLocaleDateString("de-DE")} · ${r.c} P</span></div>${r.done===false?`<button class="pill open" onclick="markDone('${r.id}')">Offen</button>`:`<span class="pill done">Erledigt</span>`}</div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
 }
 function renderWishes(){const team=isTeam(),pn=team?esc(pName(partnerId())):"";
-  $("wishHint").textContent=team?"Neue Belohnungen kommen nur über die Wunschliste: Du schlägst etwas vor, "+pName(partnerId())+" legt die Punkte fest und bestätigt.":"Neue Belohnungen hier eintragen und mit Punkten freigeben. Sobald dein Partner verbunden ist, muss er neue Belohnungen bestätigen.";
+  $("wishHint").textContent=team?"Du schlägst etwas vor, "+pName(partnerId())+" bestätigt und legt die Punkte fest.":"Neue Belohnung mit Punkten anlegen.";
  $("wishes").innerHTML=(S.wishes||[]).map(x=>{const mineW=!team||!x.uid||x.uid===ME.uid;const canApprove=!team||(x.uid&&x.uid!==ME.uid);
   const what=x.c?("Vorschlag: "+x.c+" Punkte"):"Wunsch";
   return `<div class="rw"><div class="tx"><b>${esc(x.n)}</b><span>${team?(x.uid===ME.uid?what+" · wartet auf "+pn:esc(pName(x.uid))+" · "+what):"Idee"}</span></div>${canApprove?`<input class="field costin" id="wc_${x.id}" type="number" inputmode="numeric" placeholder="Punkte" value="${x.c||""}"><button class="btn small" onclick="approveWish('${x.id}')">${ico("check")}</button>`:""}<button class="iconbtn" onclick="dropWish('${x.id}')">${ico("x")}</button></div>`}).join("");}
@@ -1717,7 +1729,8 @@ function renderResults(){const q=$("fpQ").value.trim();
  if(!h)h=`<div class="empty">Nichts gefunden. Probier einen anderen Begriff oder gib es manuell ein.</div>`;
  $("fpRes").innerHTML=h}
 let blsT=null;
-$("fpQ").addEventListener("input",()=>{clearTimeout(blsT);blsT=setTimeout(()=>{offRes=[];offState=$("fpQ").value.trim().length>=2?"Enter drücken für Markenprodukte":"";loadBLS().then(()=>{blsRes=searchBLS($("fpQ").value);renderResults()}).catch(()=>{blsRes=[];renderResults()})},120)});
+let offT=null;
+$("fpQ").addEventListener("input",()=>{clearTimeout(blsT);blsT=setTimeout(()=>{offRes=[];offState=$("fpQ").value.trim().length>=3?"Suche Markenprodukte …":"";clearTimeout(offT);if($("fpQ").value.trim().length>=3)offT=setTimeout(doSearch,900);loadBLS().then(()=>{blsRes=searchBLS($("fpQ").value);renderResults()}).catch(()=>{blsRes=[];renderResults()})},120)});
 let searching=false;
 async function doSearch(){const q=$("fpQ").value.trim();if(q.length<2||searching)return;searching=true;
  try{await loadBLS();blsRes=searchBLS(q)}catch(e){blsRes=[]}offRes=[];offState="Suche Markenprodukte …";renderResults();
@@ -1725,7 +1738,7 @@ async function doSearch(){const q=$("fpQ").value.trim();if(q.length<2||searching
   if(r.status===429)throw new Error("Zu viele Suchen – bitte kurz warten");if(!r.ok)throw new Error("Server antwortet nicht ("+r.status+")");
   const j=await r.json();offRes=(j.products||[]).map(fromOFF).filter(p=>p.k100!=null).slice(0,20);offState=offRes.length?"":"Keine Markenprodukte gefunden.";renderResults()}
  catch(e){offRes=[];offState=navigator.onLine?(e instanceof TypeError?"Markenprodukte gerade nicht erreichbar – Lebensmittel (BLS) gehen trotzdem.":esc(e.message||"Markenprodukte gerade nicht erreichbar")):"Offline – Markenprodukte brauchen Internet. Lebensmittel (BLS) gehen auch offline.";renderResults()}
- finally{searching=false}}
+ finally{searching=false;const q2=$("fpQ").value.trim();if(q2!==q&&q2.length>=3)setTimeout(doSearch,50)}}
 async function lookupCode(code){if(!$("foodPick").classList.contains("on")){fp={meal:fp.meal||mealNow()}}
  const own=LIB().products[code];if(own){setTimeout(()=>productSheet(Object.assign({},own,{code,src:"own"})),50);return}
  sheet("Suche Produkt …",`Barcode ${esc(code)}`,[["Abbrechen",null,1]]);
@@ -1958,12 +1971,15 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.6";let updChecking=false;
+const APP_VERSION="8.7";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
-function doUpdate(){$("updBar").textContent="Wird aktualisiert …";const go2=()=>location.reload();
- (navigator.serviceWorker?navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{}):Promise.resolve()).finally(()=>setTimeout(go2,300))}
+function doUpdate(){$("updBar").textContent="Wird aktualisiert …";
+ const clear=window.caches?caches.keys().then(ks=>Promise.all(ks.map(k=>caches.open(k).then(c=>Promise.all([c.delete(new URL("./",location).href,{ignoreSearch:true}),c.delete(new URL("index.html",location).href,{ignoreSearch:true}),c.delete(new URL("sw.js",location).href)]))))).catch(()=>{}):Promise.resolve();
+ const upd=navigator.serviceWorker?navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{}):Promise.resolve();
+ Promise.all([clear,upd]).finally(()=>setTimeout(()=>location.reload(),200))}
+setTimeout(()=>{const f=()=>loadBLS().catch(()=>{});window.requestIdleCallback?requestIdleCallback(f,{timeout:8000}):f()},2500);
 setTimeout(checkUpdate,6000);setInterval(checkUpdate,30*60e3);document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});
 </script>
 
