@@ -409,6 +409,8 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
 .mcn{flex:1;min-width:0}.mcn b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mcn small{color:var(--mut);font-size:12px}
 .mcg{display:flex;align-items:center;gap:4px;flex:none}.mcg input{width:66px;padding:8px;text-align:right}.mcg span{color:var(--mut);font-size:13px}
 .mck{width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;flex:none}
+.mcnote{resize:none;font:inherit;line-height:1.4;min-height:84px}
+.mcnoted{margin-top:10px;font-size:13px;color:var(--mut);background:var(--s2);border-radius:12px;padding:8px 12px}
 .mcsum{display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:16px}
 
 /* Wasserglas */
@@ -621,7 +623,7 @@ button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:man
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.5</div>
+    <div class="status">FitPunkte 8.6</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1050,12 +1052,18 @@ function mealCamOpen(m){mc={meal:m||mealNow(),items:[],img:""};
 function shrinkImg(file,max){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.82))};im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Bild nicht lesbar"))};im.src=u})}
 async function mealPhoto(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;
  let url;try{url=await shrinkImg(f,1024)}catch(e){toast("Bild konnte nicht gelesen werden");return}
- mc.img=url;mealScanRun("")}
-async function mealScanRun(hint){
+ mc.img=url;mc.note="";mealNoteSheet()}
+function mealNoteSheet(){
+ sheet("Foto prüfen",`<div class="mcimg" style="background-image:url(${mc.img})"></div>
+  <div class="lbl" style="margin-top:14px">Notiz (optional)</div>
+  <textarea class="field mcnote" id="mcNote" maxlength="200" rows="3" placeholder="z. B. Nudeln mit Hackfleischsoße, ein großer Teller, mit Olivenöl gekocht">${esc(mc.note||"")}</textarea>
+  <div class="hint" style="margin-top:6px">Was ist drin, wie viel, wie zubereitet? Hilft bei Soßen, Füllungen und Portionsgröße.</div>`,
+  [["Erkennen",()=>{mc.note=($("mcNote").value||"").trim();mealScanRun(mc.note);return false}],["Abbrechen",null,1]])}
+async function mealScanRun(hint){hint=hint??mc.note??"";
  sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"><div class="mcscan"></div></div><div class="mcwait">Wird erkannt …</div>`,[]);
  try{const r=await REMOTE.scanMeal(mc.img.split(",")[1],hint);
   mc.items=(r.items||[]).map(x=>Object.assign({on:true},x));mc.dish=r.dish||"";mealScanShow()}
- catch(e){const m=String(e&&e.message||e);sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"></div><p class="mut" style="margin-top:12px">${/exhausted|Tageslimit/i.test(m)?"Tageslimit erreicht. Morgen geht es wieder.":/unauth/i.test(m)?"Bitte zuerst anmelden.":"Erkennung hat nicht geklappt. Prüf die Verbindung und versuch es nochmal."}</p><p class="mut" style="font-size:12px;margin-top:6px">Fehler: ${esc((e&&e.code||"")+" "+m).slice(0,160)}</p>`,[["Nochmal",()=>{mealScanRun("");return false}],["Schließen",null,1]])}}
+ catch(e){const m=String(e&&e.message||e);sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"></div><p class="mut" style="margin-top:12px">${/exhausted|Tageslimit/i.test(m)?"Tageslimit erreicht. Morgen geht es wieder.":/unauth/i.test(m)?"Bitte zuerst anmelden.":"Erkennung hat nicht geklappt. Prüf die Verbindung und versuch es nochmal."}</p><p class="mut" style="font-size:12px;margin-top:6px">Fehler: ${esc((e&&e.code||"")+" "+m).slice(0,160)}</p>`,[["Nochmal",()=>{mealScanRun(mc.note);return false}],["Schließen",null,1]])}}
 function mcK(x){return Math.round(x.kcal100*x.grams/100)}
 function mealScanShow(){
  if(!mc.items.length){sheet("Essen erkennen",`<div class="mcimg" style="background-image:url(${mc.img})"></div><p class="mut" style="margin-top:12px">Kein Essen erkannt. Fotografier den Teller etwas näher und von schräg oben.</p>`,[["Neues Foto",()=>{$("mealCam").click()}],["Schließen",null,1]]);return}
@@ -1068,7 +1076,9 @@ function mealScanShow(){
   <div class="seg" style="margin:12px 0">${meals}</div>
   <div class="mclist">${rows}</div>
   <div class="mcsum"><span>Gesamt</span><span><b id="mcTot">${fmt0(mcTot())}</b> kcal</span></div>
-  <div class="hint" style="margin-top:6px">Mengen sind geschätzt. Prüf die Gramm, vor allem bei Öl, Butter und Soßen.</div>`,
+  <div class="hint" style="margin-top:6px">Mengen sind geschätzt. Prüf die Gramm, vor allem bei Öl, Butter und Soßen.</div>
+  ${mc.note?`<div class="mcnoted">Notiz: ${esc(mc.note)}</div>`:""}
+  <button class="addrow" style="margin-top:10px" onclick="mcSync();mealNoteSheet()">${ico("edit")}${mc.note?"Notiz ändern":"Notiz hinzufügen"} und neu erkennen</button>`,
   [["Hinzufügen",()=>mealScanSave()],["Abbrechen",null,1]])}
 function mcSync(){document.querySelectorAll(".mcg input").forEach(el=>{const v=Math.round(+el.value);if(v>0)mc.items[+el.dataset.i].grams=Math.min(2000,v)})}
 function mcTot(){return mc.items.filter(x=>x.on).reduce((a,x)=>a+mcK(x),0)}
@@ -1948,7 +1958,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.5";let updChecking=false;
+const APP_VERSION="8.6";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}

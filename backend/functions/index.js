@@ -182,7 +182,7 @@ exports.scanMeal = onCall({ secrets: [GEMINI_KEY], invoker: "public", timeoutSec
 
   const body = {
     contents: [{ role: "user", parts: [
-      { text: PROMPT + (hint ? `\nHinweis vom Nutzer: ${hint}` : "") },
+      { text: PROMPT + (hint ? `\nNotiz vom Nutzer (verlässlich, hat Vorrang vor deiner Schätzung bei Zutaten, Menge und Zubereitung): ${hint}` : "") },
       { inline_data: { mime_type: "image/jpeg", data: img } },
     ] }],
     generationConfig: { responseMimeType: "application/json", responseSchema: SCHEMA, temperature: 0.2 },
