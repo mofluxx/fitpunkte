@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>FitPunkte</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0e0f13">
@@ -440,6 +440,14 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
 .wmeta{font-size:12px;color:var(--mut2)}
 .wbtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .wbtns .mini{margin:0;color:var(--txt);background:var(--s2)}.wbtns .mini:disabled{opacity:.4}
+
+/* App-Gefühl: kein Zoom, kein Markieren, kein Gummiband */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{overscroll-behavior:none}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+img,svg{-webkit-user-drag:none;user-drag:none}
+button,a,.card[onclick]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -613,7 +621,7 @@ h3.ht .cv{color:var(--mut);width:18px;height:18px}
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.4</div>
+    <div class="status">FitPunkte 8.5</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1069,6 +1077,15 @@ function mealScanSave(){mcSync();const sel=mc.items.filter(x=>x.on&&x.grams>0);i
  const d=foodDay,items=(FOODC[fkey(ME.uid,d)]||[]).slice(),now=Date.now();
  sel.forEach((x,j)=>{const g=x.grams;items.push({id:"f"+now+j+Math.random().toString(36).slice(2,5),src:"foto",n:x.name,b:"",code:"",img:"",g,u:null,k100:x.kcal100,p100:x.protein100,c100:x.carbs100,f100:x.fat100,kcal:Math.round(x.kcal100*g/100),p:Math.round(x.protein100*g)/100,c:Math.round(x.carbs100*g)/100,f:Math.round(x.fat100*g)/100,meal:mc.meal,at:now})});
  saveFood(d,items);closeSheet();if($("foodPick").classList.contains("on"))closePick();renderFood();toast("+ "+fmt0(mcTot())+" kcal · "+sel.length+" Einträge")}
+
+
+/* ---------- App-Gefühl: Zoom per Doppeltipp/Zwei-Finger verhindern ---------- */
+(function(){const no=e=>e.preventDefault();
+ ["gesturestart","gesturechange","gestureend"].forEach(t=>document.addEventListener(t,no,{passive:false}));
+ document.addEventListener("touchmove",e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+ document.addEventListener("dblclick",no,{passive:false});
+ document.addEventListener("contextmenu",e=>{if(!e.target.closest("input,textarea"))e.preventDefault()});
+})();
 
 /* ---------- Wischen zum Löschen ---------- */
 function swWrap(on,act,html){return on?`<div class="swp" data-sw="${act}"><div class="swbg">${ico("trash")}Löschen</div><div class="swf">${html}</div></div>`:html}
@@ -1931,7 +1948,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.4";let updChecking=false;
+const APP_VERSION="8.5";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
