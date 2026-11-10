@@ -6,7 +6,7 @@
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { setGlobalOptions } = require("firebase-functions/v2");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const GEMINI_KEY = defineSecret("GEMINI_API_KEY");
 const admin = require("firebase-admin");
@@ -226,3 +226,38 @@ async function scanMealImpl(req) {
   console.error("scanMeal fehlgeschlagen", lastErr);
   throw new HttpsError("unavailable", "Gemini: " + lastErr.slice(0, 160));
 }
+
+
+// ---------- 4) Schritte aus Apple Health (iPhone-Kurzbefehl) ----------
+// POST https://europe-west3-<projekt>.cloudfunctions.net/steps?t=<token>  Body JSON {"s": 9432}
+exports.steps = onRequest({ invoker: "public", cors: false, timeoutSeconds: 20, memory: "256MiB" }, async (req, res) => {
+  try {
+    const body = typeof req.body === "object" && req.body ? req.body : (() => { try { return JSON.parse(req.body || "{}"); } catch (e) { return {}; } })();
+    const t = String(req.query.t || body.t || "").trim();
+    const raw = body.s ?? body.steps ?? req.query.s;
+    let n;
+    if (typeof raw === "number") n = Math.round(raw);
+    else { let str = String(raw ?? "").trim().replace(/\s/g, ""); if (/^\d{1,3}(\.\d{3})+$/.test(str) || str.includes(",")) str = str.replace(/\./g, ""); n = Math.round(parseFloat(str.replace(",", "."))); }
+    if (!/^[a-z0-9]{12,40}$/.test(t)) return res.status(400).send("Fehler: URL unvollständig (Token fehlt).");
+    if (!Number.isFinite(n) || n < 0 || n > 120000) return res.status(400).send("Fehler: Schrittzahl fehlt oder ungültig. Feld s = Summe der Schritte.");
+    const q = await db().collection("users").where("stepToken", "==", t).limit(1).get();
+    if (q.empty) return res.status(403).send("Fehler: Diese URL ist nicht (mehr) gültig. Neue URL in der App kopieren.");
+    const u = q.docs[0], uid = u.id, team = u.get("team");
+    if (!team) return res.status(409).send("Fehler: Kein Team verbunden.");
+    const day = /^\d{4}-\d{2}-\d{2}$/.test(String(body.d || "")) ? String(body.d) : dayKey(Date.now());
+    const ref = db().doc(`fitpunkte/${team}`), key = `${uid}_${day}`;
+    let total = n;
+    await db().runTransaction(async (tr) => {
+      const snap = await tr.get(ref);
+      if (!snap.exists || !(snap.get("members") || []).includes(uid)) throw new Error("kein Mitglied");
+      const old = ((snap.get("steps") || {})[key]) || 0;
+      total = Math.max(old, n);
+      if (total !== old) tr.update(ref, { [`steps.${key}`]: total, rev: (snap.get("rev") || 0) + 1 });
+    });
+    const pts = total >= 15000 ? 25 : total >= 12000 ? 20 : total >= 8000 ? 10 : 0;
+    res.status(200).send(`${total.toLocaleString("de-DE")} Schritte gespeichert${pts ? ` · +${pts} Punkte` : ""}`);
+  } catch (e) {
+    console.error("steps", e);
+    res.status(500).send("Fehler beim Speichern.");
+  }
+});

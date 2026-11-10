@@ -1,5 +1,5 @@
 // FitPunkte Service Worker: Offline-Start + Push-Nachrichten
-const CACHE = "fitpunkte-v891";
+const CACHE = "fitpunkte-v90";
 const SHELL = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png", "firebase-config.js", "zxing.min.js", "bls.json", "zxingwasm.js", "zxing_reader.wasm"];
 
 self.addEventListener("install", e => {
