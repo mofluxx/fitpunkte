@@ -469,6 +469,101 @@ html[data-oled] .rin{background:#050507}
 .lookprev{display:flex;align-items:center;gap:12px;margin-top:16px}
 .lookprev .btn{flex:1;margin:0}
 .lookprev .dotp{width:44px;height:44px;border-radius:50%;background:var(--grad);box-shadow:0 6px 18px -6px rgba(var(--accrgb),.7);flex:none}
+
+/* ===== 8.9 ===== */
+/* Erfolg */
+.okfx{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:okin .25s ease;pointer-events:none}
+.okfx.out{animation:okout .35s ease forwards}
+@keyframes okin{from{opacity:0}}@keyframes okout{to{opacity:0}}
+.okc{display:flex;flex-direction:column;align-items:center;animation:okpop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes okpop{from{transform:scale(.5);opacity:0}}
+.okc svg{width:110px;height:110px;filter:drop-shadow(0 10px 30px rgba(var(--accrgb),.55))}
+.okr{fill:var(--acc);stroke:none}
+.okp{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:okdraw .45s .2s cubic-bezier(.6,0,.3,1) forwards}
+@keyframes okdraw{to{stroke-dashoffset:0}}
+.okc b{font-size:44px;font-weight:800;color:#fff;margin-top:14px;letter-spacing:-.03em;text-shadow:0 4px 20px rgba(0,0,0,.4)}
+.okc span{color:rgba(255,255,255,.85);font-weight:600;margin-top:-2px}
+.flypts{position:fixed;z-index:301;font-weight:800;font-size:26px;color:#fff;background:var(--grad);padding:6px 14px;border-radius:999px;box-shadow:0 8px 24px -6px rgba(var(--accrgb),.8);pointer-events:none;white-space:nowrap}
+.ring.hit{animation:rhit .5s cubic-bezier(.3,1.7,.5,1)}
+@keyframes rhit{40%{transform:scale(1.07)}}
+/* Belohnungskarten */
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.rcard{position:relative;background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 16%,var(--s1)),var(--s1) 70%);border:1px solid var(--line);border-radius:var(--r);padding:16px 14px 14px;display:flex;flex-direction:column;min-width:0;animation:cin .5s cubic-bezier(.2,.9,.3,1) both;animation-delay:var(--d)}
+.rcard.can{border-color:color-mix(in srgb,var(--rc) 45%,transparent);box-shadow:0 10px 28px -16px var(--rc)}
+.ric{width:46px;height:46px;border-radius:15px;background:color-mix(in srgb,var(--rc) 22%,transparent);color:var(--rc);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.ric svg.i{width:24px;height:24px}
+.rcard.can .ric{animation:rbob 2.4s ease-in-out infinite}
+@keyframes rbob{50%{transform:translateY(-3px) rotate(-4deg)}}
+.rn{font-size:15px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+.rcost{background:none;border:none;padding:0;text-align:left;color:var(--mut);font-size:13px;margin-top:4px;font-weight:600}
+.rbar{height:6px;border-radius:99px;background:rgba(127,127,127,.18);margin:12px 0 6px;overflow:hidden}
+.rbar i{display:block;height:100%;border-radius:99px;background:var(--rc);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.rleft{font-size:12px;color:var(--mut);margin-bottom:12px}
+.rcard.can .rleft{color:var(--rc);font-weight:600}
+.rcard .btn{margin:auto 0 0;width:100%;padding:11px}
+.rcard .btn:disabled{opacity:.45}
+.rcard.can .btn{background:var(--rc);box-shadow:0 8px 20px -10px var(--rc)}
+.rdel{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--mut2);padding:6px;opacity:.7}
+.rdel svg.i{width:16px;height:16px}
+.rpend{grid-column:1/-1;margin-top:10px;font-size:13px}
+.rpend .rw{padding:8px 0}
+.empty.sm{padding:10px 0}
+/* Leer-Ansichten */
+.est{text-align:center;padding:22px 12px 14px;grid-column:1/-1}
+.esi{width:64px;height:64px;border-radius:22px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:var(--acc-soft);color:var(--acc);animation:rbob 3s ease-in-out infinite}
+.esi svg.i{width:30px;height:30px}
+.est b{display:block;font-size:16px}
+.est p{color:var(--mut);font-size:14px;margin:6px auto 14px;max-width:260px;line-height:1.4}
+.est .btn{width:auto;display:inline-flex;padding:10px 20px}
+.rgrid .est{background:var(--s1);border:1px solid var(--line);border-radius:var(--r)}
+/* Jahr */
+.yrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.yrow div{background:var(--s2);border-radius:14px;padding:10px 8px;text-align:center;min-width:0}
+.yrow b{display:block;font-size:18px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.yrow span{font-size:11px;color:var(--mut)}
+.heatw{overflow-x:auto;margin:0 -4px;padding:0 4px 4px;scrollbar-width:none}.heatw::-webkit-scrollbar{display:none}
+.heat{display:flex;gap:3px;width:max-content}
+.hcol{display:flex;flex-direction:column;gap:3px}
+.hcol em{font-style:normal;font-size:10px;color:var(--mut);height:12px;line-height:12px;white-space:nowrap;width:11px;overflow:visible}
+.heat i,.hleg i{width:11px;height:11px;border-radius:3px;display:block}
+.h0{background:rgba(127,127,127,.14)}.h1{background:rgba(var(--accrgb),.3)}.h2{background:rgba(var(--accrgb),.55)}.h3{background:rgba(var(--accrgb),.8)}.h4{background:var(--acc);box-shadow:0 0 6px rgba(var(--accrgb),.6)}
+.hx{background:transparent}.htd{outline:1.5px solid var(--txt);outline-offset:1px}
+.hleg{display:flex;align-items:center;gap:4px;justify-content:flex-end;margin-top:8px;font-size:11px;color:var(--mut)}.hleg span{margin:0 4px}
+.pyear{cursor:pointer}.pyh{font-size:13px;color:var(--mut);font-weight:600;margin-bottom:10px}.pyear .yrow{margin:0}
+/* Medaillen */
+.badges{gap:10px}
+.bd{position:relative;background:var(--s2);padding:16px 6px 14px;animation:cin .45s cubic-bezier(.2,1.2,.4,1) both;animation-delay:var(--d)}
+.medal{position:relative;width:58px;height:58px;margin:0 auto 10px}
+.medal.big{width:96px;height:96px;margin-bottom:14px}
+.msvg{width:100%;height:100%;display:block}
+.msvg.on{filter:drop-shadow(0 6px 12px rgba(245,184,74,.45))}
+.min{fill:none;stroke:rgba(255,255,255,.45);stroke-width:1.5}
+.msvg:not(.on) .min{stroke:rgba(127,127,127,.25)}
+.mshine{fill:none;stroke:rgba(255,255,255,.7);stroke-width:3;stroke-linecap:round}
+.mic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#7a4a05}
+.mic svg.i{width:46%;height:46%;stroke-width:2.2}
+.bd.lock .mic{color:var(--mut)}
+.bd.lock{opacity:.55}.bd.lock .ic{background:none}
+.bd.got .medal::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:250% 100%;animation:shine 3.5s ease-in-out infinite;mix-blend-mode:overlay}
+@keyframes shine{0%,60%{background-position:150% 0}100%{background-position:-50% 0}}
+.bd.new{animation:bnew .8s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--d) + .2s)}
+@keyframes bnew{0%{transform:scale(.3) rotate(-25deg);opacity:0}70%{transform:scale(1.12) rotate(4deg)}100%{transform:none;opacity:1}}
+.bnew{position:absolute;top:8px;right:8px;font-style:normal;font-size:10px;font-weight:700;background:var(--acc);color:#fff;border-radius:99px;padding:2px 7px}
+.medal.pop{animation:mpop .9s cubic-bezier(.3,1.6,.5,1)}
+@keyframes mpop{0%{transform:scale(.2) rotate(-180deg);opacity:0}100%{transform:none;opacity:1}}
+/* Schnellaktionen */
+.tabs .plus{transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.tabs .plus.held{transform:scale(1.15) rotate(45deg)}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.qbtn{background:var(--s2);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:2px;animation:cin .4s cubic-bezier(.2,1.2,.4,1) both;animation-delay:var(--d);min-width:0}
+.qbtn .ic{width:40px;height:40px;border-radius:13px;margin-bottom:8px}
+.qbtn b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.qbtn small{font-size:12px;color:var(--mut)}
+.qbtn:active{transform:scale(.96)}
+/* Tab-Richtung */
+html[data-dir=l] .view.on{animation:vinl .32s cubic-bezier(.2,.9,.3,1)}
+html[data-dir=r] .view.on{animation:vinr .32s cubic-bezier(.2,.9,.3,1)}
+@keyframes vinl{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes vinr{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -576,7 +671,7 @@ html[data-oled] .rin{background:#050507}
 <!-- BELOHNUNGEN -->
 <section class="view" id="v-shop">
   <div class="top"><div><h1>Belohnungen</h1><div class="sm"><b id="pts2" style="color:var(--txt);font-size:15px">0</b> Punkte verfügbar</div></div><button class="avbtn" onclick="go('profile')" title="Profil"><span class="avl">?</span><span class="dot" data-sync></span></button></div>
-  <div class="card"><div id="rewards"></div></div>
+  <div class="rgrid" id="rewards"></div>
   <div class="card">
     <h3>Wunschliste</h3>
     <div id="wishHint" style="font-size:14px;color:var(--mut);margin-bottom:10px"></div>
@@ -596,6 +691,11 @@ html[data-oled] .rin{background:#050507}
     <div class="calhead"><button class="iconbtn" onclick="calMove(-1)"><svg class="i"><use href="#i-chevL"/></svg></button><b id="calTitle"></b><button class="iconbtn" onclick="calMove(1)"><svg class="i"><use href="#i-chevR"/></svg></button></div>
     <div class="cal" id="cal"></div>
     <div class="list" id="dayList" style="margin-top:12px"></div>
+  </div>
+  <div class="card"><h3><span>Dein Jahr</span><span id="yearTxt" style="text-transform:none;letter-spacing:0"></span></h3>
+    <div class="yrow" id="yearStats"></div>
+    <div class="heatw" id="heatW"><div class="heat" id="heat"></div></div>
+    <div class="hleg"><span>weniger</span><i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i><span>mehr</span></div>
   </div>
   <div class="card"><h3>Alle Trainings</h3><div class="list" id="allList"></div></div>
 </section>
@@ -620,6 +720,7 @@ html[data-oled] .rin{background:#050507}
       <input type="file" id="picIn" accept="image/*" style="display:none" onchange="picChosen(this)">
       <div style="min-width:0"><div style="font-weight:700;font-size:18px" id="pName">–</div><div style="font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="pSub">–</div></div>
     </div>
+    <div class="card pyear" onclick="go('progress')" id="pYear"></div>
     <div class="mgrp">Persönlich</div>
     <div class="card menu">
       <button class="mi" onclick="openSub('progress')"><span class="ic"><svg class="i"><use href="#i-chart"/></svg></span><span class="mt"><b>Fortschritt</b><small id="mProg">Statistik, Diagramm, Abzeichen</small></span><span class="chev"></span></button>
@@ -642,7 +743,7 @@ html[data-oled] .rin{background:#050507}
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.8</div>
+    <div class="status">FitPunkte 8.9</div>
   </div>
 
   <!-- Unterseiten -->
@@ -811,7 +912,18 @@ const ICONS={
  cal:"M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 10h16M8 2v4M16 2v4M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01",
  gear:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z",
  play:"M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z",
- chevL:"M15 6l-6 6 6 6", chevR:"M9 6l6 6-6 6",
+ chevL:"M15 6l-6 6 6 6",
+ film:"M4 4h16v16H4zM8 4v16M16 4v16M4 8h4M4 12h4M4 16h4M16 8h4M16 12h4M16 16h4",
+ coffee:"M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3v2M11 3v2M14 3v2",
+ moon:"M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z",
+ bag:"M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2",
+ pin:"M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+ candy:"M7 7a5 5 0 1 0 10 10A5 5 0 0 0 7 7zM7 7 4 4M4 4l-1 4M4 4l4-1M17 17l3 3M20 20l1-4M20 20l-4 1",
+ game:"M6 9h12a4 4 0 0 1 4 4v1a3 3 0 0 1-5.4 1.8L15 14H9l-1.6 1.8A3 3 0 0 1 2 14v-1a4 4 0 0 1 4-4zM7 11v3M5.5 12.5h3M16 12h.01M18 13.5h.01",
+ spa:"M12 21c-4-1.5-7-4.5-7-9 3 0 5.5 1.5 7 4 1.5-2.5 4-4 7-4 0 4.5-3 7.5-7 9zM12 16c-1.5-2-2-4-2-6 0-2.5 1-4.5 2-6 1 1.5 2 3.5 2 6 0 2-.5 4-2 6z",
+ flower:"M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 9V4.5a2.5 2.5 0 0 1 2.4 3.2M12 15v4.5M9 12H4.5a2.5 2.5 0 0 1 3.2-2.4M15 12h4.5a2.5 2.5 0 0 1-3.2 2.4M10 10 7 7M14 14l3 3M14 10l3-3M10 14l-3 3",
+ bolt:"M13 2 4 14h7l-1 8 9-12h-7z",
+ drop:"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z", chevR:"M9 6l6 6-6 6",
  flame:"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z",
  trophy:"M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4",
  clock:"M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2",
@@ -975,7 +1087,7 @@ function checkBadges(celebrate){
  if(seen===null){mutate(s=>{s.people[ME.uid]=Object.assign({name:ME.name,goal:S.goal||3},s.people[ME.uid]||{},{badges:now})});return}
  const fresh=now.filter(b=>!seen.includes(b));
  if(fresh.length){mutate(s=>{const q=s.people[ME.uid]=s.people[ME.uid]||{};q.badges=[...new Set([...(q.badges||[]),...fresh])]});
-  if(celebrate){const b=BADGES.find(x=>x.id===fresh[0]);setTimeout(()=>{confetti();sheet("Neues Abzeichen",`<div style="text-align:center;padding:10px 0"><div class="ic acc" style="width:64px;height:64px;margin:0 auto 12px;border-radius:18px">${ico(b.i)}</div><b style="color:var(--txt);font-size:17px">${b.t}</b><br>${b.d}</div>`,[["Weiter",null]])},400)}}
+  if(celebrate){const b=BADGES.find(x=>x.id===fresh[0]);setTimeout(()=>{confetti();sheet("Neues Abzeichen",`<div style="text-align:center;padding:10px 0"><div class="medal big pop">${medal(b.i,true)}</div><b style="color:var(--txt);font-size:17px">${b.t}</b><br>${b.d}</div>`,[["Weiter",null]])},400)}}
 }
 
 /* ================= Navigation ================= */
@@ -984,10 +1096,27 @@ const SUBS={progress:"Fortschritt",nutri:"Ernährung",about:"Mein Profil",goals:
 function openSub(k){profSub=k;scrollTo(0,0);renderProfile()}
 function closeSub(){profSub=null;scrollTo(0,0);renderProfile()}
 let lastTab="home";
-function go(v){if(["home","progress","food","shop"].includes(v))lastTab=v;if(v==="profile"&&$("v-profile").classList.contains("on"))profSub=null;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
+const TAB_ORDER=["home","progress","food","shop"];
+function go(v,dir){const cur=(document.querySelector(".view.on")||{}).id;const ci=TAB_ORDER.indexOf((cur||"").slice(2)),ni=TAB_ORDER.indexOf(v);
+ document.documentElement.dataset.dir=dir||(ci>=0&&ni>=0&&ci!==ni?(ni>ci?"l":"r"):"");
+ if(["home","progress","food","shop"].includes(v))lastTab=v;if(v==="profile"&&$("v-profile").classList.contains("on"))profSub=null;document.querySelectorAll(".view").forEach(x=>x.classList.toggle("on",x.id==="v-"+v));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));scrollTo(0,0);render()}
 
 /* ================= Rendering ================= */
 let lastBal=null;
+let HOLD_PTS=false;
+function celebrateSave(pts){
+ const fx=document.createElement("div");fx.className="okfx";
+ fx.innerHTML=`<div class="okc"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" class="okr"/><path d="M25 41l10 10 20-22" class="okp"/></svg><b>+${pts}</b><span>Punkte</span></div>`;
+ document.body.appendChild(fx);try{navigator.vibrate&&navigator.vibrate([12,40,18])}catch(_){}
+ const finish=()=>{HOLD_PTS=false;const pe=$("pts");if(pe){countTo(pe,balance(ME.uid));pe.classList.add("pop");setTimeout(()=>pe.classList.remove("pop"),500)}const r=document.querySelector(".ring");if(r){r.classList.remove("hit");void r.offsetWidth;r.classList.add("hit")}};
+ setTimeout(()=>{const src=fx.querySelector(".okc b").getBoundingClientRect(),ring=document.querySelector(".ring");
+  fx.classList.add("out");
+  if(!ring||!fx.animate){setTimeout(()=>{fx.remove();finish()},300);return}
+  const dst=ring.getBoundingClientRect(),chip=document.createElement("div");chip.className="flypts";chip.textContent="+"+pts;document.body.appendChild(chip);
+  const x0=src.left+src.width/2,y0=src.top+src.height/2,x1=dst.left+dst.width/2,y1=dst.top+dst.height/2;
+  chip.style.left=x0+"px";chip.style.top=y0+"px";
+  chip.animate([{transform:"translate(-50%,-50%) scale(1.4)",opacity:1},{transform:`translate(calc(-50% + ${(x1-x0)*.5}px),calc(-50% + ${(y1-y0)*.5-60}px)) scale(1.1)`,opacity:1,offset:.55},{transform:`translate(calc(-50% + ${x1-x0}px),calc(-50% + ${y1-y0}px)) scale(.5)`,opacity:.2}],{duration:750,easing:"cubic-bezier(.5,0,.4,1)"}).onfinish=()=>{chip.remove();finish()};
+  setTimeout(()=>fx.remove(),400)},950)}
 function countTo(el,to){const from=parseInt(el.dataset.v||el.textContent)||0;el.dataset.v=to;if(from===to||matchMedia("(prefers-reduced-motion: reduce)").matches){el.textContent=to;return}
  const t0=performance.now(),dur=650;cancelAnimationFrame(el._raf);const step=n=>{const k=Math.min(1,(n-t0)/dur),e=1-Math.pow(1-k,3);el.textContent=Math.round(from+(to-from)*e);if(k<1)el._raf=requestAnimationFrame(step)};el._raf=requestAnimationFrame(step)}
 function render(){
@@ -996,7 +1125,7 @@ function render(){
  $("pts2").textContent=b;
  if(vis("v-home")){
  const nm=pName(u);$("hello").innerHTML=(nm&&nm!=="Du"?"Hallo "+esc(nm):"Hallo");
- const pe=$("pts");countTo(pe,b);
+ const pe=$("pts");if(!HOLD_PTS)countTo(pe,b);
  if(lastBal!==null&&b>lastBal){pe.classList.add("pop");setTimeout(()=>pe.classList.remove("pop"),450)}lastBal=b;
  const nx=[...S.rewards].sort((a,c)=>a.c-c.c).find(r=>r.c>b),canN=S.rewards.filter(r=>r.c<=b).length;
  const ringP=nx?Math.max(0,b)/nx.c*100:(S.rewards.length?100:0);
@@ -1037,7 +1166,7 @@ function render(){
  $("openList").innerHTML=open.map(r=>{const forMe=r.uid===u;return `<div class="rw"><div class="ic acc">${ico("gift")}</div><div class="tx"><b>${esc(r.n)}</b><span>${forMe?(isTeam()?"Wartet auf "+esc(pName(partnerId())):"Offen"):esc(pName(r.uid))+" hat eingelöst"}</span></div>${!forMe||!isTeam()?`<button class="btn small" onclick="markDone('${r.id}')">Erledigt</button>`:`<span class="pill open">Offen</span>`}</div>`}).join("");
  // Feed
  const fe=[...S.workouts].sort((a,c)=>c.d-a.d).slice(0,5);
- $("feed").innerHTML=fe.map(w=>feedItem(w)).join("")||`<div class="empty">Noch keine Trainings. Leg los.</div>`;
+ $("feed").innerHTML=fe.map(w=>feedItem(w)).join("")||emptyState("run","Noch keine Trainings","Trag dein erstes Training ein und sammle Punkte.","Training eintragen","startLog()");
  try{renderTimer();renderRepeat()}catch(e){}
  try{renderHomeFood()}catch(e){}
  }
@@ -1127,6 +1256,35 @@ function mealScanSave(){mcSync();const sel=mc.items.filter(x=>x.on&&x.grams>0);i
  document.addEventListener("contextmenu",e=>{if(!e.target.closest("input,textarea"))e.preventDefault()});
 })();
 
+
+/* ---------- Langes Drücken auf + : Schnellaktionen ---------- */
+function quickMenu(){const w=lastOwn();try{navigator.vibrate&&navigator.vibrate(20)}catch(_){}
+ const it=[];
+ if(w)it.push(["repeat",`${esc(w.t)} · ${w.m} Min`,"Training wiederholen","closeSheet();repeatLast()"]);
+ it.push(["water","+ 250 ml","Glas Wasser","closeSheet();quickWater()"]);
+ it.push(["scan","Barcode","Produkt scannen","closeSheet();foodDay=dkey(new Date());go('food');openScanner(null)"]);
+ it.push(["camera","Foto","Essen fotografieren","closeSheet();foodDay=dkey(new Date());go('food');mealCamOpen(mealNow())"]);
+ if(!timerState())it.push(["clock","Live-Timer","Training mit Stoppuhr","closeSheet();startTimer()"]);
+ const icn={repeat:"activity",water:"drop",scan:"scan",camera:"camera",clock:"clock"};
+ sheet("Schnell eintragen",`<div class="qgrid">${it.map(([k,t,sub,act],i)=>`<button class="qbtn" style="--d:${i*40}ms" onclick="${act}"><span class="ic acc">${ico(icn[k])}</span><b>${t}</b><small>${sub}</small></button>`).join("")}</div>`,[])}
+function quickWater(){const d=dkey(new Date());foodDay=d;addWater(250);toast("+250 ml Wasser")}
+(function(){const pb=document.querySelector(".tabs .plus");if(!pb)return;let t=null,long=false;
+ const start=e=>{long=false;clearTimeout(t);t=setTimeout(()=>{long=true;pb.classList.add("held");quickMenu()},450)};
+ const stop=()=>{clearTimeout(t);setTimeout(()=>pb.classList.remove("held"),150)};
+ pb.addEventListener("pointerdown",start);["pointerup","pointerleave","pointercancel"].forEach(ev=>pb.addEventListener(ev,stop));
+ pb.addEventListener("click",e=>{if(long){e.stopImmediatePropagation();e.preventDefault();long=false}},true);
+ pb.addEventListener("contextmenu",e=>e.preventDefault());
+})();
+/* ---------- Zwischen Tabs wischen ---------- */
+(function(){let st=null;
+ const blocked=el=>el.closest(".swf,input,textarea,select,.heatw,.seg,.cal,.accs,.overlay,.sheet,.psub,#cropper,.wglass,.week,.types,.hscroll,.qgrid,.okfx");
+ document.addEventListener("touchstart",e=>{if(e.touches.length!==1)return;const v=document.querySelector(".view.on");if(!v||!TAB_ORDER.includes(v.id.slice(2))||blocked(e.target)){st=null;return}
+  const t=e.touches[0];if(t.clientX<24||t.clientX>innerWidth-24){st=null;return}st={x:t.clientX,y:t.clientY,t:Date.now(),v:v.id.slice(2)}},{passive:true});
+ document.addEventListener("touchend",e=>{if(!st)return;const t=e.changedTouches[0],dx=t.clientX-st.x,dy=t.clientY-st.y,dt=Date.now()-st.t,s0=st;st=null;
+  if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*.5||dt>600)return;
+  const i=TAB_ORDER.indexOf(s0.v),n=i+(dx<0?1:-1);if(n<0||n>=TAB_ORDER.length)return;go(TAB_ORDER[n],dx<0?"l":"r")},{passive:true});
+})();
+
 /* ---------- Wischen zum Löschen ---------- */
 function swWrap(on,act,html){return on?`<div class="swp" data-sw="${act}"><div class="swbg">${ico("trash")}Löschen</div><div class="swf">${html}</div></div>`:html}
 (function(){let st=null;
@@ -1206,7 +1364,7 @@ function saveWorkout(){
  const before=wOf(ME.uid).length,wkBefore=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamBefore=Object.keys(teamWeeks()).length;
  const planId=sel.planId;
  const pk=ME.uid,dk=dkey(w.d);mutate(s=>{if(!s.workouts.some(x=>x.id===w.id))s.workouts.push(w);if(planId)s.plans=(s.plans||[]).filter(x=>x.id!==planId);const pp=s.people[pk];if(pp&&pp.pauses)pp.pauses=pp.pauses.filter(x=>x!==dk)});
- sel=blankSel();go("home");
+ sel=blankSel();HOLD_PTS=true;go("home");celebrateSave(p.total);
  const wkAfter=[...daysSet(ME.uid)].filter(k=>fromKey(k)>=weekStart()).length,teamAfter=Object.keys(teamWeeks()).length;
  toast("+"+p.total+" Punkte · "+t.n,()=>mutate(s=>{s.workouts=s.workouts.filter(x=>x.id!==w.id)}));
  if(teamAfter>teamBefore){confetti();sheet("Team-Ziel geschafft","Ihr habt das Team-Ziel diese Woche erreicht. Jeder bekommt <b style='color:var(--txt)'>+"+TEAM_BONUS+" Punkte</b>.",[["Stark",null]])}
@@ -1247,9 +1405,37 @@ function cycleFactor(id){mutate(s=>{const c=(s.customTypes||[]).find(x=>x.id===i
 function delType(id){const c=(S.customTypes||[]).find(x=>x.id===id);if(!c)return;sheet("Sportart entfernen?",esc(c.n)+" verschwindet aus der Auswahl. Alte Einträge bleiben erhalten.",[["Abbrechen",null,1],["Entfernen",()=>{mutate(s=>{s.customTypes=(s.customTypes||[]).filter(x=>x.id!==id)});if(sel)sel.t=null},"danger"]])}
 
 /* ---------- Belohnungen ---------- */
+const RW_KW=[[/essen|restaurant|pizza|burger|sushi|döner|asiat|italiener|grill|dinner/i,"food","#ff7a2f"],[/kino|film|serie|netflix|movie/i,"film","#8b5cf6"],[/massage|wellness|sauna|spa|therme|bad\b|kuschel/i,"spa","#13b5c6"],[/frühstück|kaffee|café|cafe|brunch/i,"coffee","#c98b52"],[/eis|süß|snack|schoki|schokolade|kuchen|torte|candy|naschen/i,"candy","#ff5c9d"],[/ausschlafen|schlaf|faul|couch|chill/i,"moon","#5b7cfa"],[/shopping|klamotten|kleid|schuhe|einkauf|kaufen/i,"bag","#e0508c"],[/ausflug|reise|urlaub|trip|wochenende|stadt|see|meer/i,"pin","#1fbf87"],[/spiel|game|zocken|konsole|playstation|xbox/i,"game","#3d8bff"],[/blume|strauß/i,"flower","#ff6fa8"],[/haushalt|abwasch|putzen|wäsche|staubsaugen|kochen/i,"bolt","#f5b84a"]];
+const RW_COLS=["#ff7a2f","#8b5cf6","#13b5c6","#ff5c9d","#3d8bff","#1fbf87","#f5b84a","#e0508c"];
+function yearOf(u){const y=new Date().getFullYear(),t0=new Date(y,0,1).getTime(),list=wOf(u).filter(w=>w.d>=t0&&counts(w));
+ return {y,n:list.length,min:list.reduce((a,w)=>a+w.m,0),p:list.reduce((a,w)=>a+(w.p||0),0),days:new Set(list.map(w=>dkey(w.d))).size}}
+function fmtH(m){return m>=120?Math.round(m/60)+" h":m+" min"}
+function renderYear(u,ws){const yo=yearOf(u);
+ $("yearTxt").textContent=yo.y;
+ $("yearStats").innerHTML=[[yo.n,"Trainings"],[fmtH(yo.min),"Zeit"],[yo.days,"Tage aktiv"],[yo.p.toLocaleString("de-DE"),"Punkte"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
+ const mins={};ws.filter(counts).forEach(w=>{const k=dkey(w.d);mins[k]=(mins[k]||0)+w.m});
+ const end=new Date(),start=addDays(weekStart(end),-7*52);let h="",lastM=-1;const tk=dkey(end);
+ for(let wk=0;wk<53;wk++){const d0=addDays(start,wk*7),m=d0.getMonth();
+  h+=`<div class="hcol"><em>${m!==lastM&&d0.getDate()<=7?d0.toLocaleDateString("de-DE",{month:"short"}).replace(".",""):""}</em>`;if(d0.getDate()<=7)lastM=m;
+  for(let i=0;i<7;i++){const d=addDays(d0,i),k=dkey(d);if(k>tk){h+=`<i class="hx"></i>`;continue}const v=mins[k]||0,l=v?v<30?1:v<60?2:v<90?3:4:0;h+=`<i class="h${l}${k===tk?" htd":""}" title="${d.toLocaleDateString("de-DE")}${v?" · "+v+" Min":""}"></i>`}
+  h+=`</div>`}
+ $("heat").innerHTML=h;requestAnimationFrame(()=>{const w=$("heatW");w.scrollLeft=w.scrollWidth})}
+function medal(ic,on){return `<svg viewBox="0 0 64 64" class="msvg ${on?"on":""}"><defs><linearGradient id="mg${on?1:0}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:${on?"#ffe08a":"var(--s3)"}"/><stop offset=".5" style="stop-color:${on?"#f5b84a":"var(--s3)"}"/><stop offset="1" style="stop-color:${on?"#d48a1c":"var(--s2)"}"/></linearGradient></defs><circle cx="32" cy="32" r="29" fill="url(#mg${on?1:0})"/><circle cx="32" cy="32" r="23" class="min"/>${on?`<path d="M14 18a24 24 0 0 1 22-11" class="mshine"/>`:""}</svg><span class="mic">${ico(ic)}</span>`}
+function emptyState(ic,t,txt,btn,act){return `<div class="est"><div class="esi">${ico(ic)}</div><b>${t}</b><p>${txt}</p>${btn?`<button class="btn small" onclick="${act}">${btn}</button>`:""}</div>`}
+function rwStyle(n){for(const [re,i,c] of RW_KW)if(re.test(n))return {i,c};let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;return {i:"gift",c:RW_COLS[h%RW_COLS.length]}}
 function renderShop(){const b=balance(ME.uid);
- $("rewards").innerHTML=[...S.rewards].sort((a,c)=>a.c-c.c).map(r=>{const can=r.c<=b;return `<div class="rw"><div class="tx" onclick="askPrice('${r.id}')" style="cursor:pointer"><b>${esc(r.n)}</b><span>${r.c} Punkte${can?"":" · noch "+(r.c-b)} · <span style="color:var(--acc)">ändern</span></span>${can?"":`<div class="prog" style="margin-top:6px;height:4px"><i style="width:${Math.max(0,b)/r.c*100}%"></i></div>`}</div><button class="btn small ${can?"":"ghost"}" ${can?"":"disabled style='opacity:.45'"} onclick="askRedeem('${r.id}')">Einlösen</button><button class="iconbtn" onclick="askDel('${r.id}')">${ico("trash")}</button></div>${delRow(r)}${priceRow(r)}`}).join("")||`<div class="empty">Noch keine Belohnungen</div>`;
- $("redeemed").innerHTML=[...S.redeemed].sort((a,c)=>c.d-a.d).slice(0,30).map(r=>`<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${isTeam()&&r.uid?esc(pName(r.uid))+" · ":""}${new Date(r.d).toLocaleDateString("de-DE")} · ${r.c} P</span></div>${r.done===false?`<button class="pill open" onclick="markDone('${r.id}')">Offen</button>`:`<span class="pill done">Erledigt</span>`}</div>`).join("")||`<div class="empty">Noch nichts eingelöst</div>`;
+ const rs=[...S.rewards].sort((a,c)=>a.c-c.c);
+ $("rewards").innerHTML=rs.map((r,ix)=>{const can=r.c<=b,st=rwStyle(r.n),pc=Math.min(100,Math.max(0,b)/r.c*100),pend=delRow(r)+priceRow(r);
+  return `<div class="rcard ${can?"can":""}" style="--rc:${st.c};--d:${ix*40}ms">
+   <button class="rdel" onclick="askDel('${r.id}')" aria-label="Löschen">${ico("trash")}</button>
+   <div class="ric">${ico(st.i)}</div>
+   <b class="rn">${esc(r.n)}</b>
+   <button class="rcost" onclick="askPrice('${r.id}')">${r.c} Punkte</button>
+   <div class="rbar"><i style="width:${pc}%"></i></div>
+   <div class="rleft">${can?"Bereit zum Einlösen":"noch "+(r.c-Math.max(0,b))+" Punkte"}</div>
+   <button class="btn small ${can?"":"ghost"}" ${can?"":"disabled"} onclick="askRedeem('${r.id}')">Einlösen</button>
+   ${pend?`<div class="rpend">${pend}</div>`:""}</div>`}).join("")||emptyState("gift","Noch keine Belohnungen","Lege unten in der Wunschliste fest, worauf ihr hinarbeitet.","Wunsch eintragen","$('wishIn').focus()");
+ $("redeemed").innerHTML=[...S.redeemed].sort((a,c)=>c.d-a.d).slice(0,30).map(r=>`<div class="rw"><div class="tx"><b>${esc(r.n)}</b><span>${isTeam()&&r.uid?esc(pName(r.uid))+" · ":""}${new Date(r.d).toLocaleDateString("de-DE")} · ${r.c} P</span></div>${r.done===false?`<button class="pill open" onclick="markDone('${r.id}')">Offen</button>`:`<span class="pill done">Erledigt</span>`}</div>`).join("")||`<div class="empty sm">Noch nichts eingelöst</div>`;
 }
 function renderWishes(){const team=isTeam(),pn=team?esc(pName(partnerId())):"";
   $("wishHint").textContent=team?"Du schlägst etwas vor, "+pName(partnerId())+" bestätigt und legt die Punkte fest.":"Neue Belohnung mit Punkten anlegen.";
@@ -1294,6 +1480,7 @@ function renderProgress(){
  const ws=wOf(u),s=statsOf(u);
  const fav=Object.entries(ws.reduce((a,w)=>(a[w.t]=(a[w.t]||0)+1,a),{})).sort((a,b)=>b[1]-a[1])[0];
  $("stats").innerHTML=[[s.n,"Trainings"],[s.min>=600?Math.round(s.min/60)+" h":s.min+" min","Gesamtzeit"],[curStreak(u)+" / "+s.ls,"Serie jetzt / Rekord"],[fav?esc(fav[0]):"–","Lieblingssport"]].map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+ try{renderYear(u,ws)}catch(e){console.error(e)}
  // Kalender
  if(!calM){const n=new Date();calM=new Date(n.getFullYear(),n.getMonth(),1)}
  $("calTitle").textContent=calM.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
@@ -1311,9 +1498,11 @@ function renderProgress(){
  $("chart").innerHTML=`<svg class="chart" viewBox="0 0 ${cw} ${ch+20}" width="100%">${vals.map((x,i)=>{const hh=Math.max(x.v?4:2,x.v/mx*ch*.82),xx=i*bw+bw*.2,yy=ch-hh;return `<rect x="${xx}" y="${yy}" width="${bw*.6}" height="${hh}" rx="4" fill="${x.cur?"var(--acc)":x.v?"var(--s3)":"var(--s2)"}"/>${x.v?`<text x="${xx+bw*.3}" y="${yy-5}" text-anchor="middle" style="fill:var(--txt)">${x.v}</text>`:""}<text x="${xx+bw*.3}" y="${ch+15}" text-anchor="middle">KW${x.k}</text>`}).join("")}</svg>`;
  // Abzeichen
  const eb=earnedBadges(u);$("bdCount").textContent=eb.length+" / "+BADGES.length;
- $("badges").innerHTML=BADGES.map(b=>`<div class="bd ${eb.includes(b.id)?"":"lock"}"><div class="ic">${ico(b.i)}</div><b>${b.t}</b><span>${b.d}</span></div>`).join("");
+ {const seenK="fp_bseen_"+u,seenB=(lsGet(seenK)||"").split(",").filter(Boolean),first=!seenB.length;
+ $("badges").innerHTML=BADGES.map((b,ix)=>{const has=eb.includes(b.id),nw=has&&!first&&!seenB.includes(b.id);return `<div class="bd ${has?"got":"lock"} ${nw?"new":""}" style="--d:${ix*35}ms"><div class="medal">${medal(b.i,has)}</div><b>${b.t}</b><span>${b.d}</span>${nw?`<em class="bnew">Neu</em>`:""}</div>`}).join("");
+ if(vis("v-profile"))lsSet(seenK,eb.join(","))}
  // Liste
- $("allList").innerHTML=[...ws].sort((a,c)=>c.d-a.d).slice(0,60).map(w=>listItem(w)).join("")||`<div class="empty">Noch keine Einträge</div>`;
+ $("allList").innerHTML=[...ws].sort((a,c)=>c.d-a.d).slice(0,60).map(w=>listItem(w)).join("")||emptyState("activity","Noch keine Einträge","Jedes Training landet hier, mit Punkten und Kalorien.","Training eintragen","startLog()");
 }
 function listItem(w){const own=!isTeam()||(w.uid||ME.uid)===ME.uid;
  return swWrap(own&&!w.rejected,`delWorkoutSw('${w.id}')`,`<div class="it" ${own?`onclick="startEdit('${w.id}')"`:""}><div class="ic">${ico(typeIcon(w))}</div><div class="tx" style="flex:1;min-width:0"><b style="font-weight:600;display:block">${esc(w.t)} · ${w.m} Min${w.km?" · "+fmtKm(w.km):""}</b><span style="font-size:13px;color:var(--mut)">${relDay(w.d)} · ${intLabel(w)}${burned(w)!=null?" · ~"+burned(w)+" kcal":""}</span>${w.note?`<div class="note">${esc(w.note)}</div>`:""}${trustInfo(w)}${w.rejected?"":reactBar(w)}${disputeBar(w)}</div><div style="text-align:right"><div class="pt" style="font-weight:600;${counts(w)?"color:var(--ok)":"color:var(--mut2);text-decoration:line-through"}">+${w.p}</div>${own?`<div style="color:var(--mut2);margin-top:4px">${ico("chevR")}</div>`:""}</div></div>`)}
@@ -1344,7 +1533,8 @@ function calMove(n){calM=new Date(calM.getFullYear(),calM.getMonth()+n,1);calSel
 
 /* ---------- Profil ---------- */
 let goalSel=null,teamGoalSel=null;
-function renderProfile(){
+function renderProfile(){try{const yo=yearOf(ME.uid);$("pYear").innerHTML=`<div class="pyh">Dein ${yo.y}</div><div class="yrow">${[[yo.n,"Trainings"],[fmtH(yo.min),"Zeit"],[yo.p.toLocaleString("de-DE"),"Punkte"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>`}catch(e){}
+
  const me=S.people[ME.uid]||{};
  // Menü / Unterseite
  $("pMenu").style.display=profSub?"none":"block";
@@ -1729,7 +1919,7 @@ function showRecent(){const r=recent(),l=LIB();let h="";
  if((l.recipes||[]).length)h+=`<div class="lbl" style="margin-top:4px">Meine Gerichte</div><div class="card" style="padding:12px 14px">${l.recipes.map(x=>`<div class="fi" onclick="addRecipe('${x.id}')"><div class="ph">${ico("star")}</div><div class="tx"><b>${esc(x.n)}</b><span>${x.items.length} Zutaten · ${fmt0(sumItems(x.items).k)} kcal</span></div></div>`).join("")}</div>`;
  if(l.fav.length)h+=`<div class="lbl">Favoriten</div><div class="card" style="padding:12px 14px">${l.fav.map((p,i)=>prodRow(p,i,"fav")).join("")}</div>`;
  if(r.length)h+=`<div class="lbl">Zuletzt gegessen</div><div class="card" style="padding:12px 14px">${r.map((p,i)=>prodRow(p,i,"recent")).join("")}</div>`;
- if(!h)h=`<div class="empty">Tipp: Favoriten markierst du mit ☆, ganze Mahlzeiten speicherst du im Essen-Reiter als Gericht.</div>`;
+ if(!h)h=emptyState("search","Was hast du gegessen?","Oben suchen, Barcode scannen oder fotografieren. Favoriten markierst du mit ☆.","","");
  $("fpRes").innerHTML=h}
 function pickFrom(src,i){const p=src==="recent"?recent()[i]:lastRes[i];if(p)productSheet(p)}
 function num(v){const n=parseFloat(v);return isFinite(n)?n:null}
@@ -1998,7 +2188,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.8";let updChecking=false;
+const APP_VERSION="8.9";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
