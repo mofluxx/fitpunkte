@@ -540,9 +540,9 @@ html[data-oled] .rin{background:#050507}
 .min{fill:none;stroke:rgba(255,255,255,.45);stroke-width:1.5}
 .msvg:not(.on) .min{stroke:rgba(127,127,127,.25)}
 .mshine{fill:none;stroke:rgba(255,255,255,.7);stroke-width:3;stroke-linecap:round}
-.mic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#7a4a05}
-.mic svg.i{width:46%;height:46%;stroke-width:2.2}
-.bd.lock .mic{color:var(--mut)}
+.medal .mic{position:absolute;inset:0;display:flex!important;align-items:center;justify-content:center;margin:0!important;color:#7a4a05;line-height:0}
+.medal .mic svg.i{width:46%;height:46%;stroke-width:2.2}
+.bd.lock .medal .mic{color:var(--mut)}
 .bd.lock{opacity:.55}.bd.lock .ic{background:none}
 .bd.got .medal::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);background-size:250% 100%;animation:shine 3.5s ease-in-out infinite;mix-blend-mode:overlay}
 @keyframes shine{0%,60%{background-position:150% 0}100%{background-position:-50% 0}}
@@ -743,7 +743,7 @@ html[data-dir=r] .view.on{animation:vinr .32s cubic-bezier(.2,.9,.3,1)}
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 8.9</div>
+    <div class="status">FitPunkte 8.9.1</div>
   </div>
 
   <!-- Unterseiten -->
@@ -1171,7 +1171,7 @@ function render(){
  try{renderHomeFood()}catch(e){}
  }
  if(vis("v-shop")){renderShop();renderWishes()}
- if(vis("v-progress"))renderProgress();
+ if(vis("v-progress")||vis("v-profile"))renderProgress();
  if(vis("v-profile")){renderProfile();try{renderNutri()}catch(e){}}
  try{if(vis("v-food"))renderFood()}catch(e){}if(vis("v-log"))renderLog();
 }
@@ -2188,7 +2188,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="8.9";let updChecking=false;
+const APP_VERSION="8.9.1";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
