@@ -767,7 +767,6 @@ ol.steps{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:8px;f
     <div class="mgrp">App</div>
     <div class="card menu">
       <button class="mi" onclick="openSub('notify')"><span class="ic"><svg class="i"><use href="#i-bell"/></svg></span><span class="mt"><b>Benachrichtigungen</b><small id="mNotify">–</small></span><span class="chev"></span></button>
-      <button class="mi" onclick="openSub('steps')"><span class="ic"><svg class="i"><use href="#i-run"/></svg></span><span class="mt"><b>Schritte</b><small id="mSteps">Apple Health über Kurzbefehl</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('look')"><span class="ic"><svg class="i"><use href="#i-sun"/></svg></span><span class="mt"><b>Darstellung</b><small id="mLook">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('nutri')"><span class="ic"><svg class="i"><use href="#i-food"/></svg></span><span class="mt"><b>Ernährung</b><small id="mNutri">Tagesziel, Sichtbarkeit</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('types')"><span class="ic"><svg class="i"><use href="#i-activity"/></svg></span><span class="mt"><b>Sportarten</b><small id="mTypes">Eigene Sportarten verwalten</small></span><span class="chev"></span></button>
@@ -781,7 +780,7 @@ ol.steps{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:8px;f
       <button class="mi" onclick="openSub('account')"><span class="ic"><svg class="i"><use href="#i-key"/></svg></span><span class="mt"><b>Konto & Partner</b><small id="mAcct">–</small></span><span class="chev"></span></button>
       <button class="mi" onclick="openSub('data')"><span class="ic"><svg class="i"><use href="#i-down"/></svg></span><span class="mt"><b>Daten & Backup</b><small>Sichern, wiederherstellen, löschen</small></span><span class="chev"></span></button>
     </div>
-    <div class="status">FitPunkte 9.0</div>
+    <div class="status">FitPunkte 9.0.1</div>
   </div>
 
   <!-- Unterseiten -->
@@ -812,7 +811,6 @@ ol.steps{padding-left:20px;margin:0;display:flex;flex-direction:column;gap:8px;f
     </div>
     <div id="pushGuest" class="card" style="display:none;font-size:14px;color:var(--mut)">Benachrichtigungen gibt es nur mit Konto. Melde dich unter <b style="color:var(--txt)">Konto & Partner</b> an.</div>
   </div>
-  <div class="psub" id="ps-steps"><div id="stepsBody"></div></div>
   <div class="psub" id="ps-look">
     <div class="card"><h3>Modus</h3><div class="seg" id="themeSeg"></div><div style="font-size:12px;color:var(--mut);margin-top:8px">Auto folgt deinem Handy. Schwarz spart Akku bei OLED-Displays.</div></div>
     <div class="card"><h3><span>Akzentfarbe</span><span id="accName" style="text-transform:none;letter-spacing:0;color:var(--acc)"></span></h3><div class="accs" id="accSeg"></div></div>
@@ -1043,7 +1041,7 @@ const fmtKm=v=>String(v).replace(".",",")+" km";
 let PRIV={};
 const privKey=()=>"fp_priv_"+ME.uid;
 function loadPriv(){try{PRIV=JSON.parse(lsGet(privKey())||"{}")}catch(e){PRIV={}}}
-window.setPriv=function(d){if(!d)return;PRIV=Object.assign({},PRIV,d.stepToken?{stepToken:d.stepToken}:{},d.kg?{kg:d.kg}:{},d.cm?{cm:d.cm}:{},d.lib?{lib:d.lib}:{},d.wlog?{wlog:d.wlog}:{});lsSet(privKey(),JSON.stringify(PRIV));render()};
+window.setPriv=function(d){if(!d)return;PRIV=Object.assign({},PRIV,d.kg?{kg:d.kg}:{},d.cm?{cm:d.cm}:{},d.lib?{lib:d.lib}:{},d.wlog?{wlog:d.wlog}:{});lsSet(privKey(),JSON.stringify(PRIV));render()};
 function savePriv(o){
  if(o.kg&&o.kg!==PRIV.kg){const today=dkey(new Date());const wl=(PRIV.wlog||[]).filter(x=>x.d!==today);wl.push({d:today,kg:o.kg});wl.sort((a,b)=>a.d<b.d?-1:1);o=Object.assign({},o,{wlog:wl.slice(-400)});setTimeout(()=>autoAdjustGoal(o.kg),50)}
  PRIV=Object.assign({},PRIV,o);lsSet(privKey(),JSON.stringify(PRIV));if(window.REMOTE&&window.REMOTE.setPriv&&ME.uid!=="local")window.REMOTE.setPriv(o).catch(()=>{});
@@ -1105,10 +1103,7 @@ function teamWeeks(){ // {weekKey: [uids die Bonus bekommen]}
 }
 function teamBonusOf(u){return Object.values(teamWeeks()).filter(a=>a.includes(u)).length*TEAM_BONUS}
 function xOf(u){return (S.extras||[]).filter(x=>x.uid?x.uid===u:(u===ME.uid&&!isTeam()))}
-const stepPts=n=>n>=15000?25:n>=12000?20:n>=8000?10:0;
-function stepsOf(u){const out={},st=S.steps||{},pre=(u==="local"?"local":u)+"_";Object.keys(st).forEach(k=>{if(k.startsWith(pre)&&/^\d{4}-\d{2}-\d{2}$/.test(k.slice(pre.length)))out[k.slice(pre.length)]=st[k]});return out}
-function stepPtsOf(u){return Object.values(stepsOf(u)).reduce((a,n)=>a+stepPts(n),0)}
-const earned=u=>wOf(u).filter(counts).reduce((a,w)=>a+(w.p||0),0)+teamBonusOf(u)+xOf(u).reduce((a,x)=>a+(x.p||0),0)+stepPtsOf(u);
+const earned=u=>wOf(u).filter(counts).reduce((a,w)=>a+(w.p||0),0)+teamBonusOf(u)+xOf(u).reduce((a,x)=>a+(x.p||0),0);
 const spent=u=>rOf(u).reduce((a,r)=>a+r.c,0);
 const balance=u=>earned(u)-spent(u);
 
@@ -1140,7 +1135,7 @@ function checkBadges(celebrate){
 
 /* ================= Navigation ================= */
 let profSub=null;
-const SUBS={steps:"Schritte (Apple Health)",progress:"Fortschritt",nutri:"Ernährung",about:"Mein Profil",goals:"Ziele",notify:"Benachrichtigungen",look:"Darstellung",types:"Sportarten",rules:"So funktionieren die Punkte",account:"Konto & Partner",data:"Daten & Backup"};
+const SUBS={progress:"Fortschritt",nutri:"Ernährung",about:"Mein Profil",goals:"Ziele",notify:"Benachrichtigungen",look:"Darstellung",types:"Sportarten",rules:"So funktionieren die Punkte",account:"Konto & Partner",data:"Daten & Backup"};
 function openSub(k){profSub=k;scrollTo(0,0);renderProfile()}
 function closeSub(){profSub=null;scrollTo(0,0);renderProfile()}
 let lastTab="home";
@@ -1404,31 +1399,6 @@ async function shareVoucher(id){const x=S.redeemed.find(y=>y.id===id);if(!x)retu
   try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Gutschein: "+x.n});return}}catch(e){if(e&&e.name==="AbortError")return}
   const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="Gutschein.png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},"image/png")}
 
-/* ---------- Schritte (Apple Health über Kurzbefehl) ---------- */
-const STEP_URL="https://europe-west3-fitpoints-66734.cloudfunctions.net/steps";
-function ensureStepToken(){if(PRIV.stepToken)return PRIV.stepToken;const a=new Uint8Array(18);crypto.getRandomValues(a);const t=[...a].map(b=>"abcdefghjkmnpqrstuvwxyz23456789"[b%31]).join("");savePriv({stepToken:t});return t}
-function renderStepsSub(){const box=$("stepsBody");if(!box)return;
- if(ME.uid==="local"){box.innerHTML=`<div class="card"><p class="mut">Schritte gehen nur mit Konto. Melde dich unter Konto &amp; Partner an.</p></div>`;return}
- const t=ensureStepToken(),st=stepsOf(ME.uid),days=Object.keys(st).sort().reverse().slice(0,7),today=st[dkey(new Date())];
- box.innerHTML=`<div class="card"><h3>Heute</h3><div class="stbig"><b>${today!=null?today.toLocaleString("de-DE"):"–"}</b> Schritte ${today!=null&&stepPts(today)?`<span class="pill done">+${stepPts(today)} P</span>`:""}</div>
-  <div class="hint">8.000 Schritte = 10 P · 12.000 = 20 P · 15.000 = 25 P, pro Tag</div>
-  ${days.length?`<div class="list" style="margin-top:12px">${days.map(d=>`<div class="it"><div class="tx"><b>${relDay(fromKey(d).getTime())}</b><span>${st[d].toLocaleString("de-DE")} Schritte</span></div><span class="pts">${stepPts(st[d])?"+"+stepPts(st[d]):""}</span></div>`).join("")}</div>`:""}</div>
-  <div class="card"><h3>Einrichten (einmalig, ca. 3 Min)</h3>
-  <ol class="steps">
-   <li>App <b>Kurzbefehle</b> öffnen → <b>＋</b> → „Neuer Kurzbefehl“.</li>
-   <li>Aktion <b>„Health-Beispiele suchen“</b> hinzufügen: Typ <b>Schritte</b>, Filter <b>Startdatum ist heute</b>.</li>
-   <li>Aktion <b>„Statistik berechnen“</b> → <b>Summe</b> der Health-Beispiele. (Heißt je nach iOS auch „Summe berechnen“.)</li>
-   <li>Aktion <b>„Inhalte von URL abrufen“</b>: URL unten einfügen, Methode <b>POST</b>, Anfragetext <b>JSON</b>, Feld <b>s</b> = Ergebnis aus Schritt 3 (Zahl).</li>
-   <li>Einmal ▶ antippen und Zugriff auf Health erlauben.</li>
-   <li>Tab <b>Automation</b> → ＋ → <b>Tageszeit</b> 21:30, täglich → Kurzbefehl wählen → <b>„Sofort ausführen“</b>.</li>
-  </ol>
-  <div class="lbl" style="margin-top:12px">Deine persönliche URL</div>
-  <div class="urlbox" id="stepUrl">${STEP_URL}?t=${t}</div>
-  <div class="two" style="margin-top:10px"><button class="btn small" onclick="copyStepUrl()">Kopieren</button><button class="btn small ghost" onclick="resetStepToken()">Neue URL</button></div>
-  <div class="hint" style="margin-top:8px">Die URL ist wie ein Passwort: Wer sie hat, kann Schritte für dich eintragen. Nicht teilen.</div></div>`}
-function copyStepUrl(){const t=$("stepUrl").textContent;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("URL kopiert"),()=>{const r=document.createRange();r.selectNodeContents($("stepUrl"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("Markiert – jetzt kopieren")})}
-function resetStepToken(){sheet("Neue URL?","Die alte URL funktioniert danach nicht mehr. Du musst sie im Kurzbefehl ersetzen.",[["Abbrechen",null,1],["Neue URL",()=>{PRIV.stepToken=null;savePriv({stepToken:null});ensureStepToken();renderStepsSub()}]])}
-
 /* ---------- Wischen zum Löschen ---------- */
 function swWrap(on,act,html){return on?`<div class="swp" data-sw="${act}"><div class="swbg">${ico("trash")}Löschen</div><div class="swf">${html}</div></div>`:html}
 (function(){let st=null;
@@ -1678,8 +1648,7 @@ function calMove(n){calM=new Date(calM.getFullYear(),calM.getMonth()+n,1);calSel
 
 /* ---------- Profil ---------- */
 let goalSel=null,teamGoalSel=null;
-function renderProfile(){if(profSub==="steps")try{renderStepsSub()}catch(e){console.error(e)}
-try{const yo=yearOf(ME.uid);$("pYear").innerHTML=`<div class="pyh">Dein ${yo.y}</div><div class="yrow">${[[yo.n,"Trainings"],[fmtH(yo.min),"Zeit"],[yo.p.toLocaleString("de-DE"),"Punkte"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>`}catch(e){}
+function renderProfile(){try{const yo=yearOf(ME.uid);$("pYear").innerHTML=`<div class="pyh">Dein ${yo.y}</div><div class="yrow">${[[yo.n,"Trainings"],[fmtH(yo.min),"Zeit"],[yo.p.toLocaleString("de-DE"),"Punkte"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>`}catch(e){}
 
  const me=S.people[ME.uid]||{};
  // Menü / Unterseite
@@ -2334,7 +2303,7 @@ if(!CFG||!CFG.apiKey||CFG.apiKey.includes("HIER")){setStatus("Nur auf diesem Ger
 else if(isGuest()){setStatus("Gast-Modus · nur auf diesem Gerät","");migratePrices();maybeAskWeight();setAccount("Gast – Daten nur auf diesem Gerät");if(!badgeInit){badgeInit=true;checkBadges(false)}maybeOnboard()}
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 /* ---------- Update-Hinweis ---------- */
-const APP_VERSION="9.0";let updChecking=false;
+const APP_VERSION="9.0.1";let updChecking=false;
 async function checkUpdate(){if(updChecking||!navigator.onLine||location.protocol==="file:")return;updChecking=true;
  try{const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const APP_VERSION="([\d.]+)"/);
   if(m&&m[1]!==APP_VERSION){$("updBar").textContent="Neue Version "+m[1]+" verfügbar · Tippen zum Aktualisieren";$("updBar").style.display="block"}}catch(e){}finally{updChecking=false}}
